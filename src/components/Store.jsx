@@ -755,7 +755,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
       {/* ── SOBRE NOSOTROS ── */}
       <div id="sobre-nosotros" style={{ marginTop: '4rem', scrollMarginTop: '90px' }}>
         <div style={{
-          background: 'linear-gradient(160deg, #080c14 0%, #0d1220 100%)',
+          background: 'var(--nosotros-bg)',
           border: '1px solid var(--border-color)',
           borderRadius: '16px',
           overflow: 'hidden'
@@ -764,7 +764,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
           <div style={{ borderBottom: '1px solid var(--border-color)', padding: '2rem 2.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <div style={{ width: '4px', height: '2.5rem', background: 'linear-gradient(180deg, #FFD700, #ff8008)', borderRadius: '2px', flexShrink: 0 }} />
             <div style={{ flex: 1 }}>
-              <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.2em', color: '#FFD700', textTransform: 'uppercase', marginBottom: '0.25rem' }}>
+              <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.2em', color: 'var(--accent-yellow)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>
                 Quiénes somos
               </p>
               <h2 style={{ fontSize: 'clamp(1.4rem, 2.5vw, 2rem)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.01em', color: 'var(--text-primary)', lineHeight: 1.1 }}>
@@ -829,7 +829,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                     >
                       <span style={{ fontSize: '1.4rem', flexShrink: 0 }}>{icon}</span>
                       <div>
-                        <p style={{ fontSize: '1.3rem', fontWeight: 900, color: '#FFD700', lineHeight: 1 }}>{num}</p>
+                        <p style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--accent-yellow)', lineHeight: 1 }}>{num}</p>
                         <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>{label}</p>
                       </div>
                     </div>
@@ -865,7 +865,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
             {nosotrosTab === 2 && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
                 {[
-                  { num: '+500', label: 'Clientes satisfechos', detail: 'En La Plata y Gran Buenos Aires', icon: '👟', color: '#FFD700' },
+                  { num: '+500', label: 'Clientes satisfechos', detail: 'En La Plata y Gran Buenos Aires', icon: '👟', color: 'var(--accent-yellow)' },
                   { num: '100%', label: 'Zapatillas originales', detail: 'Certificado de autenticidad en cada par', icon: '✅', color: '#22c55e' },
                   { num: '24hs', label: 'Tiempo de entrega', detail: 'En La Plata capital, sin demoras', icon: '🚀', color: '#60a5fa' },
                   { num: '5★', label: 'Calificación promedio', detail: 'Basada en reseñas reales de clientes', icon: '⭐', color: '#f59e0b' },

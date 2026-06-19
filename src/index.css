@@ -37,6 +37,7 @@
 
   --accent-yellow: #FFD700;
   --star-empty: rgba(255, 255, 255, 0.15);
+  --nosotros-bg: linear-gradient(160deg, #080c14 0%, #0d1220 100%);
 }
 
 [data-theme="light"] {
@@ -58,6 +59,7 @@
 
   --accent-yellow: #b45309;
   --star-empty: rgba(0, 0, 0, 0.18);
+  --nosotros-bg: linear-gradient(160deg, #f8fafc 0%, #f0f4f8 100%);
 }
 
 [data-theme="light"] body {
