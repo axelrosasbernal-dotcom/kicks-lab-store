@@ -643,10 +643,10 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                   onClick={() => { setSortOrder(value); setCarouselIdx(0); }}
                   style={{
                     background: sortOrder === value ? 'rgba(255,215,0,0.1)' : 'var(--bg-tertiary)',
-                    border: `1px solid ${sortOrder === value ? '#FFD700' : 'var(--border-color)'}`,
+                    border: `1px solid ${sortOrder === value ? 'var(--accent-yellow)' : 'var(--border-color)'}`,
                     borderRadius: '8px',
                     padding: '0.55rem 0.75rem',
-                    color: sortOrder === value ? '#FFD700' : 'var(--text-secondary)',
+                    color: sortOrder === value ? 'var(--accent-yellow)' : 'var(--text-secondary)',
                     fontWeight: sortOrder === value ? 700 : 400,
                     cursor: 'pointer',
                     fontSize: '0.78rem',
@@ -782,9 +782,9 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                 style={{
                   background: 'none',
                   border: 'none',
-                  borderBottom: `2px solid ${nosotrosTab === i ? '#FFD700' : 'transparent'}`,
+                  borderBottom: `2px solid ${nosotrosTab === i ? 'var(--accent-yellow)' : 'transparent'}`,
                   padding: '1rem 1.25rem',
-                  color: nosotrosTab === i ? '#FFD700' : 'var(--text-muted)',
+                  color: nosotrosTab === i ? 'var(--accent-yellow)' : 'var(--text-muted)',
                   fontWeight: nosotrosTab === i ? 700 : 500,
                   fontSize: '0.85rem',
                   cursor: 'pointer',
@@ -895,7 +895,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
           <div style={{ width: '4px', height: '2rem', background: 'linear-gradient(180deg, #FFD700, #ff8008)', borderRadius: '2px', flexShrink: 0 }} />
           <div>
-            <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.2em', color: '#FFD700', textTransform: 'uppercase', marginBottom: '0.2rem' }}>Opiniones</p>
+            <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.2em', color: 'var(--accent-yellow)', textTransform: 'uppercase', marginBottom: '0.2rem' }}>Opiniones</p>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-primary)' }}>Lo que dicen nuestros clientes</h2>
           </div>
         </div>
@@ -912,7 +912,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
                 <div style={{ display: 'flex', gap: '2px' }}>
                   {[1,2,3,4,5].map(s => (
-                    <span key={s} style={{ fontSize: '1rem', color: s <= review.rating ? '#FFD700' : 'var(--border-color)' }}>★</span>
+                    <span key={s} style={{ fontSize: '1rem', color: s <= review.rating ? 'var(--accent-yellow)' : 'var(--star-empty)' }}>★</span>
                   ))}
                 </div>
                 <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{review.date}</span>
@@ -925,7 +925,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                   width: '28px', height: '28px', borderRadius: '50%',
                   background: 'var(--bg-tertiary)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '0.75rem', fontWeight: 700, color: '#FFD700'
+                  fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent-yellow)'
                 }}>
                   {review.name.charAt(0)}
                 </div>
@@ -979,7 +979,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                       onMouseLeave={() => setHoverRating(0)}
                       style={{
                         fontSize: '1.75rem', cursor: 'pointer',
-                        color: s <= (hoverRating || reviewForm.rating) ? '#FFD700' : 'var(--border-color)',
+                        color: s <= (hoverRating || reviewForm.rating) ? 'var(--accent-yellow)' : 'var(--star-empty)',
                         transition: 'color 0.1s'
                       }}
                     >★</span>
@@ -1193,9 +1193,9 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                   onClick={() => setSelectedSize(size)}
                   style={{
                     padding: '0.5rem 1.1rem', borderRadius: '8px',
-                    border: `1.5px solid ${selectedSize === size ? '#FFD700' : 'var(--border-color)'}`,
+                    border: `1.5px solid ${selectedSize === size ? 'var(--accent-yellow)' : 'var(--border-color)'}`,
                     background: selectedSize === size ? 'rgba(255,215,0,0.12)' : 'var(--bg-tertiary)',
-                    color: selectedSize === size ? '#FFD700' : 'var(--text-primary)',
+                    color: selectedSize === size ? 'var(--accent-yellow)' : 'var(--text-primary)',
                     fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer',
                     fontFamily: 'inherit', transition: 'all 0.15s'
                   }}
