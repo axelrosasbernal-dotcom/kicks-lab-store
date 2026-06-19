@@ -20,12 +20,7 @@ const BrandLogo = () => (
   </div>
 );
 
-const NAV_ITEMS = ['Novedades', 'Hombre', 'Mujer', 'Nosotros', 'Testimonios', 'Contacto'];
-
-const GENDER_MAP = {
-  'Hombre': 'hombre',
-  'Mujer': 'mujer',
-};
+const NAV_ITEMS = ['Novedades', 'Nosotros', 'Testimonios', 'Contacto'];
 
 const SCROLL_MAP = {
   'Nosotros':    'sobre-nosotros',
@@ -37,21 +32,14 @@ export default function Navbar({ user, activeTab, setActiveTab, onSignOut, darkM
   const handleNavClick = (item) => {
     setActiveTab('store');
     if (SCROLL_MAP[item]) {
-      setGenderFilter('all');
       setTimeout(() => document.getElementById(SCROLL_MAP[item])?.scrollIntoView({ behavior: 'smooth' }), 80);
-    } else if (GENDER_MAP[item]) {
-      setGenderFilter(GENDER_MAP[item]);
-      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 80);
     } else {
-      setGenderFilter('all');
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 80);
     }
   };
 
   const isNavActive = (item) => {
-    if (item === 'Hombre') return genderFilter === 'hombre';
-    if (item === 'Mujer') return genderFilter === 'mujer';
-    if (item === 'Novedades') return genderFilter === 'all';
+    if (item === 'Novedades') return activeTab === 'store';
     return false;
   };
 

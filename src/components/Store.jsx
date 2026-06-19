@@ -166,6 +166,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
   const [nosotrosTab, setNosotrosTab]       = useState(0);
   const [selectedSizes, setSelectedSizes]   = useState([]);
   const [sortOrder, setSortOrder]           = useState('asc');
+  const [searchQuery, setSearchQuery]       = useState('');
 
   useEffect(() => { fetchProducts(); }, []);
 
@@ -279,15 +280,23 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
     ? products
     : products.filter(p => !p.gender || p.gender === genderFilter);
 
-  const sizeFiltered = selectedSizes.length === 0
+  const q = searchQuery.trim().toLowerCase();
+  const searchFiltered = q === ''
     ? filteredProducts
-    : filteredProducts.filter(p => p.sizes?.some(s => selectedSizes.includes(s)));
+    : filteredProducts.filter(p =>
+        p.name.toLowerCase().includes(q) ||
+        (p.brand && p.brand.toLowerCase().includes(q))
+      );
+
+  const sizeFiltered = selectedSizes.length === 0
+    ? searchFiltered
+    : searchFiltered.filter(p => p.sizes?.some(s => selectedSizes.includes(s)));
 
   const sortedProducts = [...sizeFiltered].sort((a, b) =>
     sortOrder === 'asc' ? a.price - b.price : b.price - a.price
   );
 
-  const allSizes = filteredProducts.reduce((acc, p) => {
+  const allSizes = searchFiltered.reduce((acc, p) => {
     (p.sizes || []).forEach(s => { acc[s] = (acc[s] || 0) + 1; });
     return acc;
   }, {});
@@ -446,10 +455,8 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
 
         {/* LEFT: Product Carousel */}
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>
-              {genderFilter === 'hombre' ? 'Colección Hombre' : genderFilter === 'mujer' ? 'Colección Mujer' : 'Destacados'}
-            </h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Destacados</h2>
             <div style={{ display: 'flex', gap: '0.4rem' }}>
               {[
                 { icon: <ChevronLeft size={16} />, action: () => setCarouselIdx(Math.max(0, carouselIdx - CARDS_PER_PAGE)), disabled: carouselIdx === 0 },
@@ -470,6 +477,54 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
               ))}
             </div>
           </div>
+
+          {/* Search bar */}
+          <div style={{ position: 'relative', marginBottom: '0.65rem' }}>
+            <svg
+              width="15" height="15" viewBox="0 0 24 24" fill="none"
+              stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+            >
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input
+              type="text"
+              placeholder='Buscar zapatilla... ej: "Jordan", "Puma", "Bad Bunny"'
+              value={searchQuery}
+              onChange={e => { setSearchQuery(e.target.value); setCarouselIdx(0); }}
+              style={{
+                width: '100%', boxSizing: 'border-box',
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '9px',
+                padding: '0.62rem 2.2rem 0.62rem 2.4rem',
+                color: 'var(--text-primary)',
+                fontSize: '0.82rem',
+                outline: 'none',
+                fontFamily: 'inherit',
+                transition: 'border-color 0.2s'
+              }}
+              onFocus={e => { e.target.style.borderColor = 'rgba(255,215,0,0.5)'; }}
+              onBlur={e => { e.target.style.borderColor = 'var(--border-color)'; }}
+            />
+            {searchQuery && (
+              <button
+                onClick={() => { setSearchQuery(''); setCarouselIdx(0); }}
+                style={{
+                  position: 'absolute', right: '0.65rem', top: '50%', transform: 'translateY(-50%)',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: 'var(--text-muted)', fontSize: '1.1rem', lineHeight: 1, padding: 0
+                }}
+              >×</button>
+            )}
+          </div>
+          {searchQuery && (
+            <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
+              {sortedProducts.length === 0
+                ? `Sin resultados para "${searchQuery}"`
+                : `${sortedProducts.length} ${sortedProducts.length === 1 ? 'resultado' : 'resultados'} para "${searchQuery}"`}
+            </p>
+          )}
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
             {visible.map(product => (
