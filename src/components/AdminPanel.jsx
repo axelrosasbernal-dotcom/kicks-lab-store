@@ -312,33 +312,36 @@ export default function AdminPanel() {
 
     if (dbStatus === 'connected') {
       try {
-        const save = async (payload) => {
-          if (editingId) {
-            const { error } = await supabase.from('products').update(payload).eq('id', editingId);
-            if (error) throw error;
-          } else {
-            const { error } = await supabase.from('products').insert([payload]);
-            if (error) throw error;
-          }
-        };
+        const { image_urls, ...corePayload } = productPayload;
+        let savedId = editingId;
 
-        try {
-          await save(productPayload);
-        } catch (err) {
-          // Si falla por columna image_urls inexistente, reintenta sin ella
-          if (err.message?.includes('image_urls')) {
-            const { image_urls, ...payloadSinUrls } = productPayload;
-            await save(payloadSinUrls);
-          } else {
-            throw err;
-          }
+        // Paso 1: guardar campos base (siempre funciona, no incluye image_urls)
+        if (editingId) {
+          const { error } = await supabase.from('products').update(corePayload).eq('id', editingId);
+          if (error) throw error;
+        } else {
+          const { data: inserted, error } = await supabase
+            .from('products')
+            .insert([corePayload])
+            .select('id')
+            .single();
+          if (error) throw error;
+          savedId = inserted?.id;
+        }
+
+        // Paso 2: actualizar image_urls por separado (fallo silencioso — el producto ya se guardó)
+        if (savedId && allUrls.length > 0) {
+          await supabase
+            .from('products')
+            .update({ image_urls: allUrls })
+            .eq('id', savedId);
         }
 
         showNotification(editingId ? '¡Zapatilla actualizada!' : '¡Zapatilla agregada con éxito!');
         closeModal();
         fetchProducts();
       } catch (err) {
-        setErrorMessage(`Error al guardar: ${err.message ?? 'El archivo puede ser demasiado grande, intentá con imágenes más pequeñas.'}`);
+        setErrorMessage(`Error al guardar: ${err.message ?? 'Intentá de nuevo.'}`);
         setTimeout(() => modalScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' }), 50);
       } finally {
         setSubmitting(false);

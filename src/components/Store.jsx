@@ -195,6 +195,8 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
   const fmt = (price) =>
     `$${Number(price).toLocaleString('es-AR', { minimumFractionDigits: 0 })}`;
 
+  const cleanSize = (s) => String(s).replace(/\s*(euros?|EUR|Euro)\s*/gi, '').trim();
+
   const openWA = (msg = '¡Hola! Quiero consultar sobre sus productos.') =>
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
 
@@ -475,7 +477,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                         <div
                           key={ti}
                           className={`product-card-thumb${thumbIdx === ti ? ' active' : ''}`}
-                          onClick={() => setCardThumbs(prev => ({ ...prev, [product.id]: ti }))}
+                          onClick={e => { e.stopPropagation(); setCardThumbs(prev => ({ ...prev, [product.id]: ti })); }}
                         >
                           <img
                             src={url}
@@ -606,7 +608,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                       style={{ accentColor: '#FFD700', width: '14px', height: '14px', cursor: 'pointer', flexShrink: 0 }}
                     />
                     <span style={{ fontSize: '0.78rem', color: checked ? 'var(--text-primary)' : 'var(--text-secondary)', flex: 1, fontWeight: checked ? 600 : 400 }}>
-                      {size} EUR
+                      {cleanSize(size)} EUR
                     </span>
                     <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', background: 'var(--bg-tertiary)', borderRadius: '4px', padding: '0.1rem 0.4rem', flexShrink: 0 }}>
                       {count}
@@ -1188,7 +1190,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                       {thumbUrls.slice(0, 4).map((url, ti) => (
                         <div
                           key={ti}
-                          onClick={() => setDetailThumb(ti)}
+                          onClick={e => { e.stopPropagation(); setDetailThumb(ti); }}
                           style={{
                             flex: 1,
                             aspectRatio: '1',
@@ -1249,7 +1251,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                 {detailProduct.sizes && detailProduct.sizes.length > 0 && (
                   <div>
                     <p style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.6rem', letterSpacing: '0.05em' }}>
-                      TALLE: <span style={{ color: 'var(--text-primary)' }}>{detailSize} EUR</span>
+                      TALLE: <span style={{ color: 'var(--text-primary)' }}>{cleanSize(detailSize)}</span>
                     </p>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem' }}>
                       {detailProduct.sizes.map(size => (
@@ -1269,7 +1271,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                             transition: 'all 0.15s'
                           }}
                         >
-                          {size} EUR
+                          {cleanSize(size)}
                         </button>
                       ))}
                     </div>
@@ -1405,7 +1407,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                     fontFamily: 'inherit', transition: 'all 0.15s'
                   }}
                 >
-                  {size} EUR
+                  {cleanSize(size)}
                 </button>
               ))}
             </div>
@@ -1492,7 +1494,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                           />
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <p style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.2rem' }}>{product.name}</p>
-                            {size && <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: '0.5rem' }}>Talle {size}</p>}
+                            {size && <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: '0.5rem' }}>Talle {cleanSize(size)}</p>}
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                               <div style={{
                                 display: 'flex', alignItems: 'center', gap: '0.6rem',
