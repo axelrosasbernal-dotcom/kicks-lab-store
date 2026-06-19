@@ -180,10 +180,25 @@ function App() {
       }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '1rem', alignItems: 'center' }}>
           <span>© {new Date().getFullYear()} $NEAKERS NIK. Todos los derechos reservados.</span>
-          <div style={{ display: 'flex', gap: '1.5rem' }}>
-            <a href="#" style={{ hover: { color: '#fff' } }}>Términos</a>
-            <a href="#">Privacidad</a>
-            <a href="#">Contacto</a>
+          <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+            <a href="#" style={{ color: 'var(--text-muted)', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}>Términos</a>
+            <a href="#" style={{ color: 'var(--text-muted)', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}>Privacidad</a>
+            <a
+              href="https://www.instagram.com/zapatillasnik/"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Instagram @zapatillasnik"
+              style={{ color: 'var(--text-muted)', transition: 'color 0.2s', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+              onMouseEnter={e => e.currentTarget.style.color = '#E1306C'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+              </svg>
+              Instagram
+            </a>
           </div>
         </div>
       </footer>

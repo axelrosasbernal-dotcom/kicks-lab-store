@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Package, Users, Truck, Clock, Share2, Camera, Play } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Package, Users, Truck, Clock, Share2 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
 const WHATSAPP_NUMBER = '541123862445';
@@ -162,6 +162,8 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
   const [reviewForm, setReviewForm]         = useState({ name: '', rating: 5, comment: '' });
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [hoverRating, setHoverRating]       = useState(0);
+  const [contactOpen, setContactOpen]       = useState(false);
+  const [nosotrosTab, setNosotrosTab]       = useState(0);
 
   useEffect(() => { fetchProducts(); }, []);
 
@@ -751,10 +753,18 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
             </div>
 
             {/* Social icons */}
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.75rem', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
+              <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer" title="WhatsApp" style={{ display: 'flex', color: 'var(--text-muted)', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#25D366'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}>
+                <WhatsAppIcon size={17} color="currentColor" />
+              </a>
+              <a href="https://www.instagram.com/zapatillasnik/" target="_blank" rel="noopener noreferrer" title="Instagram" style={{ display: 'flex', color: 'var(--text-muted)', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#E1306C'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                </svg>
+              </a>
               <Share2 size={17} style={{ color: 'var(--text-muted)', cursor: 'pointer' }} />
-              <Camera size={17} style={{ color: 'var(--text-muted)', cursor: 'pointer' }} />
-              <Play   size={17} style={{ color: 'var(--text-muted)', cursor: 'pointer' }} />
             </div>
           </div>
 
@@ -819,19 +829,9 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
           overflow: 'hidden'
         }}>
           {/* Header */}
-          <div style={{
-            borderBottom: '1px solid var(--border-color)',
-            padding: '2rem 2.5rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem'
-          }}>
-            <div style={{
-              width: '4px', height: '2.5rem',
-              background: 'linear-gradient(180deg, #FFD700, #ff8008)',
-              borderRadius: '2px', flexShrink: 0
-            }} />
-            <div>
+          <div style={{ borderBottom: '1px solid var(--border-color)', padding: '2rem 2.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ width: '4px', height: '2.5rem', background: 'linear-gradient(180deg, #FFD700, #ff8008)', borderRadius: '2px', flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
               <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.2em', color: '#FFD700', textTransform: 'uppercase', marginBottom: '0.25rem' }}>
                 Quiénes somos
               </p>
@@ -841,67 +841,125 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
             </div>
           </div>
 
-          <div style={{ padding: '2rem 2.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem', alignItems: 'start' }}>
-            {/* Texto */}
-            <div>
-              <p style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.6, marginBottom: '1rem' }}>
-                Somos KICKS LAB, una tienda especializada en zapatillas de alta calidad para quienes no negocian con su estilo.
-              </p>
-              <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: '1rem' }}>
-                Nacimos con la convicción de que el calzado no es solo moda — es una declaración de identidad. Por eso ofrecemos modelos exclusivos de las marcas más reconocidas del mundo, con garantía de autenticidad y atención personalizada en cada pedido.
-              </p>
-              <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-                Cada zapatilla pasa por un control de calidad estricto antes de llegar a tus manos. Hacemos envíos a toda La Plata y Gran Buenos Aires con seguimiento en tiempo real, porque sabemos que la experiencia de compra importa tanto como el producto.
-              </p>
-            </div>
-            {/* Stats */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {[
-                { num: '+500', label: 'Clientes satisfechos', icon: '👟' },
-                { num: '100%', label: 'Originales garantizados', icon: '✅' },
-                { num: '24hs', label: 'Entrega en La Plata', icon: '🚀' },
-                { num: '5★', label: 'Calificación promedio', icon: '⭐' },
-              ].map(({ num, label, icon }) => (
-                <div key={label} style={{
-                  display: 'flex', alignItems: 'center', gap: '1rem',
-                  background: 'var(--bg-tertiary)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '10px', padding: '0.85rem 1rem'
-                }}>
-                  <span style={{ fontSize: '1.4rem', flexShrink: 0 }}>{icon}</span>
-                  <div>
-                    <p style={{ fontSize: '1.3rem', fontWeight: 900, color: '#FFD700', lineHeight: 1 }}>{num}</p>
-                    <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>{label}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {/* Tabs */}
+          <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', paddingLeft: '1.5rem' }}>
+            {['Historia', 'Valores', 'Números'].map((tab, i) => (
+              <button
+                key={tab}
+                onClick={() => setNosotrosTab(i)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: `2px solid ${nosotrosTab === i ? '#FFD700' : 'transparent'}`,
+                  padding: '1rem 1.25rem',
+                  color: nosotrosTab === i ? '#FFD700' : 'var(--text-muted)',
+                  fontWeight: nosotrosTab === i ? 700 : 500,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  transition: 'all 0.2s',
+                  marginBottom: '-1px',
+                  letterSpacing: '0.02em'
+                }}
+              >
+                {tab}
+              </button>
+            ))}
           </div>
 
-          {/* Valores */}
-          <div style={{
-            borderTop: '1px solid var(--border-color)',
-            padding: '1.5rem 2.5rem',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '1rem'
-          }}>
-            {[
-              { title: 'Calidad premium', desc: 'Solo vendemos modelos con certificado de autenticidad. Sin réplicas, sin compromisos.' },
-              { title: 'Atención real', desc: 'Te respondemos por WhatsApp en minutos. Un asesor real para cada duda.' },
-              { title: 'Devolución sin drama', desc: 'Si algo no está bien, lo resolvemos. Tu satisfacción es nuestra reputación.' },
-            ].map(({ title, desc }) => (
-              <div key={title} style={{ padding: '1rem', background: 'var(--bg-tertiary)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-                <p style={{ fontWeight: 800, fontSize: '0.88rem', marginBottom: '0.4rem', color: 'var(--text-primary)' }}>{title}</p>
-                <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.55 }}>{desc}</p>
+          {/* Tab content */}
+          <div style={{ padding: '2rem 2.5rem' }}>
+            {nosotrosTab === 0 && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem', alignItems: 'start' }}>
+                <div>
+                  <p style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.6, marginBottom: '1rem' }}>
+                    Somos $NEAKERS NIK, tu tienda de zapatillas deportivas urbanas en La Plata. Estilo sin compromisos.
+                  </p>
+                  <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: '1rem' }}>
+                    Nacimos con la convicción de que el calzado no es solo moda — es una declaración de identidad. Ofrecemos modelos exclusivos de las marcas más icónicas, con garantía de autenticidad y atención personalizada en cada pedido.
+                  </p>
+                  <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+                    Cada zapatilla pasa por un control de calidad estricto antes de llegar a tus manos. Envíos a toda La Plata y Gran Buenos Aires con seguimiento en tiempo real.
+                  </p>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {[
+                    { num: '+500', label: 'Clientes satisfechos', icon: '👟' },
+                    { num: '100%', label: 'Originales garantizados', icon: '✅' },
+                    { num: '24hs', label: 'Entrega en La Plata', icon: '🚀' },
+                    { num: '5★', label: 'Calificación promedio', icon: '⭐' },
+                  ].map(({ num, label, icon }) => (
+                    <div
+                      key={label}
+                      style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '0.85rem 1rem', transition: 'all 0.2s', cursor: 'default' }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,215,0,0.3)'; e.currentTarget.style.transform = 'translateX(4px)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.transform = 'translateX(0)'; }}
+                    >
+                      <span style={{ fontSize: '1.4rem', flexShrink: 0 }}>{icon}</span>
+                      <div>
+                        <p style={{ fontSize: '1.3rem', fontWeight: 900, color: '#FFD700', lineHeight: 1 }}>{num}</p>
+                        <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>{label}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
+            )}
+
+            {nosotrosTab === 1 && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+                {[
+                  { title: 'Calidad premium', desc: 'Solo vendemos modelos con certificado de autenticidad. Sin réplicas, sin compromisos.', icon: '🏆', color: '#FFD700' },
+                  { title: 'Atención real', desc: 'Te respondemos por WhatsApp en minutos. Un asesor de carne y hueso para cada duda.', icon: '💬', color: '#25D366' },
+                  { title: 'Devolución sin drama', desc: 'Si algo no está bien, lo resolvemos. Tu satisfacción es nuestra reputación.', icon: '🔄', color: '#60a5fa' },
+                  { title: 'Envío express', desc: 'Entrega en 24hs en La Plata. A todo el país con seguimiento en tiempo real.', icon: '📦', color: '#f59e0b' },
+                  { title: 'Pagos flexibles', desc: 'Efectivo, transferencia o tarjeta. Siempre abonás al recibir el producto.', icon: '💳', color: '#a78bfa' },
+                  { title: 'Stock permanente', desc: 'Actualizamos colecciones constantemente para que siempre encuentres tu modelo.', icon: '👟', color: '#fb7185' },
+                ].map(({ title, desc, icon, color }) => (
+                  <div
+                    key={title}
+                    style={{ padding: '1.25rem', background: 'var(--bg-tertiary)', borderRadius: '12px', border: `1px solid ${color}22`, transition: 'all 0.25s' }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = color + '55'; e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = color + '22'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = 'var(--bg-tertiary)'; }}
+                  >
+                    <div style={{ fontSize: '1.75rem', marginBottom: '0.65rem' }}>{icon}</div>
+                    <p style={{ fontWeight: 800, fontSize: '0.88rem', marginBottom: '0.4rem', color: 'var(--text-primary)' }}>{title}</p>
+                    <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>{desc}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {nosotrosTab === 2 && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+                {[
+                  { num: '+500', label: 'Clientes satisfechos', detail: 'En La Plata y Gran Buenos Aires', icon: '👟', color: '#FFD700' },
+                  { num: '100%', label: 'Zapatillas originales', detail: 'Certificado de autenticidad en cada par', icon: '✅', color: '#22c55e' },
+                  { num: '24hs', label: 'Tiempo de entrega', detail: 'En La Plata capital, sin demoras', icon: '🚀', color: '#60a5fa' },
+                  { num: '5★', label: 'Calificación promedio', detail: 'Basada en reseñas reales de clientes', icon: '⭐', color: '#f59e0b' },
+                ].map(({ num, label, detail, icon, color }) => (
+                  <div
+                    key={label}
+                    style={{ background: 'var(--bg-tertiary)', border: `1px solid ${color}22`, borderRadius: '14px', padding: '1.75rem', transition: 'all 0.25s', cursor: 'default' }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = color + '55'; e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = `0 8px 30px ${color}15`; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = color + '22'; e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none'; }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.65rem' }}>
+                      <span style={{ fontSize: '2rem' }}>{icon}</span>
+                      <p style={{ fontSize: '2.5rem', fontWeight: 900, color, lineHeight: 1 }}>{num}</p>
+                    </div>
+                    <p style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>{label}</p>
+                    <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{detail}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* ── RESEÑAS ── */}
-      <div style={{ marginTop: '3.5rem', marginBottom: '2rem' }}>
+      <div id="testimonios" style={{ marginTop: '3.5rem', marginBottom: '2rem', scrollMarginTop: '90px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
           <div style={{ width: '4px', height: '2rem', background: 'linear-gradient(180deg, #FFD700, #ff8008)', borderRadius: '2px', flexShrink: 0 }} />
           <div>
@@ -1021,6 +1079,156 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
               >
                 Publicar reseña
               </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── CONTACTO ── */}
+      <div id="contacto" style={{ marginTop: '4rem', scrollMarginTop: '90px', marginBottom: '4rem' }}>
+        <div style={{ position: 'relative', background: 'linear-gradient(160deg, #080c14 0%, #0d1220 100%)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', overflow: 'hidden' }}>
+          {/* Instagram gradient top bar */}
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'linear-gradient(90deg, #833AB4, #E1306C, #F77737, #FCAF45)' }} />
+
+          {/* Header */}
+          <div style={{ padding: '2.5rem 2.5rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.5rem' }}>
+            <div>
+              <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.2em', color: '#E1306C', textTransform: 'uppercase', marginBottom: '0.4rem' }}>
+                Hablemos
+              </p>
+              <h2 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: 900, textTransform: 'uppercase', color: '#fff', lineHeight: 1.1, marginBottom: '0.5rem' }}>
+                Contacto
+              </h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '380px', lineHeight: 1.6 }}>
+                Respondemos en minutos. Consultá talles, disponibilidad y envíos sin compromiso.
+              </p>
+            </div>
+            <button
+              onClick={() => setContactOpen(v => !v)}
+              style={{
+                background: contactOpen ? 'rgba(255,255,255,0.07)' : 'linear-gradient(135deg, #833AB4, #E1306C, #F77737)',
+                border: contactOpen ? '1px solid rgba(255,255,255,0.15)' : 'none',
+                borderRadius: '12px',
+                padding: '0.85rem 1.75rem',
+                color: '#fff',
+                fontWeight: 700,
+                fontSize: '0.88rem',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                transition: 'all 0.2s',
+                flexShrink: 0
+              }}
+            >
+              {contactOpen ? '✕ Cerrar formulario' : '✉ Escribinos'}
+            </button>
+          </div>
+
+          {/* Contact method cards */}
+          <div style={{ padding: '0 2.5rem 2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(175px, 1fr))', gap: '1rem' }}>
+            {[
+              {
+                icon: <WhatsAppIcon size={26} color="#25D366" />,
+                label: 'WhatsApp',
+                value: WHATSAPP_DISPLAY,
+                cta: 'Chatear →',
+                action: () => openWA(),
+                borderColor: '#25D366'
+              },
+              {
+                icon: (
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#E1306C" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                  </svg>
+                ),
+                label: 'Instagram',
+                value: '@zapatillasnik',
+                cta: 'Ver perfil →',
+                action: () => window.open('https://www.instagram.com/zapatillasnik/', '_blank'),
+                borderColor: '#E1306C'
+              },
+              {
+                icon: <span style={{ fontSize: '1.6rem' }}>📍</span>,
+                label: 'La Plata, BA',
+                value: 'Envíos a todo el país',
+                cta: null,
+                action: null,
+                borderColor: '#FFD700'
+              },
+              {
+                icon: <span style={{ fontSize: '1.6rem' }}>⏰</span>,
+                label: 'Horarios',
+                value: 'Lun–Sáb 9 a 20hs',
+                cta: null,
+                action: null,
+                borderColor: '#a78bfa'
+              },
+            ].map((card, i) => (
+              <div
+                key={i}
+                onClick={card.action || undefined}
+                style={{ background: 'rgba(255,255,255,0.025)', border: `1px solid ${card.borderColor}22`, borderRadius: '14px', padding: '1.25rem', cursor: card.action ? 'pointer' : 'default', transition: 'all 0.2s' }}
+                onMouseEnter={e => { if (card.action) { e.currentTarget.style.background = 'rgba(255,255,255,0.055)'; e.currentTarget.style.borderColor = card.borderColor + '55'; e.currentTarget.style.transform = 'translateY(-3px)'; } }}
+                onMouseLeave={e => { if (card.action) { e.currentTarget.style.background = 'rgba(255,255,255,0.025)'; e.currentTarget.style.borderColor = card.borderColor + '22'; e.currentTarget.style.transform = 'translateY(0)'; } }}
+              >
+                <div style={{ marginBottom: '0.85rem' }}>{card.icon}</div>
+                <p style={{ fontWeight: 800, fontSize: '0.9rem', color: '#fff', marginBottom: '0.25rem' }}>{card.label}</p>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>{card.value}</p>
+                {card.cta && <p style={{ fontSize: '0.72rem', color: card.borderColor, marginTop: '0.5rem', fontWeight: 600 }}>{card.cta}</p>}
+              </div>
+            ))}
+          </div>
+
+          {/* Collapsible form */}
+          {contactOpen && (
+            <div style={{ borderTop: '1px solid var(--border-color)', padding: '2rem 2.5rem 2.5rem', animation: 'fadeIn 0.35s ease' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1.25rem', color: '#fff' }}>
+                Mandanos un mensaje
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <input
+                  type="text"
+                  placeholder="Tu nombre"
+                  value={contactForm.name}
+                  onChange={e => setContactForm(prev => ({ ...prev, name: e.target.value }))}
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '0.75rem 1rem', color: '#fff', fontSize: '0.9rem', outline: 'none', fontFamily: 'inherit', width: '100%', boxSizing: 'border-box' }}
+                />
+                <input
+                  type="email"
+                  placeholder="Tu email"
+                  value={contactForm.email}
+                  onChange={e => setContactForm(prev => ({ ...prev, email: e.target.value }))}
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '0.75rem 1rem', color: '#fff', fontSize: '0.9rem', outline: 'none', fontFamily: 'inherit', width: '100%', boxSizing: 'border-box' }}
+                />
+              </div>
+              <textarea
+                placeholder="¿En qué te podemos ayudar? Consultá talles, modelos, envíos..."
+                value={contactForm.message}
+                onChange={e => setContactForm(prev => ({ ...prev, message: e.target.value }))}
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '0.75rem 1rem', color: '#fff', fontSize: '0.9rem', outline: 'none', fontFamily: 'inherit', width: '100%', minHeight: '100px', resize: 'vertical', boxSizing: 'border-box', marginBottom: '0.75rem' }}
+              />
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => openWA(`${contactForm.name ? contactForm.name + ': ' : ''}${contactForm.message || 'Consulta desde la web'}`)}
+                  style={{ flex: 1, minWidth: '200px', background: '#25D366', border: 'none', borderRadius: '10px', padding: '0.9rem 1.5rem', color: '#fff', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                >
+                  <WhatsAppIcon size={18} color="#fff" /> Enviar por WhatsApp
+                </button>
+                <a
+                  href="https://www.instagram.com/zapatillasnik/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ flex: 1, minWidth: '200px', background: 'linear-gradient(135deg, #833AB4, #E1306C, #F77737)', border: 'none', borderRadius: '10px', padding: '0.9rem 1.5rem', color: '#fff', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', textDecoration: 'none', boxSizing: 'border-box' }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                  </svg>
+                  DM en Instagram
+                </a>
+              </div>
             </div>
           )}
         </div>

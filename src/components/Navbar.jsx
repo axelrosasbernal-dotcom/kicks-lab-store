@@ -20,19 +20,25 @@ const BrandLogo = () => (
   </div>
 );
 
-const NAV_ITEMS = ['Novedades', 'Hombre', 'Mujer', 'Colecciones', 'Sobre Nosotros'];
+const NAV_ITEMS = ['Novedades', 'Hombre', 'Mujer', 'Nosotros', 'Testimonios', 'Contacto'];
 
 const GENDER_MAP = {
   'Hombre': 'hombre',
   'Mujer': 'mujer',
 };
 
+const SCROLL_MAP = {
+  'Nosotros':    'sobre-nosotros',
+  'Testimonios': 'testimonios',
+  'Contacto':    'contacto',
+};
+
 export default function Navbar({ user, activeTab, setActiveTab, onSignOut, darkMode, onToggleDarkMode, cartCount = 0, onCartClick, genderFilter, setGenderFilter }) {
   const handleNavClick = (item) => {
     setActiveTab('store');
-    if (item === 'Sobre Nosotros') {
-      setTimeout(() => document.getElementById('sobre-nosotros')?.scrollIntoView({ behavior: 'smooth' }), 80);
+    if (SCROLL_MAP[item]) {
       setGenderFilter('all');
+      setTimeout(() => document.getElementById(SCROLL_MAP[item])?.scrollIntoView({ behavior: 'smooth' }), 80);
     } else if (GENDER_MAP[item]) {
       setGenderFilter(GENDER_MAP[item]);
     } else {
