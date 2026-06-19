@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Package, Users, Truck, Clock, Share2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
 const WHATSAPP_NUMBER = '541123862445';
@@ -164,6 +164,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
   const [hoverRating, setHoverRating]       = useState(0);
   const [contactOpen, setContactOpen]       = useState(false);
   const [nosotrosTab, setNosotrosTab]       = useState(0);
+  const [budget, setBudget]                 = useState(200000);
 
   useEffect(() => { fetchProducts(); }, []);
 
@@ -277,10 +278,11 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
     ? products
     : products.filter(p => !p.gender || p.gender === genderFilter);
 
-  const maxIdx       = Math.max(0, filteredProducts.length - CARDS_PER_PAGE);
-  const visible      = filteredProducts.slice(carouselIdx, carouselIdx + CARDS_PER_PAGE);
-  const heroItems    = filteredProducts.slice(0, 5);
-  const sideFeatures = filteredProducts.slice(0, 3);
+  const budgetProducts = filteredProducts.filter(p => p.price <= budget);
+  const maxIdx         = Math.max(0, budgetProducts.length - CARDS_PER_PAGE);
+  const visible        = budgetProducts.slice(carouselIdx, carouselIdx + CARDS_PER_PAGE);
+  const heroItems      = filteredProducts.slice(0, 5);
+  const sideFeatures   = budgetProducts.slice(0, 3);
 
   if (loading) {
     return (
@@ -410,32 +412,20 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
           >
             Ver modelos →
           </button>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '0.85rem', flexWrap: 'wrap' }}>
+            {[
+              { icon: '📦', text: 'Stock disponible' },
+              { icon: '🚚', text: 'Envío gratis La Plata' },
+              { icon: '✅', text: 'Originales garantizados' },
+            ].map(({ icon, text }) => (
+              <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <span style={{ fontSize: '0.72rem' }}>{icon}</span>
+                <span style={{ fontSize: '0.67rem', color: '#7a8699', fontWeight: 500 }}>{text}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* WhatsApp contact bar */}
-        <button
-          onClick={() => openWA()}
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            right: 0,
-            background: 'rgba(0,0,0,0.78)',
-            backdropFilter: 'blur(12px)',
-            border: 'none',
-            borderTopLeftRadius: '12px',
-            padding: '0.65rem 1.2rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.6rem',
-            cursor: 'pointer',
-            zIndex: 10
-          }}
-        >
-          <WhatsAppIcon size={20} />
-          <span style={{ color: '#fff', fontSize: '0.82rem', fontWeight: 600 }}>
-            Consultas al MD o WhatsApp {WHATSAPP_NUMBER}
-          </span>
-        </button>
       </div>
 
       {/* ── TWO-COLUMN LAYOUT ── */}
@@ -619,205 +609,81 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
             </div>
           </div>
 
-          {/* Service Icons */}
-          <div style={{
-            background: 'var(--bg-secondary)',
-            border: '1px solid var(--border-color)',
-            borderRadius: '12px',
-            padding: '0.85rem 0.6rem'
-          }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.3rem' }}>
-              {[
-                { Icon: Package, label: 'Stock 🟢'    },
-                { Icon: Users,   label: 'Ustedes 🟢'  },
-                { Icon: Truck,   label: 'Envíos 🟢'   },
-                { Icon: Clock,   label: 'Horarios 🟢' },
-              ].map(({ Icon, label }) => (
-                <div key={label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem' }}>
-                  <div style={{
-                    width: '44px', height: '44px',
-                    borderRadius: '50%',
-                    background: 'var(--bg-tertiary)',
-                    border: '1px solid var(--border-color)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'var(--text-secondary)'
-                  }}>
-                    <Icon size={17} />
-                  </div>
-                  <span style={{ fontSize: '0.58rem', color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.3 }}>
-                    {label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Payment + Shipping Info */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-            {[
-              {
-                title: 'Métodos de pago',
-                items: ['Abonas Al Recibir 💵', 'Abonas Al Recibir 💳', 'Abonas Al Recibir 📱', 'Abonas Al Recibir 🏦']
-              },
-              {
-                title: 'Seguimiento al envío',
-                items: ['Seguimiento de envío', 'Consultas de envío', 'Estado de envíos']
-              }
-            ].map(({ title, items }) => (
-              <div key={title} style={{
-                background: 'var(--bg-secondary)',
-                border: '1px solid var(--border-color)',
-                borderRadius: '10px',
-                padding: '0.75rem'
-              }}>
-                <h4 style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.45rem' }}>{title}</h4>
-                {items.map(item => (
-                  <div key={item} style={{ fontSize: '0.6rem', color: 'var(--text-muted)', marginBottom: '0.2rem', display: 'flex', gap: '0.2rem', alignItems: 'flex-start' }}>
-                    <span style={{ color: '#ff3f3f', flexShrink: 0, lineHeight: 1.4 }}>→</span>
-                    <span style={{ lineHeight: 1.4 }}>{item}</span>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-
-          {/* Contact Form */}
+          {/* Budget Filter */}
           <div style={{
             background: 'var(--bg-secondary)',
             border: '1px solid var(--border-color)',
             borderRadius: '12px',
             padding: '1rem'
           }}>
-            <h4 style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.7rem' }}>Contacto al cliente</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              {[
-                { key: 'name',  placeholder: 'Name',   type: 'text'  },
-                { key: 'price', placeholder: 'Precio', type: 'text'  },
-                { key: 'email', placeholder: 'Email',  type: 'email' },
-              ].map(({ key, placeholder, type }) => (
-                <input
-                  key={key}
-                  type={type}
-                  placeholder={placeholder}
-                  value={contactForm[key]}
-                  onChange={e => setContactForm(prev => ({ ...prev, [key]: e.target.value }))}
-                  style={{
-                    background: 'var(--bg-tertiary)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '6px',
-                    padding: '0.48rem 0.75rem',
-                    color: 'var(--text-primary)',
-                    fontSize: '0.76rem',
-                    outline: 'none',
-                    width: '100%',
-                    fontFamily: 'inherit'
-                  }}
-                />
-              ))}
-              <textarea
-                placeholder="Pontaja tu mensaje"
-                value={contactForm.message}
-                onChange={e => setContactForm(prev => ({ ...prev, message: e.target.value }))}
-                style={{
-                  background: 'var(--bg-tertiary)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '6px',
-                  padding: '0.48rem 0.75rem',
-                  color: 'var(--text-primary)',
-                  fontSize: '0.76rem',
-                  outline: 'none',
-                  width: '100%',
-                  minHeight: '62px',
-                  resize: 'vertical',
-                  fontFamily: 'inherit'
-                }}
-              />
-              <button
-                onClick={() => openWA(`${contactForm.name ? contactForm.name + ': ' : ''}${contactForm.message || 'Consulta desde la web'}`)}
-                style={{
-                  background: '#fff',
-                  color: '#000',
-                  border: 'none',
-                  borderRadius: '6px',
-                  padding: '0.58rem',
-                  fontWeight: 700,
-                  fontSize: '0.82rem',
-                  cursor: 'pointer',
-                  width: '100%',
-                  fontFamily: 'inherit',
-                  transition: 'opacity 0.2s'
-                }}
-              >
-                Contact
-              </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
+              <span style={{ fontSize: '1rem' }}>🎯</span>
+              <h3 style={{ fontSize: '0.88rem', fontWeight: 700 }}>Encontrá tu par</h3>
             </div>
-
-            {/* Social icons */}
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
-              <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer" title="WhatsApp" style={{ display: 'flex', color: 'var(--text-muted)', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#25D366'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}>
-                <WhatsAppIcon size={17} color="currentColor" />
-              </a>
-              <a href="https://www.instagram.com/zapatillasnik/" target="_blank" rel="noopener noreferrer" title="Instagram" style={{ display: 'flex', color: 'var(--text-muted)', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#E1306C'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}>
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-                </svg>
-              </a>
-              <Share2 size={17} style={{ color: 'var(--text-muted)', cursor: 'pointer' }} />
+            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Presupuesto máximo</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
+              <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>$30.000</span>
+              <span style={{ fontSize: '0.98rem', fontWeight: 800, color: '#FFD700' }}>{fmt(budget)}</span>
+              <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>$200.000</span>
+            </div>
+            <input
+              type="range"
+              min={30000}
+              max={200000}
+              step={5000}
+              value={budget}
+              onChange={e => { setBudget(Number(e.target.value)); setCarouselIdx(0); }}
+              style={{ width: '100%', accentColor: '#FFD700', cursor: 'pointer' }}
+            />
+            <div style={{
+              marginTop: '0.7rem',
+              background: 'var(--bg-tertiary)',
+              borderRadius: '8px',
+              padding: '0.5rem 0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Modelos disponibles</span>
+              <span style={{ fontSize: '0.88rem', fontWeight: 800, color: budgetProducts.length > 0 ? '#FFD700' : 'var(--text-muted)' }}>
+                {budgetProducts.length} {budgetProducts.length === 1 ? 'par' : 'pares'}
+              </span>
             </div>
           </div>
 
-          {/* WhatsApp CTA button */}
-          <button
-            onClick={() => openWA()}
-            style={{
-              background: '#25D366',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '10px',
-              padding: '0.8rem 1.25rem',
-              fontWeight: 700,
-              fontSize: '0.9rem',
-              cursor: 'pointer',
+          {/* Métodos de pago */}
+          <div style={{
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '12px',
+            padding: '1rem'
+          }}>
+            <h4 style={{ fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.8rem', color: 'var(--text-primary)' }}>
+              Métodos de pago
+            </h4>
+            {[
+              { icon: '💵', label: 'Efectivo' },
+              { icon: '💳', label: 'Tarjeta débito / crédito' },
+              { icon: '🏦', label: 'Transferencia bancaria' },
+            ].map(({ icon, label }) => (
+              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '0.95rem', flexShrink: 0 }}>{icon}</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{label}</span>
+              </div>
+            ))}
+            <div style={{
+              marginTop: '0.65rem',
+              paddingTop: '0.65rem',
+              borderTop: '1px solid var(--border-color)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.65rem',
-              width: '100%',
-              fontFamily: 'inherit',
-              transition: 'opacity 0.2s',
-              boxShadow: '0 4px 16px rgba(37,211,102,0.3)'
-            }}
-            onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; }}
-            onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
-          >
-            <WhatsAppIcon size={20} color="#fff" />
-            Consultas al WhatsApp
-          </button>
+              gap: '0.4rem'
+            }}>
+              <span style={{ color: '#22c55e', fontSize: '0.72rem', fontWeight: 700 }}>✓</span>
+              <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Siempre abonás al recibir el producto</span>
+            </div>
+          </div>
         </div>
-      </div>
-
-      {/* ── BOTTOM WHATSAPP BAR ── */}
-      <div
-        onClick={() => openWA()}
-        style={{
-          marginTop: '1.5rem',
-          background: 'var(--bg-secondary)',
-          border: '1px solid var(--border-color)',
-          borderRadius: '10px',
-          padding: '0.8rem 1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '0.7rem',
-          cursor: 'pointer'
-        }}
-      >
-        <WhatsAppIcon size={19} />
-        <span style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', fontWeight: 600 }}>
-          Consultas al MD o WhatsApp {WHATSAPP_DISPLAY}
-        </span>
       </div>
 
       {/* ── SOBRE NOSOTROS ── */}
