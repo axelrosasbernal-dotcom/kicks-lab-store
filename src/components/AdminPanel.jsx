@@ -47,6 +47,15 @@ function compressImage(file) {
   });
 }
 
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 async function uploadToStorage(imgObj, setImages) {
   if (!imgObj.file) return;
 
@@ -64,27 +73,34 @@ async function uploadToStorage(imgObj, setImages) {
 
   try {
     const compressed = await compressImage(imgObj.file);
-    const path = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
 
+    // Intentar subir a Supabase Storage
+    const path = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
     const { error: uploadError } = await supabase.storage
       .from(STORAGE_BUCKET)
       .upload(path, compressed, { contentType: 'image/webp', upsert: false });
 
-    if (uploadError) throw uploadError;
+    if (!uploadError) {
+      const { data: { publicUrl } } = supabase.storage
+        .from(STORAGE_BUCKET)
+        .getPublicUrl(path);
+      clearInterval(timer);
+      setImages(prev => prev.map(im =>
+        im.id === imgObj.id ? { ...im, uploading: false, progress: 100, uploadedUrl: publicUrl, error: null } : im
+      ));
+      return;
+    }
 
-    const { data: { publicUrl } } = supabase.storage
-      .from(STORAGE_BUCKET)
-      .getPublicUrl(path);
-
+    // Fallback: guardar como base64 directamente en la DB
+    const base64Url = await fileToBase64(compressed);
     clearInterval(timer);
     setImages(prev => prev.map(im =>
-      im.id === imgObj.id ? { ...im, uploading: false, progress: 100, uploadedUrl: publicUrl, error: null } : im
+      im.id === imgObj.id ? { ...im, uploading: false, progress: 100, uploadedUrl: base64Url, error: null } : im
     ));
   } catch (err) {
     clearInterval(timer);
-    // In offline/demo mode fall back to blob URL so the form is still usable
     setImages(prev => prev.map(im =>
-      im.id === imgObj.id ? { ...im, uploading: false, progress: 100, uploadedUrl: im.previewUrl, error: null } : im
+      im.id === imgObj.id ? { ...im, uploading: false, progress: 0, uploadedUrl: null, error: err?.message || 'Error al procesar la imagen' } : im
     ));
   }
 }
@@ -158,6 +174,16 @@ export default function AdminPanel() {
       return [...prev, ...newImgs];
     });
   }, []);
+
+  const retryImage = (id) => {
+    setImages(prev => {
+      const img = prev.find(i => i.id === id);
+      if (!img || !img.file) return prev;
+      const reset = prev.map(i => i.id === id ? { ...i, error: null, progress: 0, uploadedUrl: null } : i);
+      setTimeout(() => uploadToStorage({ ...img, error: null, progress: 0, uploadedUrl: null }, setImages), 0);
+      return reset;
+    });
+  };
 
   const removeImage = (id) => {
     setImages(prev => {
@@ -255,6 +281,10 @@ export default function AdminPanel() {
       setErrorMessage('Esperá a que terminen de subirse todas las imágenes.');
       return;
     }
+    if (images.some(im => im.error)) {
+      setErrorMessage('Algunas imágenes no se pudieron subir. Revisá la configuración del bucket en Supabase Storage o intentá de nuevo.');
+      return;
+    }
 
     const uploadedUrls = images.filter(im => im.uploadedUrl).map(im => im.uploadedUrl);
     const defaultImg = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800';
@@ -332,8 +362,9 @@ export default function AdminPanel() {
     ? Math.round(products.reduce((acc, p) => acc + Number(p.price), 0) / totalItems)
     : 0;
   const anyUploading = images.some(im => im.uploading);
-  const uploadedCount = images.filter(im => im.progress === 100).length;
-  const allReady = images.length > 0 && uploadedCount === images.length;
+  const uploadedCount = images.filter(im => im.progress === 100 && !im.error).length;
+  const errorCount = images.filter(im => im.error).length;
+  const allReady = images.length > 0 && uploadedCount === images.length && errorCount === 0;
 
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -566,12 +597,21 @@ export default function AdminPanel() {
                 {images.length > 0 && (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: '0.75rem' }}>
                     {images.map((img, index) => (
-                      <div key={img.id} className="img-card" style={{ position: 'relative', borderRadius: 10, overflow: 'hidden', border: `1px solid ${index === 0 ? 'rgba(255,63,63,0.4)' : 'var(--border-color)'}`, background: 'rgba(0,0,0,0.3)', aspectRatio: '1' }}>
-                        <img src={img.previewUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                      <div key={img.id} className="img-card" style={{ position: 'relative', borderRadius: 10, overflow: 'hidden', border: `1px solid ${img.error ? 'rgba(239,68,68,0.8)' : index === 0 ? 'rgba(255,63,63,0.4)' : 'var(--border-color)'}`, background: 'rgba(0,0,0,0.3)', aspectRatio: '1' }}>
+                        <img src={img.previewUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', opacity: img.error ? 0.4 : 1 }} />
 
                         {/* Principal badge */}
-                        {index === 0 && (
+                        {index === 0 && !img.error && (
                           <div style={{ position: 'absolute', top: 6, left: 6, background: '#ff3f3f', color: '#fff', fontSize: '0.58rem', fontWeight: 800, padding: '0.15rem 0.45rem', borderRadius: 3, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Principal</div>
+                        )}
+
+                        {/* Error overlay */}
+                        {img.error && (
+                          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', padding: '0.4rem' }}>
+                            <X size={16} color="#ef4444" />
+                            <span style={{ fontSize: '0.6rem', color: '#ef4444', fontWeight: 700, textAlign: 'center', lineHeight: 1.2 }}>Error al subir</span>
+                            <button type="button" onClick={() => retryImage(img.id)} style={{ fontSize: '0.6rem', background: 'rgba(239,68,68,0.85)', border: 'none', borderRadius: 4, padding: '0.2rem 0.5rem', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>Reintentar</button>
+                          </div>
                         )}
 
                         {/* Progress bar */}
@@ -595,16 +635,18 @@ export default function AdminPanel() {
                           </div>
                         )}
 
-                        {/* Hover overlay */}
-                        <div className="img-overlay" style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', opacity: 0, transition: 'opacity 0.2s', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
-                          <div style={{ display: 'flex', gap: '0.3rem' }}>
-                            <button type="button" onClick={() => moveImage(index, -1)} disabled={index === 0} title="Mover antes" style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 5, padding: '0.3rem', cursor: 'pointer', color: '#fff', display: 'flex', opacity: index === 0 ? 0.3 : 1 }}><ArrowUp size={12} /></button>
-                            <button type="button" onClick={() => moveImage(index, 1)} disabled={index === images.length - 1} title="Mover después" style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 5, padding: '0.3rem', cursor: 'pointer', color: '#fff', display: 'flex', opacity: index === images.length - 1 ? 0.3 : 1 }}><ArrowDown size={12} /></button>
+                        {/* Hover overlay (solo si no hay error) */}
+                        {!img.error && (
+                          <div className="img-overlay" style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', opacity: 0, transition: 'opacity 0.2s', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
+                            <div style={{ display: 'flex', gap: '0.3rem' }}>
+                              <button type="button" onClick={() => moveImage(index, -1)} disabled={index === 0} title="Mover antes" style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 5, padding: '0.3rem', cursor: 'pointer', color: '#fff', display: 'flex', opacity: index === 0 ? 0.3 : 1 }}><ArrowUp size={12} /></button>
+                              <button type="button" onClick={() => moveImage(index, 1)} disabled={index === images.length - 1} title="Mover después" style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 5, padding: '0.3rem', cursor: 'pointer', color: '#fff', display: 'flex', opacity: index === images.length - 1 ? 0.3 : 1 }}><ArrowDown size={12} /></button>
+                            </div>
+                            <button type="button" onClick={() => removeImage(img.id)} style={{ background: 'rgba(239,68,68,0.85)', border: 'none', borderRadius: 5, padding: '0.25rem 0.6rem', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.72rem', fontWeight: 700 }}>
+                              <X size={11} /> Quitar
+                            </button>
                           </div>
-                          <button type="button" onClick={() => removeImage(img.id)} style={{ background: 'rgba(239,68,68,0.85)', border: 'none', borderRadius: 5, padding: '0.25rem 0.6rem', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.72rem', fontWeight: 700 }}>
-                            <X size={11} /> Quitar
-                          </button>
-                        </div>
+                        )}
                       </div>
                     ))}
 
@@ -620,9 +662,9 @@ export default function AdminPanel() {
 
                 {/* Upload status */}
                 {images.length > 0 && (
-                  <p style={{ margin: '0.5rem 0 0', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: anyUploading ? '#facc15' : allReady ? '#22c55e' : 'var(--text-muted)' }}>
+                  <p style={{ margin: '0.5rem 0 0', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: anyUploading ? '#facc15' : errorCount > 0 ? '#ef4444' : allReady ? '#22c55e' : 'var(--text-muted)' }}>
                     {anyUploading && <span style={{ width: 10, height: 10, border: '2px solid rgba(250,204,21,0.3)', borderTopColor: '#facc15', borderRadius: '50%', animation: 'spin 0.7s linear infinite', display: 'inline-block', flexShrink: 0 }} />}
-                    {anyUploading ? `Subiendo imágenes... (${uploadedCount}/${images.length})` : allReady ? `${images.length} imagen${images.length > 1 ? 'es listas' : ' lista'}` : `${uploadedCount}/${images.length} subidas`}
+                    {anyUploading ? `Subiendo imágenes... (${uploadedCount}/${images.length})` : errorCount > 0 ? `${errorCount} imagen${errorCount > 1 ? 'es' : ''} con error — reintentá o quitá` : allReady ? `${images.length} imagen${images.length > 1 ? 'es listas' : ' lista'}` : `${uploadedCount}/${images.length} subidas`}
                   </p>
                 )}
               </div>
