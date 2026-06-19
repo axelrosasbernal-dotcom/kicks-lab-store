@@ -1,387 +1,368 @@
-import React from 'react';
+/*
+  Air Jordan 1 High "Royal Reimagined"
+  Perfil lateral, punta a la derecha.
+  ViewBox 800×500.
 
-/* Air Jordan 1 High "Royal Reimagined" – Black / Royal Blue
-   Perfil lateral, punta hacia la derecha. ViewBox 580 × 420. */
+  Capas (de atrás hacia adelante):
+  1. Outsole   – azul royal oscuro
+  2. Midsole   – blanco
+  3. Upper     – negro (cuerpo principal)
+  4. Collar    – azul (franja del tobillo)
+  5. Toecap    – azul perforado
+  6. Swoosh    – azul
+  7. Tongue    – azul
+  8. Cordones  – negro
+  9. Detalles
+*/
 export default function Jordan1SVG({ style }) {
+  const BLUE_DARK   = '#0045a8';
+  const BLUE_MID    = '#0055cc';
+  const BLUE_LIGHT  = '#1a72f0';
+  const BLACK       = '#111111';
+  const BLACK_SOFT  = '#1e1e1e';
+
   return (
     <svg
-      viewBox="0 0 580 420"
+      viewBox="0 0 800 500"
       xmlns="http://www.w3.org/2000/svg"
-      style={{ width: '100%', height: '100%', overflow: 'visible', ...style }}
+      width="100%"
+      height="100%"
+      style={{ overflow: 'visible', ...style }}
       fill="none"
     >
       <defs>
-        {/* ── Gradientes ── */}
-        <linearGradient id="j-upper" x1="0%" y1="0%" x2="80%" y2="100%">
-          <stop offset="0%" stopColor="#1a1a1a" />
-          <stop offset="100%" stopColor="#060606" />
+        <linearGradient id="g-upper" x1="0%" y1="0%" x2="80%" y2="100%">
+          <stop offset="0%"   stopColor={BLACK_SOFT}/>
+          <stop offset="100%" stopColor="#050505"/>
         </linearGradient>
-        <linearGradient id="j-blue-panel" x1="0%" y1="0%" x2="60%" y2="100%">
-          <stop offset="0%" stopColor="#1878e8" />
-          <stop offset="100%" stopColor="#0a52c4" />
+        <linearGradient id="g-blue" x1="0%" y1="0%" x2="40%" y2="100%">
+          <stop offset="0%"   stopColor={BLUE_LIGHT}/>
+          <stop offset="100%" stopColor={BLUE_DARK}/>
         </linearGradient>
-        <linearGradient id="j-blue-collar" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#1e85f0" />
-          <stop offset="100%" stopColor="#0b5fd8" />
+        <linearGradient id="g-mid" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%"   stopColor="#ffffff"/>
+          <stop offset="100%" stopColor="#c8c8c8"/>
         </linearGradient>
-        <linearGradient id="j-midsole" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#f4f4f4" />
-          <stop offset="100%" stopColor="#cccccc" />
+        <linearGradient id="g-out" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%"   stopColor={BLUE_MID}/>
+          <stop offset="100%" stopColor={BLUE_DARK}/>
         </linearGradient>
-        <linearGradient id="j-outsole" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#0e5ed4" />
-          <stop offset="100%" stopColor="#083fa8" />
-        </linearGradient>
-        <linearGradient id="j-toe-shine" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="rgba(255,255,255,0.3)" />
-          <stop offset="60%" stopColor="rgba(255,255,255,0)" />
-        </linearGradient>
-        {/* ── Filtros ── */}
-        <filter id="j-shadow" x="-8%" y="-8%" width="120%" height="130%">
-          <feDropShadow dx="0" dy="14" stdDeviation="20" floodColor="#000" floodOpacity="0.8" />
+        <filter id="f-shadow" x="-6%" y="-6%" width="118%" height="125%">
+          <feDropShadow dx="0" dy="16" stdDeviation="22"
+            floodColor="#000" floodOpacity="0.82"/>
         </filter>
-        <filter id="j-blue-glow" x="-10%" y="-10%" width="130%" height="130%">
-          <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur" />
-          <feFlood floodColor="#1461d4" floodOpacity="0.4" result="color" />
-          <feComposite in="color" in2="blur" operator="in" result="shadow" />
-          <feMerge><feMergeNode in="shadow" /><feMergeNode in="SourceGraphic" /></feMerge>
+        <filter id="f-blue-glow">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="b"/>
+          <feFlood floodColor={BLUE_MID} floodOpacity="0.45" result="c"/>
+          <feComposite in="c" in2="b" operator="in" result="s"/>
+          <feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge>
         </filter>
       </defs>
 
-      <g filter="url(#j-shadow)">
+      <g filter="url(#f-shadow)">
 
-        {/* ════════════════════════════════
-            OUTSOLE  (azul royal oscuro)
-            ════════════════════════════════ */}
+        {/* ══════════════════════════════════════
+            1. OUTSOLE  (azul royal)
+            ══════════════════════════════════════ */}
         <path
+          fill="url(#g-out)"
           d="
-            M 82 392
-            C 70 392 56 385 52 374
-            C 48 363 52 351 64 346
-            L 80 341 L 464 333
-            C 484 332 503 337 513 347
-            C 523 357 521 371 509 378
-            C 497 385 477 390 452 390
-            L 122 393
-            C 100 393 86 393 82 392 Z
+            M 88 458
+            C 75 458 61 451 57 439
+            C 53 427 57 414 70 408
+            L 88 403 L 660 394
+            C 682 393 702 398 713 408
+            C 724 418 722 432 711 440
+            C 700 448 679 453 654 453
+            L 126 459
+            C 104 459 90 459 88 458 Z
           "
-          fill="url(#j-outsole)"
         />
-        {/* Textura grip del outsole */}
-        <g stroke="rgba(0,0,80,0.35)" strokeWidth="1.4" strokeLinecap="round">
-          <line x1="120" y1="376" x2="220" y2="374" />
-          <line x1="238" y1="373" x2="338" y2="371" />
-          <line x1="356" y1="370" x2="440" y2="368" />
-          <line x1="458" y1="367" x2="504" y2="366" />
+        {/* grip lines */}
+        <g stroke="rgba(0,20,90,0.4)" strokeWidth="1.6" strokeLinecap="round">
+          <line x1="128" y1="443" x2="240" y2="441"/>
+          <line x1="258" y1="440" x2="370" y2="438"/>
+          <line x1="388" y1="437" x2="490" y2="435"/>
+          <line x1="508" y1="434" x2="608" y2="432"/>
         </g>
 
-        {/* ════════════════════════════════
-            MIDSOLE  (blanco)
-            ════════════════════════════════ */}
+        {/* ══════════════════════════════════════
+            2. MIDSOLE  (blanco)
+            ══════════════════════════════════════ */}
         <path
+          fill="url(#g-mid)"
           d="
-            M 80 341
-            L 90 318 L 106 306 L 124 300
-            L 464 292
-            C 482 291 500 296 510 305
-            C 520 314 518 327 507 334
-            C 496 341 478 345 454 346
-            L 124 354
-            C 102 354 88 349 80 342
-            L 80 341 Z
+            M 88 403
+            L 98 380 L 115 368 L 136 362
+            L 660 353
+            C 680 352 700 357 712 366
+            C 724 375 722 390 710 398
+            C 698 406 677 411 652 412
+            L 136 421
+            C 112 421 97 417 88 410
+            L 88 403 Z
           "
-          fill="url(#j-midsole)"
         />
-        {/* Borde superior midsole */}
+        {/* borde superior midsole */}
         <path
-          d="M 90 318 C 200 310 360 300 464 292"
-          stroke="rgba(255,255,255,0.7)"
-          strokeWidth="1.5"
-          fill="none"
+          stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" fill="none"
+          d="M 98 380 C 260 370 470 360 660 353"
+        />
+        {/* costura midsole */}
+        <path
+          stroke="rgba(200,200,200,0.4)" strokeWidth="1" fill="none"
+          strokeDasharray="8 6"
+          d="M 108 392 C 280 383 480 372 655 363"
         />
 
-        {/* ════════════════════════════════
-            UPPER PRINCIPAL  (cuerpo negro)
-            ════════════════════════════════ */}
-        {/*
-          Silhouette completa del upper, de atrás hacia adelante.
-          El collar sube alto a la izquierda, la punta es baja a la derecha.
-        */}
+        {/* ══════════════════════════════════════
+            3. UPPER NEGRO  (cuerpo principal)
+            Silhouette completa: talón alto a la izquierda,
+            punta baja a la derecha.
+            ══════════════════════════════════════ */}
         <path
+          fill="url(#g-upper)"
           d="
-            M 124 300
-            L 116 280 L 108 256 L 102 230
-            L 97 204 L 94 178 L 92 152 L 91 126
-            C 91 102 95 80 104 62
-            C 113 44 127 32 144 26
-            C 160 20 178 24 194 35
-            C 208 46 218 63 222 84
-            C 225 100 223 120 216 138
-            L 207 158 L 196 174
-            C 189 186 182 200 178 215
-            C 174 230 170 246 168 263
-            L 166 282 L 165 300
-            L 464 292
-            L 124 300 Z
+            M 136 362
+            L 127 338 L 118 310 L 110 280 L 104 250
+            L 100 220 L 98 190 L 97 160 L 97 130
+            C 97 106 102 82 113 62
+            C 124 42 140 28 160 22
+            C 178 16 197 20 214 32
+            C 229 44 240 64 244 88
+            C 248 108 246 132 238 154
+            L 228 176 L 216 194
+            C 208 208 200 224 194 242
+            C 188 260 184 278 182 298
+            L 180 322 L 178 346 L 176 362
+            L 660 353
+            L 136 362 Z
           "
-          fill="url(#j-upper)"
         />
 
-        {/* ════════════════════════════════
-            PANEL AZUL COLLAR (franja azul encima del collar)
-            ════════════════════════════════ */}
-        {/*
-          En la Jordan 1 Royal, la tira/strap superior del collar es azul.
-          Es la banda horizontal que rodea la apertura del tobillo.
-        */}
+        {/* ══════════════════════════════════════
+            4. COLLAR AZUL  (franja del tobillo)
+            El collar de la J1 Royal es azul en casi
+            toda su extensión. Lo dibujamos encima del upper.
+            ══════════════════════════════════════ */}
         <path
+          fill="url(#g-blue)"
+          filter="url(#f-blue-glow)"
           d="
-            M 92 140
-            C 92 122 96 104 104 88
-            C 112 72 124 58 140 48
-            C 154 38 170 34 186 36
-            C 200 38 212 46 220 60
-            L 225 82
-            C 228 96 226 112 220 128
-            L 212 148
-            C 208 158 202 170 196 180
-            L 192 192
-            L 180 188
-            C 172 186 163 181 156 174
-            C 148 166 143 154 142 140
-            L 140 126
-            C 138 114 140 100 144 88
-            L 148 78
-            C 140 88 134 102 130 118
-            L 128 140
-            C 126 154 128 168 133 178
-            C 124 168 116 155 110 140
-            C 104 125 100 108 100 90
-            L 92 140 Z
+            M 97 188
+            C 97 162 102 136 114 114
+            C 126 92 142 74 162 62
+            C 180 52 200 50 218 60
+            C 234 70 246 90 250 114
+            C 254 136 248 160 238 180
+            L 227 198 L 214 216
+            C 205 228 194 238 182 244
+            L 168 250
+            C 152 254 136 250 122 240
+            C 108 230 100 214 97 196
+            L 97 188 Z
           "
-          fill="url(#j-blue-collar)"
-          opacity="0"
+        />
+        {/* highlight del collar azul */}
+        <path
+          stroke="rgba(255,255,255,0.28)" strokeWidth="2.5" fill="none"
+          strokeLinecap="round"
+          d="M 162 62 C 185 54 206 56 222 68 C 236 80 244 98 246 118"
         />
 
-        {/* ── Collar strap azul (la tira visible) ── */}
+        {/* interior negro del collar (el hueco donde entra el pie) */}
         <path
+          fill={BLACK}
           d="
-            M 91 132
-            C 91 114 96 92 108 74
-            C 120 56 138 44 158 38
-            C 174 33 190 36 204 46
-            C 216 56 224 72 226 90
-            C 228 106 224 124 216 138
-            L 205 158
-            L 195 174
-            C 188 186 181 200 177 215
-            C 173 229 170 245 168 262
-
-            L 158 260
-            C 160 244 163 228 167 213
-            C 171 198 178 184 186 171
-            L 197 155
-            L 206 135
-            C 212 120 214 104 211 89
-            C 208 74 200 61 188 52
-            C 176 43 161 40 147 44
-            C 132 49 119 60 110 75
-            C 101 90 97 108 97 128
+            M 118 176
+            C 118 156 124 136 136 122
+            C 148 108 164 100 182 100
+            C 200 100 214 110 224 126
+            C 232 142 234 162 228 180
+            L 220 196 L 208 208 L 194 215
+            L 178 216 L 162 210 L 149 196
+            L 138 180 L 132 162
+            C 130 150 132 138 138 128
+            C 130 140 126 156 126 172
             Z
           "
-          fill="url(#j-blue-collar)"
         />
 
-        {/* Highlight en collar azul */}
+        {/* ══════════════════════════════════════
+            5. TOECAP AZUL  (punta delantera)
+            ══════════════════════════════════════ */}
         <path
-          d="M 156 38 C 174 34 192 37 206 48 C 218 58 226 74 228 92"
-          stroke="rgba(255,255,255,0.25)"
-          strokeWidth="2"
-          fill="none"
-          strokeLinecap="round"
-        />
-
-        {/* ════════════════════════════════
-            PANEL NEGRO (zona media, entre collar y punta)
-            ════════════════════════════════ */}
-        {/* El cuerpo principal ya está dibujado arriba como j-upper */}
-
-        {/* ════════════════════════════════
-            TOECAP AZUL  (punta delantera perforada)
-            ════════════════════════════════ */}
-        <path
+          fill="url(#g-blue)"
+          filter="url(#f-blue-glow)"
           d="
-            M 346 230
-            C 370 223 398 219 426 221
-            C 453 223 478 232 496 246
-            C 513 260 521 278 519 296
-            C 517 312 507 324 493 330
-            L 472 336 L 446 340
-            C 424 342 403 342 385 340
-            C 367 338 354 332 348 323
-            L 346 300
-            C 345 278 345 256 348 237
-            L 346 230 Z
+            M 368 278
+            C 394 270 424 266 456 268
+            C 488 270 518 280 542 296
+            C 562 310 574 330 573 350
+            C 572 366 562 378 546 385
+            L 522 391 L 494 395
+            C 471 398 449 399 429 397
+            C 408 395 392 388 384 377
+            L 381 354
+            C 380 330 380 306 384 285
+            L 368 278 Z
           "
-          fill="url(#j-blue-panel)"
-          filter="url(#j-blue-glow)"
         />
-
-        {/* Shine en punta azul */}
+        {/* shine toecap */}
         <path
-          d="M 350 230 C 374 223 402 219 428 221 C 452 223 476 231 493 244"
-          stroke="rgba(255,255,255,0.4)"
-          strokeWidth="2.5"
-          fill="none"
+          stroke="rgba(255,255,255,0.38)" strokeWidth="2" fill="none"
           strokeLinecap="round"
+          d="M 374 278 C 400 270 430 266 460 268 C 488 270 516 279 540 294"
         />
-
-        {/* Perforaciones en toecap */}
-        {[0, 1, 2, 3, 4].map(row =>
-          [0, 1, 2, 3].map(col => {
-            const x = 374 + col * 18;
-            const y = 242 + row * 18;
-            if (x > 510 || y > 328) return null;
+        {/* costura toecap */}
+        <path
+          stroke="rgba(0,40,140,0.35)" strokeWidth="1.5" fill="none"
+          strokeDasharray="4 3"
+          d="M 383 276 C 381 302 380 330 383 356"
+        />
+        {/* perforaciones */}
+        {Array.from({ length: 5 }, (_, row) =>
+          Array.from({ length: 4 }, (_, col) => {
+            const cx = 408 + col * 22;
+            const cy = 292 + row * 22;
+            if (cx > 556 || cy > 385) return null;
             return (
-              <circle key={`p${row}-${col}`}
-                cx={x} cy={y} r={2.8}
-                fill="rgba(0,30,100,0.45)"
+              <circle key={`p-${row}-${col}`}
+                cx={cx} cy={cy} r={3.2}
+                fill="rgba(0,25,100,0.5)"
               />
             );
           })
         )}
 
-        {/* Costura del toecap */}
+        {/* ══════════════════════════════════════
+            6. SWOOSH AZUL  (Nike logo)
+            Comienza bajo en el talón, sube hacia
+            la punta. Forma de paloma/check grande.
+            ══════════════════════════════════════ */}
         <path
-          d="M 350 228 C 349 252 348 278 350 304"
-          stroke="rgba(255,255,255,0.18)"
-          strokeWidth="1.5"
-          fill="none"
-          strokeDasharray="4 3"
+          fill="url(#g-blue)"
+          filter="url(#f-blue-glow)"
+          d="
+            M 168 334
+            C 186 344 216 349 254 342
+            C 292 335 332 316 373 296
+            C 402 281 428 268 448 258
+            C 430 271 404 286 372 302
+            C 336 320 296 338 256 345
+            C 218 352 184 350 165 337
+            C 154 330 150 320 155 316
+            C 157 313 162 318 168 334 Z
+          "
         />
 
-        {/* ════════════════════════════════
-            SWOOSH  (azul royal sobre cuerpo negro)
-            ════════════════════════════════ */}
-        {/*
-          En la Jordan 1, el swoosh es grande. Empieza bajo en el talón
-          y sube hacia la punta. El swoosh es azul en esta versión.
-        */}
+        {/* ══════════════════════════════════════
+            7. TONGUE AZUL  (lengüeta)
+            ══════════════════════════════════════ */}
         <path
+          fill="url(#g-blue)"
           d="
-            M 160 270
-            C 176 278 204 283 238 277
-            C 272 271 308 254 343 235
-            C 366 221 388 209 405 199
-            C 388 212 366 226 338 242
-            C 308 259 274 274 242 280
-            C 210 286 181 285 160 275
-            C 148 269 144 262 148 258
-            C 150 255 154 259 160 270 Z
+            M 186 112
+            C 192 98 202 86 215 80
+            C 228 78 242 86 252 100
+            C 261 114 264 132 262 152
+            L 260 182 L 243 192 L 223 188 L 205 180
+            L 186 158 L 186 112 Z
           "
-          fill="url(#j-blue-panel)"
-          filter="url(#j-blue-glow)"
         />
-
-        {/* ════════════════════════════════
-            LENGÜETA  (azul con "NIKE AIR")
-            ════════════════════════════════ */}
-        <path
-          d="
-            M 181 106
-            C 186 93 194 82 204 76
-            C 214 73 224 77 232 87
-            C 240 97 244 111 244 126
-            L 243 152 L 229 160 L 212 157 L 196 148 L 179 128
-            L 181 106 Z
-          "
-          fill="url(#j-blue-panel)"
+        {/* franja negra centro lengüeta (Nike Air) */}
+        <rect
+          x="213" y="82" width="16" height="100"
+          rx="4" fill="rgba(0,0,0,0.55)"
         />
-        {/* Franja negra en centro de lengüeta */}
-        <path
-          d="M 207 78 L 208 154"
-          stroke="rgba(0,0,0,0.45)"
-          strokeWidth="10"
-          strokeLinecap="round"
-        />
-        {/* Texto NIKE (simplificado como líneas) */}
-        <g transform="translate(195, 95)" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1.5" strokeLinecap="round">
-          <line x1="0" y1="0" x2="0" y2="12" />
-          <line x1="0" y1="0" x2="6" y2="12" />
-          <line x1="6" y1="12" x2="12" y2="0" />
-          <line x1="12" y1="0" x2="12" y2="12" />
-          <line x1="14" y1="0" x2="14" y2="12" />
-          <line x1="14" y1="0" x2="20" y2="0" />
-          <line x1="14" y1="6" x2="18" y2="6" />
+        {/* texto NIKE AIR simplificado */}
+        <g transform="translate(204, 95)" stroke="rgba(255,255,255,0.7)" strokeWidth="1.4"
+           strokeLinecap="round" fill="none">
+          <line x1="0" y1="0" x2="0"  y2="14"/>
+          <line x1="0" y1="0" x2="7"  y2="14"/>
+          <line x1="7" y1="14" x2="14" y2="0"/>
+          <line x1="14" y1="0" x2="14" y2="14"/>
+          <line x1="18" y1="0" x2="18" y2="14"/>
+          <line x1="18" y1="0" x2="27" y2="0"/>
+          <line x1="18" y1="7" x2="25" y2="7"/>
+          <line x1="18" y1="14" x2="27" y2="14"/>
+        </g>
+        {/* líneas "AIR" debajo */}
+        <g transform="translate(206, 120)" stroke="rgba(255,255,255,0.5)" strokeWidth="1.2"
+           strokeLinecap="round" fill="none">
+          <line x1="0"  y1="0" x2="5"  y2="12"/>
+          <line x1="5"  y1="12" x2="10" y2="0"/>
+          <line x1="14" y1="0" x2="14" y2="12"/>
+          <line x1="14" y1="0" x2="21" y2="0"/>
+          <line x1="14" y1="6" x2="19" y2="6"/>
+          <line x1="25" y1="0" x2="25" y2="12"/>
+          <line x1="25" y1="0" x2="33" y2="12"/>
+          <line x1="33" y1="12" x2="33" y2="0"/>
         </g>
 
-        {/* ════════════════════════════════
-            CORDONES  (negros)
-            ════════════════════════════════ */}
+        {/* ══════════════════════════════════════
+            8. CORDONES  (negro)
+            ══════════════════════════════════════ */}
         {[
-          [198, 160, 220, 164, 232, 162, 260, 160],
-          [197, 175, 218, 179, 232, 177, 274, 175],
-          [196, 190, 217, 194, 232, 192, 290, 190],
-          [196, 205, 216, 209, 232, 207, 306, 205],
-          [196, 220, 215, 224, 232, 222, 322, 220],
+          [203, 194, 225, 198, 242, 196, 272, 194],
+          [202, 211, 224, 215, 242, 213, 289, 211],
+          [201, 228, 222, 232, 242, 230, 307, 228],
+          [200, 245, 221, 249, 242, 247, 326, 245],
+          [199, 262, 220, 266, 242, 264, 344, 262],
+          [198, 279, 219, 283, 242, 281, 362, 279],
         ].map(([x1, y1, x2, y2, x3, y3, x4, y4], i) => (
           <g key={i}>
             <line x1={x1} y1={y1} x2={x2} y2={y2}
-              stroke="#111" strokeWidth="3" strokeLinecap="round" />
+              stroke={BLACK} strokeWidth="4" strokeLinecap="round"/>
             <line x1={x3} y1={y3} x2={x4} y2={y4}
-              stroke="#111" strokeWidth="3" strokeLinecap="round" />
+              stroke={BLACK} strokeWidth="4" strokeLinecap="round"/>
           </g>
         ))}
-        {/* Vertical entre cordones */}
-        <line x1="226" y1="160" x2="226" y2="220"
-          stroke="rgba(0,0,0,0.5)" strokeWidth="2.5" strokeLinecap="round" />
+        {/* vertical central */}
+        <line x1="234" y1="194" x2="234" y2="279"
+          stroke="rgba(0,0,0,0.55)" strokeWidth="3" strokeLinecap="round"/>
 
         {/* Ojales */}
-        {[160, 175, 190, 205, 220].map((y, i) => (
+        {[194, 211, 228, 245, 262, 279].map((y, i) => (
           <g key={i}>
-            <circle cx="212" cy={y + 2} r="4.2"
-              stroke="rgba(80,80,80,0.5)" strokeWidth="1.2" fill="rgba(20,20,20,0.6)" />
-            <circle cx="238" cy={y} r="4.2"
-              stroke="rgba(80,80,80,0.5)" strokeWidth="1.2" fill="rgba(20,20,20,0.6)" />
+            <circle cx="218" cy={y + 2} r="5.5"
+              fill="#0a0a0a" stroke="#3a3a3a" strokeWidth="1.2"/>
+            <circle cx="248" cy={y}     r="5.5"
+              fill="#0a0a0a" stroke="#3a3a3a" strokeWidth="1.2"/>
           </g>
         ))}
 
-        {/* ════════════════════════════════
-            COSTURA PANELES (línea punteada divisoria)
-            ════════════════════════════════ */}
+        {/* ══════════════════════════════════════
+            9. DETALLES FINALES
+            ══════════════════════════════════════ */}
+
+        {/* tirador del talón */}
         <path
-          d="M 156 42 C 162 70 165 104 160 136 C 156 165 148 192 140 220"
-          stroke="rgba(255,255,255,0.09)"
-          strokeWidth="2"
-          fill="none"
+          stroke="rgba(255,255,255,0.28)" strokeWidth="3"
+          strokeLinecap="round" strokeLinejoin="round" fill="none"
+          d="M 87 310 L 82 334 L 96 334 L 96 310"
+        />
+
+        {/* costura punteada collar-talón */}
+        <path
+          stroke="rgba(255,255,255,0.08)" strokeWidth="2" fill="none"
           strokeDasharray="5 4"
+          d="M 166 26 C 172 55 174 90 170 126 C 166 158 157 188 148 218"
         />
 
-        {/* ════════════════════════════════
-            TIRADOR TALÓN
-            ════════════════════════════════ */}
+        {/* borde highlight collar superior */}
         <path
-          d="M 86 275 L 82 294 L 93 294 L 93 275"
-          fill="none"
-          stroke="rgba(255,255,255,0.3)"
-          strokeWidth="2.5"
+          stroke="rgba(255,255,255,0.15)" strokeWidth="2.5" fill="none"
           strokeLinecap="round"
-          strokeLinejoin="round"
+          d="M 162 22 C 182 16 200 20 216 32 C 230 44 240 64 242 88"
         />
 
-        {/* ════════════════════════════════
-            HIGHLIGHT SUPERIOR (brillo en borde del upper)
-            ════════════════════════════════ */}
-        <path
-          d="
-            M 148 26 C 165 20 182 24 196 36
-            C 210 48 219 66 222 86
-          "
-          stroke="rgba(255,255,255,0.12)"
-          strokeWidth="3"
-          fill="none"
-          strokeLinecap="round"
-        />
+        {/* Wing logo simplificado (lateral del talón) */}
+        <g transform="translate(120, 270)" opacity="0.22"
+           stroke="white" strokeWidth="1.5" strokeLinecap="round" fill="none">
+          <path d="M0,0 C-6,-10 -17,-13 -22,-9 C-17,-5 -11,0 -6,7 C-3,12 -1,16 0,20"/>
+          <path d="M0,0 C6,-10 17,-13 22,-9 C17,-5 11,0 6,7 C3,12 1,16 0,20"/>
+        </g>
 
       </g>
     </svg>
