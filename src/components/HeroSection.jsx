@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Jordan1SVG from './Jordan1SVG';
 
 const WA_NUMBER = '541123862445';
 
@@ -41,11 +42,10 @@ export default function HeroSection({ products = [] }) {
   const [loaded, setLoaded] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [hovered, setHovered] = useState(false);
+  const [rotY, setRotY] = useState(0);
+  const [spinning, setSpinning] = useState(false);
+  const spinRef = useRef(null);
   const rightRef = useRef(null);
-
-  const featuredImg =
-    products[0]?.image_url ??
-    'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800';
 
   useEffect(() => {
     const t = setTimeout(() => setLoaded(true), 80);
@@ -68,6 +68,25 @@ export default function HeroSection({ products = [] }) {
   const scrollToCatalog = () => {
     document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  const handleSpin = () => {
+    if (spinning) return;
+    setSpinning(true);
+    let angle = 0;
+    const step = () => {
+      angle += 4;
+      setRotY(angle % 360);
+      if (angle < 360) {
+        spinRef.current = requestAnimationFrame(step);
+      } else {
+        setRotY(0);
+        setSpinning(false);
+      }
+    };
+    spinRef.current = requestAnimationFrame(step);
+  };
+
+  useEffect(() => () => { if (spinRef.current) cancelAnimationFrame(spinRef.current); }, []);
 
   const openWA = () => {
     window.open(
@@ -398,32 +417,66 @@ export default function HeroSection({ products = [] }) {
               pointerEvents: 'none',
             }} />
 
-            {/* Sneaker */}
+            {/* Sneaker SVG */}
             <div style={{
               position: 'relative',
               zIndex: 5,
-              animation: 'nik-float 4.5s ease-in-out infinite',
-              transform: hovered
-                ? `perspective(800px) rotateY(${tilt.x * 0.7}deg) rotateX(${tilt.y * 0.5}deg) scale(1.07)`
-                : 'perspective(800px) rotateY(0deg) rotateX(0deg) scale(1)',
-              transition: hovered ? 'transform 0.08s linear' : 'transform 0.6s ease',
+              width: 'clamp(280px, 30vw, 430px)',
+              animation: spinning ? 'none' : 'nik-float 4.5s ease-in-out infinite',
+              transform: spinning
+                ? `perspective(900px) rotateY(${rotY}deg)`
+                : hovered
+                  ? `perspective(900px) rotateY(${tilt.x * 0.8}deg) rotateX(${tilt.y * 0.5}deg) scale(1.07)`
+                  : 'perspective(900px) rotateY(0deg) rotateX(0deg) scale(1)',
+              transition: spinning ? 'none' : hovered ? 'transform 0.08s linear' : 'transform 0.6s ease',
               willChange: 'transform',
             }}>
-              <img
-                src={featuredImg}
-                alt="Zapatilla destacada"
-                onError={e => {
-                  e.target.src = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800';
-                }}
-                style={{
-                  width: 'clamp(260px, 28vw, 400px)',
-                  objectFit: 'contain',
-                  filter: 'drop-shadow(0 24px 48px rgba(0,0,0,0.85)) drop-shadow(0 4px 16px rgba(77,115,255,0.3))',
-                  userSelect: 'none',
-                  pointerEvents: 'none',
-                }}
-              />
+              <Jordan1SVG />
             </div>
+
+            {/* GIRAR button */}
+            <button
+              onClick={handleSpin}
+              style={{
+                position: 'absolute',
+                bottom: '18px',
+                right: '18px',
+                zIndex: 10,
+                background: 'rgba(15,20,40,0.85)',
+                border: '1px solid rgba(99,131,255,0.35)',
+                borderRadius: '50%',
+                width: '64px',
+                height: '64px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '3px',
+                cursor: spinning ? 'default' : 'pointer',
+                color: '#fff',
+                backdropFilter: 'blur(8px)',
+                transition: 'border-color 0.2s, transform 0.2s',
+                boxShadow: '0 4px 18px rgba(0,0,0,0.5)',
+              }}
+              onMouseEnter={e => { if (!spinning) { e.currentTarget.style.borderColor = 'rgba(99,131,255,0.7)'; e.currentTarget.style.transform = 'scale(1.08)'; } }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(99,131,255,0.35)'; e.currentTarget.style.transform = 'scale(1)'; }}
+            >
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ animation: spinning ? 'nik-ring1 0.9s linear infinite' : 'none' }}
+              >
+                <path d="M23 4v6h-6"/>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+              </svg>
+              <span style={{ fontSize: '0.52rem', fontWeight: 800, letterSpacing: '0.08em', opacity: 0.85 }}>GIRAR</span>
+            </button>
           </div>
         </div>
 
