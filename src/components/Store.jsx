@@ -19,7 +19,8 @@ const MOCK_PRODUCTS = [
     price: 250000,
     sizes: ['40', '41', '42', '43', '44', '45'],
     image_url: 'https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&q=80&w=800',
-    description: 'El icono de la cultura urbana.'
+    description: 'El icono de la cultura urbana.',
+    gender: 'hombre'
   },
   {
     id: 'mock-2',
@@ -28,7 +29,8 @@ const MOCK_PRODUCTS = [
     price: 233000,
     sizes: ['39', '40', '41', '42', '43'],
     image_url: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&q=80&w=800',
-    description: 'Experimenta una energía épica.'
+    description: 'Experimenta una energía épica.',
+    gender: 'hombre'
   },
   {
     id: 'mock-3',
@@ -37,7 +39,8 @@ const MOCK_PRODUCTS = [
     price: 250000,
     sizes: ['40', '41', '42', '43', '44'],
     image_url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800',
-    description: 'Deja que tu actitud marque el ritmo.'
+    description: 'Deja que tu actitud marque el ritmo.',
+    gender: 'hombre'
   },
   {
     id: 'mock-4',
@@ -46,7 +49,8 @@ const MOCK_PRODUCTS = [
     price: 275000,
     sizes: ['38', '39', '40', '41', '42', '43'],
     image_url: 'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&q=80&w=800',
-    description: 'El minimalismo de los 80 en su máxima expresión.'
+    description: 'El minimalismo de los 80 en su máxima expresión.',
+    gender: 'mujer'
   },
   {
     id: 'mock-5',
@@ -55,7 +59,8 @@ const MOCK_PRODUCTS = [
     price: 194000,
     sizes: ['41', '42', '43', '44', '45'],
     image_url: 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&q=80&w=800',
-    description: 'Vuelve la silueta RS-X del futuro retro.'
+    description: 'Vuelve la silueta RS-X del futuro retro.',
+    gender: 'hombre'
   },
   {
     id: 'mock-6',
@@ -64,8 +69,15 @@ const MOCK_PRODUCTS = [
     price: 199000,
     sizes: ['40', '41', '42', '43', '44'],
     image_url: 'https://images.unsplash.com/photo-1539185441755-769473a23570?auto=format&fit=crop&q=80&w=800',
-    description: 'Baloncesto retro que conquistó la moda urbana.'
+    description: 'Baloncesto retro que conquistó la moda urbana.',
+    gender: 'mujer'
   }
+];
+
+const SEED_REVIEWS = [
+  { id: 1, name: 'Martina G.', rating: 5, comment: 'Increíble calidad, llegaron en perfecto estado y más rápido de lo esperado. Las Jordan son una joya, se las recomiendo a todo el mundo.', date: '12/06/2026' },
+  { id: 2, name: 'Lucas F.', rating: 5, comment: 'Compré las New Balance y son exactamente como en la foto. Súper cómodas para el día a día. La atención fue excelente.', date: '08/06/2026' },
+  { id: 3, name: 'Valentina R.', rating: 4, comment: 'Muy buena atención y entrega rápida en La Plata. Llegaron bien embaladas y en perfectas condiciones. Vuelvo a comprar.', date: '01/06/2026' },
 ];
 
 const HERO_CONFIG = [
@@ -124,7 +136,7 @@ const StepHeader = ({ step, onClose }) => (
   </div>
 );
 
-export default function Store({ onAddToCart, cartOpenSignal }) {
+export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all' }) {
   const [products, setProducts]           = useState([]);
   const [loading, setLoading]             = useState(true);
   const [carouselIdx, setCarouselIdx]     = useState(0);
@@ -141,7 +153,19 @@ export default function Store({ onAddToCart, cartOpenSignal }) {
   const [sizePickerProduct, setSizePickerProduct] = useState(null);
   const [selectedSize, setSelectedSize]   = useState('');
 
+  const [reviews, setReviews] = useState(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('kicks_reviews') || 'null');
+      return stored ?? SEED_REVIEWS;
+    } catch { return SEED_REVIEWS; }
+  });
+  const [reviewForm, setReviewForm]         = useState({ name: '', rating: 5, comment: '' });
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [hoverRating, setHoverRating]       = useState(0);
+
   useEffect(() => { fetchProducts(); }, []);
+
+  useEffect(() => { setCarouselIdx(0); }, [genderFilter]);
 
   useEffect(() => {
     if (cartOpenSignal) setCartOpen(true);
@@ -230,10 +254,31 @@ export default function Store({ onAddToCart, cartOpenSignal }) {
     }
   };
 
-  const maxIdx       = Math.max(0, products.length - CARDS_PER_PAGE);
-  const visible      = products.slice(carouselIdx, carouselIdx + CARDS_PER_PAGE);
-  const heroItems    = products.slice(0, 5);
-  const sideFeatures = products.slice(0, 3);
+  const submitReview = () => {
+    if (!reviewForm.name.trim() || !reviewForm.comment.trim()) return;
+    const newReview = {
+      id: Date.now(),
+      name: reviewForm.name.trim(),
+      rating: reviewForm.rating,
+      comment: reviewForm.comment.trim(),
+      date: new Date().toLocaleDateString('es-AR')
+    };
+    const updated = [newReview, ...reviews];
+    setReviews(updated);
+    localStorage.setItem('kicks_reviews', JSON.stringify(updated));
+    setReviewForm({ name: '', rating: 5, comment: '' });
+    setReviewSubmitted(true);
+    setTimeout(() => setReviewSubmitted(false), 3000);
+  };
+
+  const filteredProducts = genderFilter === 'all'
+    ? products
+    : products.filter(p => !p.gender || p.gender === genderFilter);
+
+  const maxIdx       = Math.max(0, filteredProducts.length - CARDS_PER_PAGE);
+  const visible      = filteredProducts.slice(carouselIdx, carouselIdx + CARDS_PER_PAGE);
+  const heroItems    = filteredProducts.slice(0, 5);
+  const sideFeatures = filteredProducts.slice(0, 3);
 
   if (loading) {
     return (
@@ -326,20 +371,43 @@ export default function Store({ onAddToCart, cartOpenSignal }) {
 
         {/* Text */}
         <div style={{ position: 'relative', zIndex: 10, padding: '2rem 2.5rem', maxWidth: '420px' }}>
+          <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.18em', color: '#FFD700', textTransform: 'uppercase', marginBottom: '0.55rem' }}>
+            KICKS LAB — Premium Footwear
+          </p>
           <h1 style={{
-            fontSize: 'clamp(1.25rem, 2.2vw, 1.85rem)',
+            fontSize: 'clamp(1.45rem, 2.6vw, 2.1rem)',
             fontWeight: 900,
             textTransform: 'uppercase',
             color: '#fff',
-            lineHeight: 1.15,
+            lineHeight: 1.1,
             fontFamily: 'var(--font-heading)',
-            marginBottom: '0.5rem'
+            marginBottom: '0.65rem',
+            letterSpacing: '-0.01em'
           }}>
-            MODELOS EXCLUSIVOS -
+            EL PASO QUE<br />TODOS NOTAN.
           </h1>
-          <p style={{ fontSize: '0.95rem', color: '#b0b8c8', fontWeight: 500, lineHeight: 1.45 }}>
-            Envío Gratis en La Plata y Alrededores
+          <p style={{ fontSize: '0.92rem', color: '#b0b8c8', fontWeight: 500, lineHeight: 1.55, marginBottom: '1.1rem' }}>
+            Zapatillas premium con garantía de autenticidad.<br />
+            Envío gratis en La Plata y alrededores.
           </p>
+          <button
+            onClick={() => openWA('¡Hola! Quiero conocer los modelos disponibles.')}
+            style={{
+              background: '#FFD700',
+              color: '#000',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '0.6rem 1.3rem',
+              fontWeight: 800,
+              fontSize: '0.82rem',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase'
+            }}
+          >
+            Ver modelos →
+          </button>
         </div>
 
         {/* WhatsApp contact bar */}
@@ -374,7 +442,9 @@ export default function Store({ onAddToCart, cartOpenSignal }) {
         {/* LEFT: Product Carousel */}
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Destacados</h2>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>
+              {genderFilter === 'hombre' ? 'Colección Hombre' : genderFilter === 'mujer' ? 'Colección Mujer' : 'Destacados'}
+            </h2>
             <div style={{ display: 'flex', gap: '0.4rem' }}>
               {[
                 { icon: <ChevronLeft size={16} />, action: () => setCarouselIdx(Math.max(0, carouselIdx - CARDS_PER_PAGE)), disabled: carouselIdx === 0 },
@@ -738,6 +808,222 @@ export default function Store({ onAddToCart, cartOpenSignal }) {
         <span style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', fontWeight: 600 }}>
           Consultas al MD o WhatsApp {WHATSAPP_DISPLAY}
         </span>
+      </div>
+
+      {/* ── SOBRE NOSOTROS ── */}
+      <div id="sobre-nosotros" style={{ marginTop: '4rem', scrollMarginTop: '90px' }}>
+        <div style={{
+          background: 'linear-gradient(160deg, #080c14 0%, #0d1220 100%)',
+          border: '1px solid var(--border-color)',
+          borderRadius: '16px',
+          overflow: 'hidden'
+        }}>
+          {/* Header */}
+          <div style={{
+            borderBottom: '1px solid var(--border-color)',
+            padding: '2rem 2.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem'
+          }}>
+            <div style={{
+              width: '4px', height: '2.5rem',
+              background: 'linear-gradient(180deg, #FFD700, #ff8008)',
+              borderRadius: '2px', flexShrink: 0
+            }} />
+            <div>
+              <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.2em', color: '#FFD700', textTransform: 'uppercase', marginBottom: '0.25rem' }}>
+                Quiénes somos
+              </p>
+              <h2 style={{ fontSize: 'clamp(1.4rem, 2.5vw, 2rem)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.01em', color: 'var(--text-primary)', lineHeight: 1.1 }}>
+                Sobre Nosotros
+              </h2>
+            </div>
+          </div>
+
+          <div style={{ padding: '2rem 2.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem', alignItems: 'start' }}>
+            {/* Texto */}
+            <div>
+              <p style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.6, marginBottom: '1rem' }}>
+                Somos KICKS LAB, una tienda especializada en zapatillas de alta calidad para quienes no negocian con su estilo.
+              </p>
+              <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: '1rem' }}>
+                Nacimos con la convicción de que el calzado no es solo moda — es una declaración de identidad. Por eso ofrecemos modelos exclusivos de las marcas más reconocidas del mundo, con garantía de autenticidad y atención personalizada en cada pedido.
+              </p>
+              <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+                Cada zapatilla pasa por un control de calidad estricto antes de llegar a tus manos. Hacemos envíos a toda La Plata y Gran Buenos Aires con seguimiento en tiempo real, porque sabemos que la experiencia de compra importa tanto como el producto.
+              </p>
+            </div>
+            {/* Stats */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {[
+                { num: '+500', label: 'Clientes satisfechos', icon: '👟' },
+                { num: '100%', label: 'Originales garantizados', icon: '✅' },
+                { num: '24hs', label: 'Entrega en La Plata', icon: '🚀' },
+                { num: '5★', label: 'Calificación promedio', icon: '⭐' },
+              ].map(({ num, label, icon }) => (
+                <div key={label} style={{
+                  display: 'flex', alignItems: 'center', gap: '1rem',
+                  background: 'var(--bg-tertiary)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '10px', padding: '0.85rem 1rem'
+                }}>
+                  <span style={{ fontSize: '1.4rem', flexShrink: 0 }}>{icon}</span>
+                  <div>
+                    <p style={{ fontSize: '1.3rem', fontWeight: 900, color: '#FFD700', lineHeight: 1 }}>{num}</p>
+                    <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>{label}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Valores */}
+          <div style={{
+            borderTop: '1px solid var(--border-color)',
+            padding: '1.5rem 2.5rem',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '1rem'
+          }}>
+            {[
+              { title: 'Calidad premium', desc: 'Solo vendemos modelos con certificado de autenticidad. Sin réplicas, sin compromisos.' },
+              { title: 'Atención real', desc: 'Te respondemos por WhatsApp en minutos. Un asesor real para cada duda.' },
+              { title: 'Devolución sin drama', desc: 'Si algo no está bien, lo resolvemos. Tu satisfacción es nuestra reputación.' },
+            ].map(({ title, desc }) => (
+              <div key={title} style={{ padding: '1rem', background: 'var(--bg-tertiary)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                <p style={{ fontWeight: 800, fontSize: '0.88rem', marginBottom: '0.4rem', color: 'var(--text-primary)' }}>{title}</p>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.55 }}>{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── RESEÑAS ── */}
+      <div style={{ marginTop: '3.5rem', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div style={{ width: '4px', height: '2rem', background: 'linear-gradient(180deg, #FFD700, #ff8008)', borderRadius: '2px', flexShrink: 0 }} />
+          <div>
+            <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.2em', color: '#FFD700', textTransform: 'uppercase', marginBottom: '0.2rem' }}>Opiniones</p>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-primary)' }}>Lo que dicen nuestros clientes</h2>
+          </div>
+        </div>
+
+        {/* Grilla de reseñas */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+          {reviews.map(review => (
+            <div key={review.id} style={{
+              background: 'var(--bg-secondary)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '12px',
+              padding: '1.25rem'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
+                <div style={{ display: 'flex', gap: '2px' }}>
+                  {[1,2,3,4,5].map(s => (
+                    <span key={s} style={{ fontSize: '1rem', color: s <= review.rating ? '#FFD700' : 'var(--border-color)' }}>★</span>
+                  ))}
+                </div>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{review.date}</span>
+              </div>
+              <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '0.75rem' }}>
+                "{review.comment}"
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div style={{
+                  width: '28px', height: '28px', borderRadius: '50%',
+                  background: 'var(--bg-tertiary)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '0.75rem', fontWeight: 700, color: '#FFD700'
+                }}>
+                  {review.name.charAt(0)}
+                </div>
+                <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)' }}>{review.name}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Formulario de reseña */}
+        <div style={{
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border-color)',
+          borderRadius: '14px',
+          padding: '1.75rem',
+          maxWidth: '600px'
+        }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
+            Dejá tu reseña
+          </h3>
+
+          {reviewSubmitted ? (
+            <div style={{
+              background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)',
+              borderRadius: '10px', padding: '1.25rem', textAlign: 'center',
+              color: '#22c55e', fontWeight: 700
+            }}>
+              ✓ ¡Gracias por tu reseña! Ya está publicada.
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+              <input
+                type="text"
+                placeholder="Tu nombre"
+                value={reviewForm.name}
+                onChange={e => setReviewForm(prev => ({ ...prev, name: e.target.value }))}
+                style={{
+                  background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)',
+                  borderRadius: '8px', padding: '0.65rem 1rem', color: 'var(--text-primary)',
+                  fontSize: '0.9rem', outline: 'none', fontFamily: 'inherit', width: '100%', boxSizing: 'border-box'
+                }}
+              />
+              <div>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '0.4rem', fontWeight: 600 }}>Puntuación</p>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  {[1,2,3,4,5].map(s => (
+                    <span
+                      key={s}
+                      onClick={() => setReviewForm(prev => ({ ...prev, rating: s }))}
+                      onMouseEnter={() => setHoverRating(s)}
+                      onMouseLeave={() => setHoverRating(0)}
+                      style={{
+                        fontSize: '1.75rem', cursor: 'pointer',
+                        color: s <= (hoverRating || reviewForm.rating) ? '#FFD700' : 'var(--border-color)',
+                        transition: 'color 0.1s'
+                      }}
+                    >★</span>
+                  ))}
+                </div>
+              </div>
+              <textarea
+                placeholder="Contanos tu experiencia con el producto y la entrega..."
+                value={reviewForm.comment}
+                onChange={e => setReviewForm(prev => ({ ...prev, comment: e.target.value }))}
+                style={{
+                  background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)',
+                  borderRadius: '8px', padding: '0.65rem 1rem', color: 'var(--text-primary)',
+                  fontSize: '0.9rem', outline: 'none', fontFamily: 'inherit',
+                  width: '100%', minHeight: '90px', resize: 'vertical', boxSizing: 'border-box'
+                }}
+              />
+              <button
+                onClick={submitReview}
+                disabled={!reviewForm.name.trim() || !reviewForm.comment.trim()}
+                style={{
+                  background: reviewForm.name.trim() && reviewForm.comment.trim() ? '#FFD700' : 'var(--bg-tertiary)',
+                  color: reviewForm.name.trim() && reviewForm.comment.trim() ? '#000' : 'var(--text-muted)',
+                  border: 'none', borderRadius: '8px', padding: '0.8rem',
+                  fontWeight: 800, fontSize: '0.88rem', cursor: reviewForm.name.trim() && reviewForm.comment.trim() ? 'pointer' : 'not-allowed',
+                  fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.05em',
+                  transition: 'all 0.2s', width: '100%'
+                }}
+              >
+                Publicar reseña
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ── SIZE PICKER MODAL ── */}

@@ -11,6 +11,7 @@ function App() {
   const [authLoading, setAuthLoading] = useState(true);
   const [cartCount, setCartCount] = useState(0);
   const [cartOpenSignal, setCartOpenSignal] = useState(0);
+  const [genderFilter, setGenderFilter] = useState('all');
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
     return saved !== null ? saved === 'true' : true;
@@ -90,7 +91,7 @@ function App() {
 
     switch (activeTab) {
       case 'store':
-        return <Store onAddToCart={() => setCartCount(c => c + 1)} cartOpenSignal={cartOpenSignal} />;
+        return <Store onAddToCart={() => setCartCount(c => c + 1)} cartOpenSignal={cartOpenSignal} genderFilter={genderFilter} />;
       case 'auth':
         return <Auth onAuthSuccess={(user) => {
           setUser(user);
@@ -122,6 +123,8 @@ function App() {
         onToggleDarkMode={() => setDarkMode(prev => !prev)}
         cartCount={cartCount}
         onCartClick={() => setCartOpenSignal(s => s + 1)}
+        genderFilter={genderFilter}
+        setGenderFilter={setGenderFilter}
       />
 
       {/* Main Content Area */}

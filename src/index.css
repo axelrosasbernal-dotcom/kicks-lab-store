@@ -285,6 +285,10 @@ button, input, textarea, select {
   }
 }
 
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }

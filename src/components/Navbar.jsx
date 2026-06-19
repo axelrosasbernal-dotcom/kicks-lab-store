@@ -25,7 +25,31 @@ const KicksLabLogo = () => (
 
 const NAV_ITEMS = ['Novedades', 'Hombre', 'Mujer', 'Colecciones', 'Sobre Nosotros'];
 
-export default function Navbar({ user, activeTab, setActiveTab, onSignOut, darkMode, onToggleDarkMode, cartCount = 0, onCartClick }) {
+const GENDER_MAP = {
+  'Hombre': 'hombre',
+  'Mujer': 'mujer',
+};
+
+export default function Navbar({ user, activeTab, setActiveTab, onSignOut, darkMode, onToggleDarkMode, cartCount = 0, onCartClick, genderFilter, setGenderFilter }) {
+  const handleNavClick = (item) => {
+    setActiveTab('store');
+    if (item === 'Sobre Nosotros') {
+      setTimeout(() => document.getElementById('sobre-nosotros')?.scrollIntoView({ behavior: 'smooth' }), 80);
+      setGenderFilter('all');
+    } else if (GENDER_MAP[item]) {
+      setGenderFilter(GENDER_MAP[item]);
+    } else {
+      setGenderFilter('all');
+    }
+  };
+
+  const isNavActive = (item) => {
+    if (item === 'Hombre') return genderFilter === 'hombre';
+    if (item === 'Mujer') return genderFilter === 'mujer';
+    if (item === 'Novedades') return genderFilter === 'all';
+    return false;
+  };
+
   return (
     <nav style={{
       background: 'var(--bg-secondary)',
@@ -53,27 +77,30 @@ export default function Navbar({ user, activeTab, setActiveTab, onSignOut, darkM
 
         {/* Center Nav Items */}
         <div style={{ display: 'flex', gap: '0.15rem', flex: 1, justifyContent: 'center', flexWrap: 'wrap' }}>
-          {NAV_ITEMS.map((item, i) => (
-            <button
-              key={item}
-              onClick={() => setActiveTab('store')}
-              style={{
-                background: i === 0 ? 'rgba(255,255,255,0.1)' : 'transparent',
-                border: 'none',
-                color: i === 0 ? 'var(--text-primary)' : 'var(--text-secondary)',
-                padding: '0.45rem 0.85rem',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '0.88rem',
-                fontWeight: i === 0 ? 600 : 400,
-                transition: 'all 0.2s',
-                whiteSpace: 'nowrap',
-                fontFamily: 'inherit'
-              }}
-            >
-              {item}
-            </button>
-          ))}
+          {NAV_ITEMS.map((item) => {
+            const active = isNavActive(item);
+            return (
+              <button
+                key={item}
+                onClick={() => handleNavClick(item)}
+                style={{
+                  background: active ? 'rgba(255,255,255,0.12)' : 'transparent',
+                  border: active ? '1px solid rgba(255,255,255,0.15)' : '1px solid transparent',
+                  color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
+                  padding: '0.45rem 0.85rem',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '0.88rem',
+                  fontWeight: active ? 700 : 400,
+                  transition: 'all 0.2s',
+                  whiteSpace: 'nowrap',
+                  fontFamily: 'inherit'
+                }}
+              >
+                {item}
+              </button>
+            );
+          })}
         </div>
 
         {/* Right: Dark Mode + Cart + Auth */}
