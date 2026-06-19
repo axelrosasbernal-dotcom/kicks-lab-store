@@ -1,76 +1,90 @@
 import React, { useState, useEffect } from 'react';
-import { Search, SlidersHorizontal, ArrowUpDown, Info, Tag, ShoppingBag } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Package, Users, Truck, Clock, Share2, Camera, Play } from 'lucide-react';
 import { supabase } from '../supabaseClient';
+
+const WHATSAPP_NUMBER = '542212267568';
+
+const WhatsAppIcon = ({ size = 22, color = '#25D366' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+);
 
 const MOCK_PRODUCTS = [
   {
     id: 'mock-1',
     name: 'Air Jordan 1 Retro High OG',
     brand: 'Jordan',
-    price: 189.99,
+    price: 250000,
     sizes: ['40', '41', '42', '43', '44', '45'],
     image_url: 'https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&q=80&w=800',
-    description: 'El icono de la cultura urbana. Diseñado originalmente para las canchas de baloncesto, el Air Jordan 1 ofrece durabilidad y soporte premium con una parte superior de cuero y la legendaria unidad Air-Sole en el talón.'
+    description: 'El icono de la cultura urbana.'
   },
   {
     id: 'mock-2',
     name: 'Ultraboost Light 23',
     brand: 'Adidas',
-    price: 199.99,
+    price: 233000,
     sizes: ['39', '40', '41', '42', '43'],
     image_url: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&q=80&w=800',
-    description: 'Experimenta una energía épica con las nuevas Ultraboost Light, las Ultraboost más ligeras jamás creadas. Su mediasuela Boost de última generación ofrece una amortiguación y reactividad sin precedentes.'
+    description: 'Experimenta una energía épica.'
   },
   {
     id: 'mock-3',
-    name: 'Air Max Plus "Tuned Air"',
+    name: 'Air Max Plus Tuned Air',
     brand: 'Nike',
-    price: 179.99,
+    price: 250000,
     sizes: ['40', '41', '42', '43', '44'],
     image_url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800',
-    description: 'Deja que tu actitud marque el ritmo con una experiencia Tuned Air que ofrece una estabilidad excelente y una amortiguación increíble. Con malla transpirable y las icónicas líneas de diseño onduladas.'
+    description: 'Deja que tu actitud marque el ritmo.'
   },
   {
     id: 'mock-4',
     name: 'Classic Club C 85 Vintage',
     brand: 'Reebok',
-    price: 94.99,
-    sizes: ['38', '39', '40', '41', '42', '43', '44'],
+    price: 275000,
+    sizes: ['38', '39', '40', '41', '42', '43'],
     image_url: 'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&q=80&w=800',
-    description: 'El minimalismo de los 80 en su máxima expresión. Esta silueta atemporal de cuero suave ofrece un estilo limpio e informal con un toque vintage ideal para combinar con cualquier prenda.'
+    description: 'El minimalismo de los 80 en su máxima expresión.'
   },
   {
     id: 'mock-5',
     name: 'RS-X Triple Black Edition',
     brand: 'Puma',
-    price: 119.99,
+    price: 194000,
     sizes: ['41', '42', '43', '44', '45'],
     image_url: 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&q=80&w=800',
-    description: 'Vuelve la silueta RS-X del futuro retro. Con un diseño disruptivo y detalles geométricos, esta zapatilla de running de calle destaca por su comodidad extrema y estética industrial.'
+    description: 'Vuelve la silueta RS-X del futuro retro.'
   },
   {
     id: 'mock-6',
     name: '550 Vintage White Green',
     brand: 'New Balance',
-    price: 149.99,
+    price: 199000,
     sizes: ['40', '41', '42', '43', '44'],
     image_url: 'https://images.unsplash.com/photo-1539185441755-769473a23570?auto=format&fit=crop&q=80&w=800',
-    description: 'El calzado de baloncesto retro que conquistó la moda urbana. El New Balance 550 rinde homenaje al modelo original de 1989 con cuero premium de grano completo y sutiles acentos en verde deportivo.'
+    description: 'Baloncesto retro que conquistó la moda urbana.'
   }
 ];
 
-export default function Store() {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [selectedBrand, setSelectedBrand] = useState('Todos');
-  const [sortBy, setSortBy] = useState('newest'); // newest, price-asc, price-desc
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [dbStatus, setDbStatus] = useState('checking'); // checking, connected, offline
+const HERO_CONFIG = [
+  { heightRatio: 0.58, rotate: -8, zIndex: 1, brightness: 0.65 },
+  { heightRatio: 0.75, rotate: -4, zIndex: 2, brightness: 0.8  },
+  { heightRatio: 1.00, rotate:  0, zIndex: 5, brightness: 1.0  },
+  { heightRatio: 0.75, rotate:  4, zIndex: 2, brightness: 0.8  },
+  { heightRatio: 0.58, rotate:  8, zIndex: 1, brightness: 0.65 },
+];
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+const CARDS_PER_PAGE = 4;
+
+export default function Store({ onAddToCart }) {
+  const [products, setProducts]       = useState([]);
+  const [loading, setLoading]         = useState(true);
+  const [carouselIdx, setCarouselIdx] = useState(0);
+  const [addedId, setAddedId]         = useState(null);
+  const [contactForm, setContactForm] = useState({ name: '', price: '', email: '', message: '' });
+
+  useEffect(() => { fetchProducts(); }, []);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -79,620 +93,536 @@ export default function Store() {
         .from('products')
         .select('*')
         .order('created_at', { ascending: false });
-
       if (error) throw error;
-
-      if (data && data.length > 0) {
-        setProducts(data);
-        setDbStatus('connected');
-      } else {
-        // Connected but table empty -> show mocks but mark status
-        setProducts(MOCK_PRODUCTS);
-        setDbStatus('connected-empty');
-      }
-    } catch (error) {
-      console.log('Using mock products (Supabase database offline or not configured). Details:', error.message);
+      setProducts(data && data.length > 0 ? data : MOCK_PRODUCTS);
+    } catch {
       setProducts(MOCK_PRODUCTS);
-      setDbStatus('offline');
     } finally {
       setLoading(false);
     }
   };
 
-  // Get list of unique brands for filters
-  const brands = ['Todos', ...new Set(products.map(p => p.brand))];
+  const fmt = (price) =>
+    `ARS ${Number(price).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`;
 
-  // Filtering & Sorting logic
-  const filteredProducts = products
-    .filter(product => {
-      const matchesSearch = product.name.toLowerCase().includes(search.toLowerCase()) || 
-                            product.brand.toLowerCase().includes(search.toLowerCase()) ||
-                            (product.description && product.description.toLowerCase().includes(search.toLowerCase()));
-      const matchesBrand = selectedBrand === 'Todos' || product.brand === selectedBrand;
-      return matchesSearch && matchesBrand;
-    })
-    .sort((a, b) => {
-      if (sortBy === 'price-asc') return a.price - b.price;
-      if (sortBy === 'price-desc') return b.price - a.price;
-      // Default / newest
-      return new Date(b.created_at || 0) - new Date(a.created_at || 0);
-    });
+  const openWA = (msg = '¡Hola! Quiero consultar sobre sus productos.') =>
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+
+  const handleAdd = (product) => {
+    onAddToCart?.();
+    setAddedId(product.id);
+    setTimeout(() => setAddedId(null), 1600);
+  };
+
+  const maxIdx       = Math.max(0, products.length - CARDS_PER_PAGE);
+  const visible      = products.slice(carouselIdx, carouselIdx + CARDS_PER_PAGE);
+  const heroItems    = products.slice(0, 5);
+  const sideFeatures = products.slice(0, 3);
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+        <style dangerouslySetInnerHTML={{__html: `@keyframes _spin { to { transform: rotate(360deg); } }`}} />
+        <div style={{
+          width: '38px', height: '38px',
+          border: '3px solid rgba(255,63,63,0.15)',
+          borderTopColor: '#ff3f3f',
+          borderRadius: '50%',
+          animation: '_spin 1s linear infinite'
+        }} />
+      </div>
+    );
+  }
 
   return (
-    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-      
-      {/* DB Connection Status Bar */}
-      {dbStatus === 'offline' && (
-        <div style={{
-          background: 'rgba(234, 179, 8, 0.15)',
-          border: '1px solid rgba(234, 179, 8, 0.3)',
-          color: '#facc15',
-          padding: '0.75rem 1rem',
-          borderRadius: 'var(--radius-sm)',
-          fontSize: '0.85rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '0.5rem',
-          marginTop: '-1rem'
-        }}>
-          <span>⚠️ <strong>Modo Demo Local:</strong> Supabase no está conectado o la tabla `products` no existe. Se muestran zapatillas de muestra. Agrega tus credenciales en el archivo `.env`.</span>
-        </div>
-      )}
+    <div style={{ color: 'var(--text-primary)' }}>
 
-      {dbStatus === 'connected-empty' && (
-        <div style={{
-          background: 'rgba(59, 130, 246, 0.15)',
-          border: '1px solid rgba(59, 130, 246, 0.3)',
-          color: '#60a5fa',
-          padding: '0.75rem 1rem',
-          borderRadius: 'var(--radius-sm)',
-          fontSize: '0.85rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '0.5rem',
-          marginTop: '-1rem'
-        }}>
-          <span>⚡ Conectado a Supabase correctamente, pero la tabla `products` está vacía. Inicia sesión en el panel de administrador para subir productos, o revisa las zapatillas de muestra a continuación.</span>
-        </div>
-      )}
-
-      {/* Hero Section */}
-      <div className="glass-panel" style={{
-        padding: '3rem 2.5rem',
-        borderRadius: 'var(--radius-lg)',
+      {/* ── HERO BANNER ── */}
+      <div style={{
         position: 'relative',
+        background: 'linear-gradient(160deg, #080c14 0%, #111825 100%)',
+        borderRadius: '14px',
         overflow: 'hidden',
-        background: 'linear-gradient(135deg, rgba(255, 63, 63, 0.15) 0%, rgba(12, 15, 23, 0.95) 60%)',
-        border: '1px solid rgba(255, 63, 63, 0.15)',
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        gap: '2rem'
+        marginBottom: '1.5rem',
+        height: '290px',
+        border: '1px solid #1a1f2e'
       }}>
-        {/* Subtle grid background */}
+        {/* Central glow */}
         <div style={{
           position: 'absolute',
-          inset: 0,
-          opacity: 0.05,
-          backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)',
-          backgroundSize: '24px 24px',
+          left: '55%',
+          top: '40%',
+          transform: 'translate(-50%, -50%)',
+          width: '460px',
+          height: '220px',
+          background: 'radial-gradient(ellipse, rgba(255,255,255,0.07) 0%, transparent 68%)',
           pointerEvents: 'none'
         }} />
 
-        <div style={{ flex: '1 1 450px', zIndex: 1 }}>
-          <span style={{
-            background: 'var(--accent-gradient)',
-            padding: '0.35rem 0.75rem',
-            borderRadius: '20px',
-            fontSize: '0.75rem',
-            fontWeight: 800,
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            boxShadow: '0 4px 10px rgba(255, 63, 63, 0.2)'
-          }}>
-            NUEVA COLECCIÓN 2026
-          </span>
-          <h1 style={{ fontSize: '3rem', marginTop: '1rem', lineHeight: 1.1, fontWeight: 800 }}>
-            PASIÓN POR <br />
-            <span style={{
-              background: 'var(--accent-gradient)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
-            }}>
-              LAS ZAPATILLAS
-            </span>
-          </h1>
-          <p style={{ color: 'var(--text-secondary)', marginTop: '1rem', fontSize: '1.05rem', maxWidth: '450px' }}>
-            Explora las mejores siluetas de la temporada. Modelos exclusivos de tus marcas preferidas diseñados para el estilo urbano y deportivo.
-          </p>
-          <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
-            <a href="#productos-grid" className="btn-primary">
-              <ShoppingBag size={18} />
-              Ver Catálogo
-            </a>
-          </div>
+        {/* Podium ellipse */}
+        <div style={{
+          position: 'absolute',
+          bottom: '-18px',
+          left: '50%',
+          transform: 'translateX(-30%)',
+          width: '580px',
+          height: '55px',
+          background: 'radial-gradient(ellipse, rgba(255,255,255,0.09) 0%, transparent 72%)',
+          borderRadius: '50%',
+          pointerEvents: 'none'
+        }} />
+
+        {/* Sneakers */}
+        <div style={{
+          position: 'absolute',
+          right: '-20px',
+          bottom: '0',
+          width: '58%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'center',
+          paddingBottom: '0'
+        }}>
+          {heroItems.map((p, i) => {
+            const cfg = HERO_CONFIG[i] ?? HERO_CONFIG[2];
+            const BASE_H = 200;
+            return (
+              <img
+                key={p.id}
+                src={p.image_url}
+                alt={p.name}
+                onError={e => { e.target.style.display = 'none'; }}
+                style={{
+                  height: `${Math.round(BASE_H * cfg.heightRatio)}px`,
+                  objectFit: 'contain',
+                  filter: `brightness(${cfg.brightness}) drop-shadow(0 10px 24px rgba(0,0,0,0.85))`,
+                  transform: `rotate(${cfg.rotate}deg)`,
+                  zIndex: cfg.zIndex,
+                  position: 'relative',
+                  marginBottom: `${(1 - cfg.heightRatio) * 40}px`,
+                  marginLeft: i > 0 ? '-12px' : '0'
+                }}
+              />
+            );
+          })}
         </div>
 
-        <div style={{
-          flex: '1 1 350px',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          position: 'relative',
-          height: '250px'
-        }}>
-          {/* Neon background light */}
-          <div style={{
-            position: 'absolute',
-            width: '200px',
-            height: '200px',
-            borderRadius: '50%',
-            background: '#ff3f3f',
-            filter: 'blur(90px)',
-            opacity: 0.35,
-            zIndex: 0
-          }} />
-          <img 
-            src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800" 
-            alt="Hero Sneaker" 
-            style={{
-              maxHeight: '260px',
-              objectFit: 'contain',
-              transform: 'rotate(-15deg) translateY(-10px)',
-              filter: 'drop-shadow(0 20px 30px rgba(0,0,0,0.8))',
-              animation: 'float 4s ease-in-out infinite',
-              zIndex: 1
-            }}
-          />
+        {/* Text */}
+        <div style={{ position: 'relative', zIndex: 10, padding: '2rem 2.5rem', maxWidth: '420px' }}>
+          <h1 style={{
+            fontSize: 'clamp(1.25rem, 2.2vw, 1.85rem)',
+            fontWeight: 900,
+            textTransform: 'uppercase',
+            color: '#fff',
+            lineHeight: 1.15,
+            fontFamily: 'var(--font-heading)',
+            marginBottom: '0.5rem'
+          }}>
+            MODELOS EXCLUSIVOS -
+          </h1>
+          <p style={{ fontSize: '0.95rem', color: '#b0b8c8', fontWeight: 500, lineHeight: 1.45 }}>
+            Envío Gratis en La Plata y Alrededores
+          </p>
         </div>
+
+        {/* WhatsApp contact bar */}
+        <button
+          onClick={() => openWA()}
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            background: 'rgba(0,0,0,0.78)',
+            backdropFilter: 'blur(12px)',
+            border: 'none',
+            borderTopLeftRadius: '12px',
+            padding: '0.65rem 1.2rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.6rem',
+            cursor: 'pointer',
+            zIndex: 10
+          }}
+        >
+          <WhatsAppIcon size={20} />
+          <span style={{ color: '#fff', fontSize: '0.82rem', fontWeight: 600 }}>
+            Consultas al MD o WhatsApp {WHATSAPP_NUMBER}
+          </span>
+        </button>
       </div>
 
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes float {
-          0% { transform: rotate(-15deg) translateY(0px); }
-          50% { transform: rotate(-12deg) translateY(-15px); }
-          100% { transform: rotate(-15deg) translateY(0px); }
-        }
-      `}} />
+      {/* ── TWO-COLUMN LAYOUT ── */}
+      <div className="store-grid">
 
-      {/* Main Showcase Section */}
-      <div id="productos-grid" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        
-        {/* Search, Filter & Sort Controls */}
-        <div className="glass-panel" style={{
-          padding: '1.25rem',
-          borderRadius: 'var(--radius-md)',
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '1rem',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
-          {/* Search bar */}
-          <div style={{ position: 'relative', flex: '1 1 300px' }}>
-            <Search size={18} style={{
-              position: 'absolute',
-              left: '1rem',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: 'var(--text-muted)'
-            }} />
-            <input 
-              type="text" 
-              placeholder="Buscar por modelo o marca..." 
-              className="form-input"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{ paddingLeft: '2.75rem' }}
-            />
-          </div>
-
-          {/* Sort selection */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-              <ArrowUpDown size={16} />
-              <span>Ordenar por:</span>
+        {/* LEFT: Product Carousel */}
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Destacados</h2>
+            <div style={{ display: 'flex', gap: '0.4rem' }}>
+              {[
+                { icon: <ChevronLeft size={16} />, action: () => setCarouselIdx(Math.max(0, carouselIdx - CARDS_PER_PAGE)), disabled: carouselIdx === 0 },
+                { icon: <ChevronRight size={16} />, action: () => setCarouselIdx(Math.min(maxIdx, carouselIdx + CARDS_PER_PAGE)), disabled: carouselIdx >= maxIdx },
+              ].map(({ icon, action, disabled }, i) => (
+                <button key={i} onClick={action} disabled={disabled} style={{
+                  background: 'var(--bg-tertiary)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '50%',
+                  width: '34px', height: '34px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: disabled ? 'not-allowed' : 'pointer',
+                  color: disabled ? 'var(--text-muted)' : 'var(--text-primary)',
+                  transition: 'all 0.2s'
+                }}>
+                  {icon}
+                </button>
+              ))}
             </div>
-            <select 
-              value={sortBy} 
-              onChange={(e) => setSortBy(e.target.value)}
-              className="form-input"
-              style={{ width: 'auto', padding: '0.5rem 2rem 0.5rem 1rem', cursor: 'pointer' }}
-            >
-              <option value="newest">Más recientes</option>
-              <option value="price-asc">Precio: Bajo a Alto</option>
-              <option value="price-desc">Precio: Alto a Bajo</option>
-            </select>
           </div>
-        </div>
 
-        {/* Brand Filters */}
-        <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
-          {brands.map(brand => (
-            <button
-              key={brand}
-              onClick={() => setSelectedBrand(brand)}
-              style={{
-                padding: '0.5rem 1.25rem',
-                borderRadius: '20px',
-                border: '1px solid',
-                borderColor: selectedBrand === brand ? 'rgba(255, 63, 63, 0.4)' : 'var(--glass-border)',
-                background: selectedBrand === brand ? 'var(--accent-gradient)' : 'rgba(255, 255, 255, 0.03)',
-                color: selectedBrand === brand ? '#fff' : 'var(--text-secondary)',
-                fontWeight: 600,
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                whiteSpace: 'nowrap'
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+            {visible.map(product => (
+              <div key={product.id} style={{
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                transition: 'border-color 0.2s, transform 0.2s'
               }}
-            >
-              {brand}
-            </button>
-          ))}
-        </div>
-
-        {/* Sneaker Grid */}
-        {loading ? (
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '5rem 0',
-            gap: '1rem',
-            color: 'var(--text-secondary)'
-          }}>
-            <div style={{
-              width: '40px',
-              height: '40px',
-              border: '3px solid rgba(255, 63, 63, 0.1)',
-              borderTopColor: '#ff3f3f',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite'
-            }} />
-            <span>Cargando colección...</span>
-            <style dangerouslySetInnerHTML={{__html: `
-              @keyframes spin {
-                to { transform: rotate(360deg); }
-              }
-            `}} />
-          </div>
-        ) : filteredProducts.length === 0 ? (
-          <div className="glass-panel" style={{
-            padding: '5rem 2rem',
-            textAlign: 'center',
-            color: 'var(--text-secondary)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '1.25rem'
-          }}>
-            <SlidersHorizontal size={40} style={{ color: 'var(--text-muted)' }} />
-            <div>
-              <h3>No se encontraron zapatillas</h3>
-              <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>Prueba ajustando los filtros de búsqueda o marcas.</p>
-            </div>
-            <button 
-              className="btn-secondary"
-              onClick={() => { setSearch(''); setSelectedBrand('Todos'); }}
-              style={{ fontSize: '0.875rem', padding: '0.5rem 1.25rem' }}
-            >
-              Restablecer Filtros
-            </button>
-          </div>
-        ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: '2rem'
-          }}>
-            {filteredProducts.map(product => (
-              <div 
-                key={product.id} 
-                className="glass-card"
-                style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,63,63,0.3)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.transform = 'translateY(0)'; }}
               >
-                {/* Image Wrap */}
+                {/* Image + thumbnails */}
                 <div style={{
-                  position: 'relative',
-                  paddingTop: '80%',
-                  background: 'radial-gradient(circle at center, rgba(255, 255, 255, 0.03) 0%, rgba(0, 0, 0, 0.3) 100%)',
-                  overflow: 'hidden',
-                  cursor: 'pointer'
-                }} onClick={() => setSelectedProduct(product)}>
-                  <img 
-                    src={product.image_url} 
-                    alt={product.name} 
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800'; // fallback
-                    }}
-                    style={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      transform: 'translate(-50%, -50%)',
-                      maxWidth: '85%',
-                      maxHeight: '75%',
-                      objectFit: 'contain',
-                      transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                      filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.4))'
-                    }}
-                    className="sneaker-thumbnail"
-                  />
-                  <span style={{
-                    position: 'absolute',
-                    top: '1rem',
-                    left: '1rem',
-                    background: 'rgba(0, 0, 0, 0.6)',
-                    backdropFilter: 'blur(4px)',
-                    padding: '0.25rem 0.6rem',
-                    borderRadius: '4px',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    letterSpacing: '0.05em',
-                    color: '#ff8008',
-                    border: '1px solid rgba(255,255,255,0.05)'
-                  }}>
-                    {product.brand}
-                  </span>
+                  display: 'flex',
+                  height: '165px',
+                  background: 'var(--bg-primary)',
+                  borderBottom: '1px solid var(--border-color)'
+                }}>
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.85rem' }}>
+                    <img
+                      src={product.image_url}
+                      alt={product.name}
+                      onError={e => { e.target.src = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=400'; }}
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '135px',
+                        objectFit: 'contain',
+                        filter: 'drop-shadow(0 5px 14px rgba(0,0,0,0.55))'
+                      }}
+                    />
+                  </div>
+                  {/* Thumbnail column */}
+                  <div style={{ width: '56px', display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px 0' }}>
+                    {[1, 0.55].map((op, ti) => (
+                      <div key={ti} style={{
+                        flex: 1,
+                        background: 'var(--bg-tertiary)',
+                        borderRadius: '6px',
+                        overflow: 'hidden'
+                      }}>
+                        <img
+                          src={product.image_url}
+                          alt=""
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            opacity: op,
+                            transform: ti === 1 ? 'scaleX(-1)' : 'none'
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Card Body */}
-                <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', flex: 1, gap: '0.75rem' }}>
-                  <h3 
-                    onClick={() => setSelectedProduct(product)}
+                {/* Card body */}
+                <div style={{ padding: '0.85rem' }}>
+                  <p style={{
+                    fontSize: '0.76rem',
+                    color: 'var(--text-secondary)',
+                    marginBottom: '0.2rem',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    {product.name}
+                  </p>
+                  <p style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>
+                    {fmt(product.price)}
+                  </p>
+                  <button
+                    onClick={() => handleAdd(product)}
                     style={{
-                      fontSize: '1.15rem',
+                      width: '100%',
+                      background: addedId === product.id ? '#22c55e' : '#fff',
+                      color: addedId === product.id ? '#fff' : '#000',
+                      border: 'none',
+                      borderRadius: '7px',
+                      padding: '0.58rem',
                       fontWeight: 700,
+                      fontSize: '0.78rem',
                       cursor: 'pointer',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                      height: '2.8rem',
-                      lineHeight: '1.4'
+                      transition: 'all 0.25s',
+                      fontFamily: 'inherit'
                     }}
                   >
-                    {product.name}
-                  </h3>
-                  
-                  {/* Sizes */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
-                    {product.sizes && product.sizes.slice(0, 4).map(size => (
-                      <span key={size} style={{
-                        background: 'rgba(255,255,255,0.04)',
-                        border: '1px solid var(--border-color)',
-                        padding: '0.15rem 0.4rem',
-                        borderRadius: '4px',
-                        fontSize: '0.7rem',
-                        color: 'var(--text-secondary)'
-                      }}>
-                        T{size}
-                      </span>
-                    ))}
-                    {product.sizes && product.sizes.length > 4 && (
-                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', alignSelf: 'center', marginLeft: '0.25rem' }}>
-                        +{product.sizes.length - 4} más
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Price & Action */}
-                  <div style={{
-                    marginTop: 'auto',
-                    paddingTop: '0.75rem',
-                    borderTop: '1px solid var(--border-color)',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                  }}>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Precio</span>
-                      <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>
-                        ${Number(product.price).toLocaleString('es-CL')}
-                      </span>
-                    </div>
-                    
-                    <button 
-                      onClick={() => setSelectedProduct(product)}
-                      className="btn-secondary"
-                      style={{
-                        padding: '0.4rem',
-                        borderRadius: '8px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        border: 'none',
-                        background: 'rgba(255, 63, 63, 0.15)',
-                        color: '#ff3f3f'
-                      }}
-                    >
-                      <Info size={16} />
-                    </button>
-                  </div>
+                    {addedId === product.id ? '✓ Agregado' : 'Añadir al Carrito'}
+                  </button>
                 </div>
               </div>
             ))}
           </div>
-        )}
-      </div>
+        </div>
 
-      {/* Styled card image zoom via css injected inline */}
-      <style dangerouslySetInnerHTML={{__html: `
-        .glass-card:hover .sneaker-thumbnail {
-          transform: translate(-50%, -55%) rotate(-5deg) scale(1.1);
-        }
-      `}} />
+        {/* RIGHT: Utility Panel */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
-      {/* Quick View Modal */}
-      {selectedProduct && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(0, 0, 0, 0.8)',
-          backdropFilter: 'blur(8px)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 999,
-          padding: '1rem',
-          animation: 'fadeIn 0.2s ease-out'
-        }} onClick={() => setSelectedProduct(null)}>
-          <div 
-            className="glass-panel" 
+          {/* Mini Featured Products */}
+          <div style={{
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '12px',
+            padding: '1rem'
+          }}>
+            <h3 style={{ fontSize: '0.88rem', fontWeight: 700, marginBottom: '0.7rem' }}>Destacados</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {sideFeatures.map(p => (
+                <div key={p.id} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.6rem',
+                  background: 'var(--bg-tertiary)',
+                  borderRadius: '8px',
+                  padding: '0.5rem',
+                  border: '1px solid var(--border-color)'
+                }}>
+                  <img src={p.image_url} alt={p.name} style={{ width: '54px', height: '44px', objectFit: 'contain', flexShrink: 0 }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: '0.66rem', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {p.name}
+                    </p>
+                    <p style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '0.1rem' }}>
+                      {fmt(p.price)}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleAdd(p)}
+                    style={{
+                      background: '#fff',
+                      color: '#000',
+                      border: 'none',
+                      borderRadius: '5px',
+                      padding: '0.28rem 0.45rem',
+                      fontSize: '0.6rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0,
+                      fontFamily: 'inherit',
+                      transition: 'opacity 0.2s'
+                    }}
+                  >
+                    Añadir al Carrito
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Service Icons */}
+          <div style={{
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '12px',
+            padding: '0.85rem 0.6rem'
+          }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.3rem' }}>
+              {[
+                { Icon: Package, label: 'Stock 🟢'    },
+                { Icon: Users,   label: 'Ustedes 🟢'  },
+                { Icon: Truck,   label: 'Envíos 🟢'   },
+                { Icon: Clock,   label: 'Horarios 🟢' },
+              ].map(({ Icon, label }) => (
+                <div key={label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem' }}>
+                  <div style={{
+                    width: '44px', height: '44px',
+                    borderRadius: '50%',
+                    background: 'var(--bg-tertiary)',
+                    border: '1px solid var(--border-color)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: 'var(--text-secondary)'
+                  }}>
+                    <Icon size={17} />
+                  </div>
+                  <span style={{ fontSize: '0.58rem', color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.3 }}>
+                    {label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Payment + Shipping Info */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            {[
+              {
+                title: 'Métodos de pago',
+                items: ['Abonas Al Recibir 💵', 'Abonas Al Recibir 💳', 'Abonas Al Recibir 📱', 'Abonas Al Recibir 🏦']
+              },
+              {
+                title: 'Seguimiento al envío',
+                items: ['Seguimiento de envío', 'Consultas de envío', 'Estado de envíos']
+              }
+            ].map(({ title, items }) => (
+              <div key={title} style={{
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '10px',
+                padding: '0.75rem'
+              }}>
+                <h4 style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.45rem' }}>{title}</h4>
+                {items.map(item => (
+                  <div key={item} style={{ fontSize: '0.6rem', color: 'var(--text-muted)', marginBottom: '0.2rem', display: 'flex', gap: '0.2rem', alignItems: 'flex-start' }}>
+                    <span style={{ color: '#ff3f3f', flexShrink: 0, lineHeight: 1.4 }}>→</span>
+                    <span style={{ lineHeight: 1.4 }}>{item}</span>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+
+          {/* Contact Form */}
+          <div style={{
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '12px',
+            padding: '1rem'
+          }}>
+            <h4 style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.7rem' }}>Contacto al cliente</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              {[
+                { key: 'name',  placeholder: 'Name',   type: 'text'  },
+                { key: 'price', placeholder: 'Precio', type: 'text'  },
+                { key: 'email', placeholder: 'Email',  type: 'email' },
+              ].map(({ key, placeholder, type }) => (
+                <input
+                  key={key}
+                  type={type}
+                  placeholder={placeholder}
+                  value={contactForm[key]}
+                  onChange={e => setContactForm(prev => ({ ...prev, [key]: e.target.value }))}
+                  style={{
+                    background: 'var(--bg-tertiary)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '6px',
+                    padding: '0.48rem 0.75rem',
+                    color: 'var(--text-primary)',
+                    fontSize: '0.76rem',
+                    outline: 'none',
+                    width: '100%',
+                    fontFamily: 'inherit'
+                  }}
+                />
+              ))}
+              <textarea
+                placeholder="Pontaja tu mensaje"
+                value={contactForm.message}
+                onChange={e => setContactForm(prev => ({ ...prev, message: e.target.value }))}
+                style={{
+                  background: 'var(--bg-tertiary)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '6px',
+                  padding: '0.48rem 0.75rem',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.76rem',
+                  outline: 'none',
+                  width: '100%',
+                  minHeight: '62px',
+                  resize: 'vertical',
+                  fontFamily: 'inherit'
+                }}
+              />
+              <button
+                onClick={() => openWA(`${contactForm.name ? contactForm.name + ': ' : ''}${contactForm.message || 'Consulta desde la web'}`)}
+                style={{
+                  background: '#fff',
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '0.58rem',
+                  fontWeight: 700,
+                  fontSize: '0.82rem',
+                  cursor: 'pointer',
+                  width: '100%',
+                  fontFamily: 'inherit',
+                  transition: 'opacity 0.2s'
+                }}
+              >
+                Contact
+              </button>
+            </div>
+
+            {/* Social icons */}
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.75rem', justifyContent: 'center' }}>
+              <Share2 size={17} style={{ color: 'var(--text-muted)', cursor: 'pointer' }} />
+              <Camera size={17} style={{ color: 'var(--text-muted)', cursor: 'pointer' }} />
+              <Play   size={17} style={{ color: 'var(--text-muted)', cursor: 'pointer' }} />
+            </div>
+          </div>
+
+          {/* WhatsApp CTA button */}
+          <button
+            onClick={() => openWA()}
             style={{
-              maxWidth: '750px',
-              width: '100%',
-              maxHeight: '90vh',
-              overflowY: 'auto',
-              display: 'flex',
-              flexWrap: 'wrap',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              background: 'linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%)',
-              padding: '0'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Image Section */}
-            <div style={{
-              flex: '1 1 300px',
-              background: 'radial-gradient(circle at center, rgba(255, 63, 63, 0.08) 0%, rgba(0, 0, 0, 0.2) 100%)',
+              background: '#25D366',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '10px',
+              padding: '0.8rem 1.25rem',
+              fontWeight: 700,
+              fontSize: '0.9rem',
+              cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '2rem',
-              position: 'relative',
-              minHeight: '300px'
-            }}>
-              <img 
-                src={selectedProduct.image_url} 
-                alt={selectedProduct.name}
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800'; // fallback
-                }}
-                style={{
-                  maxWidth: '90%',
-                  maxHeight: '260px',
-                  objectFit: 'contain',
-                  filter: 'drop-shadow(0 15px 25px rgba(0,0,0,0.6))'
-                }}
-              />
-            </div>
-
-            {/* Modal details section */}
-            <div style={{
-              flex: '1 2 400px',
-              padding: '2.5rem 2rem',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1.25rem',
-              position: 'relative'
-            }}>
-              {/* Close button */}
-              <button 
-                onClick={() => setSelectedProduct(null)}
-                style={{
-                  position: 'absolute',
-                  top: '1rem',
-                  right: '1rem',
-                  background: 'rgba(255,255,255,0.05)',
-                  border: 'none',
-                  borderRadius: '50%',
-                  padding: '0.4rem',
-                  cursor: 'pointer',
-                  color: 'var(--text-secondary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                <span style={{ fontSize: '1.2rem', lineHeight: '1' }}>✕</span>
-              </button>
-
-              <div>
-                <span style={{
-                  color: '#ff8008',
-                  fontSize: '0.85rem',
-                  fontWeight: 800,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em'
-                }}>
-                  {selectedProduct.brand}
-                </span>
-                <h2 style={{ fontSize: '1.75rem', marginTop: '0.25rem', lineHeight: '1.2' }}>{selectedProduct.name}</h2>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-                <span style={{ fontSize: '2rem', fontWeight: 800, color: '#fff' }}>
-                  ${Number(selectedProduct.price).toLocaleString('es-CL')}
-                </span>
-                <span style={{ fontSize: '0.85rem', color: '#ff3f3f', display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 600 }}>
-                  <Tag size={12} /> Envío gratis
-                </span>
-              </div>
-
-              {selectedProduct.description && (
-                <div>
-                  <h4 style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
-                    Descripción
-                  </h4>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6' }}>
-                    {selectedProduct.description}
-                  </p>
-                </div>
-              )}
-
-              <div>
-                <h4 style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-                  Tallas Disponibles (EUR)
-                </h4>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  {selectedProduct.sizes && selectedProduct.sizes.map(size => (
-                    <button 
-                      key={size}
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        border: '1px solid var(--border-color)',
-                        padding: '0.5rem 0.85rem',
-                        borderRadius: '6px',
-                        fontSize: '0.85rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s'
-                      }}
-                      onClick={() => alert(`Seleccionaste talla ${size}. ¡Excelente elección!`)}
-                      className="size-pill"
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-                <style dangerouslySetInnerHTML={{__html: `
-                  .size-pill:hover {
-                    background: var(--accent-gradient) !important;
-                    border-color: transparent !important;
-                    color: #fff !important;
-                  }
-                `}} />
-              </div>
-
-              <button 
-                onClick={() => alert('¡Funcionalidad de compra agregada como demo! Redirigiendo a pasarela...')}
-                className="btn-primary" 
-                style={{ width: '100%', justifyContent: 'center', marginTop: '1rem', padding: '1rem' }}
-              >
-                Comprar Ahora
-              </button>
-            </div>
-          </div>
+              gap: '0.65rem',
+              width: '100%',
+              fontFamily: 'inherit',
+              transition: 'opacity 0.2s',
+              boxShadow: '0 4px 16px rgba(37,211,102,0.3)'
+            }}
+            onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; }}
+            onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
+          >
+            <WhatsAppIcon size={20} color="#fff" />
+            Consultas al WhatsApp
+          </button>
         </div>
-      )}
+      </div>
+
+      {/* ── BOTTOM WHATSAPP BAR ── */}
+      <div
+        onClick={() => openWA()}
+        style={{
+          marginTop: '1.5rem',
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border-color)',
+          borderRadius: '10px',
+          padding: '0.8rem 1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.7rem',
+          cursor: 'pointer'
+        }}
+      >
+        <WhatsAppIcon size={19} />
+        <span style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', fontWeight: 600 }}>
+          Consultas al MD o WhatsApp {WHATSAPP_NUMBER}
+        </span>
+      </div>
     </div>
   );
 }

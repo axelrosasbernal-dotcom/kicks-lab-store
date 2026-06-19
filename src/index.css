@@ -271,6 +271,20 @@ button, input, textarea, select {
   padding: 2rem 1.5rem;
 }
 
+/* Store two-column layout */
+.store-grid {
+  display: grid;
+  grid-template-columns: 1fr 348px;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .store-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }

@@ -9,6 +9,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('store');
   const [authLoading, setAuthLoading] = useState(true);
+  const [cartCount, setCartCount] = useState(0);
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
     return saved !== null ? saved === 'true' : true;
@@ -88,7 +89,7 @@ function App() {
 
     switch (activeTab) {
       case 'store':
-        return <Store />;
+        return <Store onAddToCart={() => setCartCount(c => c + 1)} />;
       case 'auth':
         return <Auth onAuthSuccess={(user) => {
           setUser(user);
@@ -118,6 +119,7 @@ function App() {
         onSignOut={handleSignOut}
         darkMode={darkMode}
         onToggleDarkMode={() => setDarkMode(prev => !prev)}
+        cartCount={cartCount}
       />
 
       {/* Main Content Area */}
@@ -133,8 +135,7 @@ function App() {
         textAlign: 'center',
         color: 'var(--text-muted)',
         fontSize: '0.85rem',
-        background: 'rgba(7, 9, 14, 0.5)',
-        backdropFilter: 'blur(8px)'
+        background: 'var(--bg-secondary)'
       }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '1rem', alignItems: 'center' }}>
           <span>© {new Date().getFullYear()} KICKS LAB. Todos los derechos reservados.</span>
