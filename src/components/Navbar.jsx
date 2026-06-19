@@ -28,7 +28,7 @@ const SCROLL_MAP = {
   'Contacto':    'contacto',
 };
 
-export default function Navbar({ user, activeTab, setActiveTab, onSignOut, darkMode, onToggleDarkMode, cartCount = 0, onCartClick, genderFilter, setGenderFilter }) {
+export default function Navbar({ user, isAdmin, activeTab, setActiveTab, onSignOut, darkMode, onToggleDarkMode, cartCount = 0, onCartClick, genderFilter, setGenderFilter }) {
   const handleNavClick = (item) => {
     setActiveTab('store');
     if (SCROLL_MAP[item]) {
@@ -152,27 +152,29 @@ export default function Navbar({ user, activeTab, setActiveTab, onSignOut, darkM
           {/* Auth buttons */}
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <button
-                onClick={() => setActiveTab('admin')}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: activeTab === 'admin' ? '#ff3f3f' : 'var(--text-secondary)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.3rem',
-                  fontSize: '0.88rem',
-                  fontWeight: 600,
-                  fontFamily: 'inherit',
-                  padding: '0.4rem 0.5rem',
-                  borderRadius: '6px',
-                  transition: 'color 0.2s'
-                }}
-              >
-                <Settings size={15} />
-                Admin
-              </button>
+              {isAdmin && (
+                <button
+                  onClick={() => setActiveTab('admin')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: activeTab === 'admin' ? '#ff3f3f' : 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                    fontSize: '0.88rem',
+                    fontWeight: 600,
+                    fontFamily: 'inherit',
+                    padding: '0.4rem 0.5rem',
+                    borderRadius: '6px',
+                    transition: 'color 0.2s'
+                  }}
+                >
+                  <Settings size={15} />
+                  Admin
+                </button>
+              )}
               <button
                 onClick={onSignOut}
                 style={{

@@ -4,6 +4,7 @@ import Store from './components/Store';
 import Auth from './components/Auth';
 import AdminPanel from './components/AdminPanel';
 import { supabase } from './supabaseClient';
+import { useUserRole } from './hooks/useUserRole';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -16,6 +17,8 @@ function App() {
     const saved = localStorage.getItem('darkMode');
     return saved !== null ? saved === 'true' : true;
   });
+
+  const { isAdmin, roleLoading } = useUserRole(user);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
@@ -68,7 +71,7 @@ function App() {
   };
 
   const renderContent = () => {
-    if (authLoading) {
+    if (authLoading || (user && roleLoading)) {
       return (
         <div style={{
           display: 'flex',
@@ -93,17 +96,21 @@ function App() {
       case 'store':
         return <Store onAddToCart={() => setCartCount(c => c + 1)} cartOpenSignal={cartOpenSignal} genderFilter={genderFilter} />;
       case 'auth':
-        return <Auth onAuthSuccess={(user) => {
-          setUser(user);
-          setActiveTab('admin'); // redirect to admin panel on login
+        return <Auth onAuthSuccess={(u) => {
+          setUser(u);
+          setActiveTab('store');
         }} />;
       case 'admin':
-        // Route guard: if not logged in, show auth
         if (!user) {
-          return <Auth onAuthSuccess={(user) => {
-            setUser(user);
+          return <Auth onAuthSuccess={(u) => {
+            setUser(u);
             setActiveTab('admin');
           }} />;
+        }
+        if (!isAdmin) {
+          // No autorizado: redirigir a tienda
+          setActiveTab('store');
+          return <Store onAddToCart={() => setCartCount(c => c + 1)} cartOpenSignal={cartOpenSignal} genderFilter={genderFilter} />;
         }
         return <AdminPanel />;
       default:
@@ -116,6 +123,7 @@ function App() {
       {/* Header Navigation */}
       <Navbar
         user={user}
+        isAdmin={isAdmin}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onSignOut={handleSignOut}
