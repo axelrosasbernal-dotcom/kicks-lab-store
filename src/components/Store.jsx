@@ -151,6 +151,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
   const [detailQty, setDetailQty]         = useState(1);
   const [detailSize, setDetailSize]       = useState('');
   const [detailThumb, setDetailThumb]     = useState(0);
+  const [cardThumbs, setCardThumbs]       = useState({});
 
   const [reviews, setReviews] = useState(() => {
     try {
@@ -407,103 +408,122 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
             </p>
           )}
 
+          <style dangerouslySetInnerHTML={{__html: `
+            .product-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s; }
+            .product-card:hover { border-color: rgba(255,63,63,0.35); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.45); }
+            .product-card-img-wrap { position: relative; overflow: hidden; border-radius: 12px 12px 0 0; cursor: pointer; }
+            .product-card-img-inner { display: flex; align-items: center; justify-content: center; padding: 1.5rem 1.5rem 1rem; height: 320px; background: linear-gradient(160deg, #0d1220 0%, #111827 60%, #0a0e18 100%); transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1); }
+            .product-card-img-wrap:hover .product-card-img-inner { transform: scale(1.05); }
+            .product-card-img { max-width: 100%; max-height: 260px; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 16px 32px rgba(0,0,0,0.7)); transition: filter 0.3s; }
+            .product-card-img-wrap:hover .product-card-img { filter: drop-shadow(0 20px 40px rgba(0,0,0,0.85)); }
+            .product-card-thumbs { display: flex; gap: 6px; padding: 0.65rem 0.85rem 0; }
+            .product-card-thumb { flex: 1; aspect-ratio: 1; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid transparent; background: #0d1220; padding: 4px; transition: border-color 0.15s, transform 0.15s; }
+            .product-card-thumb:hover { transform: scale(1.08); }
+            .product-card-thumb.active { border-color: var(--accent-yellow); }
+            .product-card-thumb img { width: 100%; height: 100%; object-fit: contain; }
+          `}} />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
-            {visible.map(product => (
-              <div key={product.id} style={{
-                background: 'var(--bg-secondary)',
-                border: '1px solid var(--border-color)',
-                borderRadius: '12px',
-                overflow: 'hidden',
-                transition: 'border-color 0.2s, transform 0.2s'
-              }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,63,63,0.3)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.transform = 'translateY(0)'; }}
-              >
-                {/* Image + thumbnails */}
-                <div
-                  onClick={() => openDetail(product)}
-                  style={{
-                    display: 'flex',
-                    height: '165px',
-                    background: 'var(--bg-primary)',
-                    borderBottom: '1px solid var(--border-color)',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.85rem' }}>
-                    <img
-                      src={product.image_url}
-                      alt={product.name}
-                      onError={e => { e.target.src = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=400'; }}
-                      style={{
-                        maxWidth: '100%',
-                        maxHeight: '135px',
-                        objectFit: 'contain',
-                        filter: 'drop-shadow(0 5px 14px rgba(0,0,0,0.55))'
-                      }}
-                    />
-                  </div>
-                  {/* Thumbnail column */}
-                  <div style={{ width: '56px', display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px 0' }}>
-                    {[1, 0.55].map((op, ti) => (
-                      <div key={ti} style={{
-                        flex: 1,
-                        background: 'var(--bg-tertiary)',
-                        borderRadius: '6px',
-                        overflow: 'hidden'
+            {visible.map(product => {
+              const thumbIdx = cardThumbs[product.id] ?? 0;
+              const thumbViews = [
+                { style: {} },
+                { style: { transform: 'scaleX(-1)' } },
+                { style: { opacity: 0.75 } },
+              ];
+              const activeStyle = product.image_urls?.length > 1
+                ? {}
+                : (thumbViews[thumbIdx]?.style ?? {});
+              return (
+                <div key={product.id} className="product-card">
+                  {/* Image area */}
+                  <div className="product-card-img-wrap" onClick={() => openDetail(product)}>
+                    <div className="product-card-img-inner">
+                      <img
+                        src={
+                          product.image_urls?.length > 1
+                            ? (product.image_urls[thumbIdx] ?? product.image_url)
+                            : product.image_url
+                        }
+                        alt={product.name}
+                        className="product-card-img"
+                        onError={e => { e.target.src = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=400'; }}
+                        style={activeStyle}
+                      />
+                    </div>
+                    {/* Badge de marca */}
+                    {product.brand && (
+                      <div style={{
+                        position: 'absolute', top: '10px', left: '10px',
+                        background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: '6px', padding: '2px 8px',
+                        fontSize: '0.62rem', fontWeight: 800, color: 'rgba(255,255,255,0.85)',
+                        letterSpacing: '0.1em', textTransform: 'uppercase'
                       }}>
-                        <img
-                          src={product.image_url}
-                          alt=""
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                            opacity: op,
-                            transform: ti === 1 ? 'scaleX(-1)' : 'none'
-                          }}
-                        />
+                        {product.brand}
                       </div>
-                    ))}
+                    )}
+                  </div>
+
+                  {/* Miniaturas */}
+                  <div className="product-card-thumbs">
+                    {(() => {
+                      const urls = product.image_urls?.length > 1
+                        ? product.image_urls.slice(0, 3)
+                        : [product.image_url, product.image_url, product.image_url];
+                      return urls.map((url, ti) => (
+                        <div
+                          key={ti}
+                          className={`product-card-thumb${thumbIdx === ti ? ' active' : ''}`}
+                          onClick={() => setCardThumbs(prev => ({ ...prev, [product.id]: ti }))}
+                        >
+                          <img
+                            src={url}
+                            alt=""
+                            style={product.image_urls?.length > 1 ? {} : thumbViews[ti]?.style ?? {}}
+                          />
+                        </div>
+                      ));
+                    })()}
+                  </div>
+
+                  {/* Card body */}
+                  <div style={{ padding: '0.85rem 0.85rem 0.9rem' }}>
+                    <p style={{
+                      fontSize: '0.76rem',
+                      color: 'var(--text-secondary)',
+                      marginBottom: '0.2rem',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {product.name}
+                    </p>
+                    <p style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>
+                      {fmt(product.price)}
+                    </p>
+                    <button
+                      onClick={e => { e.stopPropagation(); handleAdd(product); }}
+                      style={{
+                        width: '100%',
+                        background: addedId === product.id ? '#22c55e' : '#fff',
+                        color: addedId === product.id ? '#fff' : '#000',
+                        border: 'none',
+                        borderRadius: '8px',
+                        padding: '0.62rem',
+                        fontWeight: 700,
+                        fontSize: '0.78rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.25s',
+                        fontFamily: 'inherit'
+                      }}
+                    >
+                      {addedId === product.id ? '✓ Agregado' : 'Añadir al Carrito'}
+                    </button>
                   </div>
                 </div>
-
-                {/* Card body */}
-                <div style={{ padding: '0.85rem' }}>
-                  <p style={{
-                    fontSize: '0.76rem',
-                    color: 'var(--text-secondary)',
-                    marginBottom: '0.2rem',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap'
-                  }}>
-                    {product.name}
-                  </p>
-                  <p style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>
-                    {fmt(product.price)}
-                  </p>
-                  <button
-                    onClick={e => { e.stopPropagation(); handleAdd(product); }}
-                    style={{
-                      width: '100%',
-                      background: addedId === product.id ? '#22c55e' : '#fff',
-                      color: addedId === product.id ? '#fff' : '#000',
-                      border: 'none',
-                      borderRadius: '7px',
-                      padding: '0.58rem',
-                      fontWeight: 700,
-                      fontSize: '0.78rem',
-                      cursor: 'pointer',
-                      transition: 'all 0.25s',
-                      fontFamily: 'inherit'
-                    }}
-                  >
-                    {addedId === product.id ? '✓ Agregado' : 'Añadir al Carrito'}
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -969,8 +989,8 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                 icon: <span style={{ fontSize: '1.6rem' }}>📍</span>,
                 label: 'La Plata, BA',
                 value: 'Envíos a todo el país',
-                cta: null,
-                action: null,
+                cta: 'Ver en mapa →',
+                action: () => window.open('https://maps.app.goo.gl/j6rdPnXscngJXasj8', '_blank'),
                 borderColor: '#FFD700'
               },
               {
@@ -1249,7 +1269,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                             transition: 'all 0.15s'
                           }}
                         >
-                          {size}
+                          {size} EUR
                         </button>
                       ))}
                     </div>
@@ -1385,7 +1405,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                     fontFamily: 'inherit', transition: 'all 0.15s'
                   }}
                 >
-                  {size}
+                  {size} EUR
                 </button>
               ))}
             </div>
