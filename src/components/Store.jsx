@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '../supabaseClient';
+import HeroSection from './HeroSection';
 
 const WHATSAPP_NUMBER = '541123862445';
 const WHATSAPP_DISPLAY = '+54 11 2386-2445';
@@ -80,13 +81,6 @@ const SEED_REVIEWS = [
   { id: 3, name: 'Valentina R.', rating: 4, comment: 'Muy buena atención y entrega rápida en La Plata. Llegaron bien embaladas y en perfectas condiciones. Vuelvo a comprar.', date: '01/06/2026' },
 ];
 
-const HERO_CONFIG = [
-  { heightRatio: 0.58, rotate: -8, zIndex: 1, brightness: 0.65 },
-  { heightRatio: 0.75, rotate: -4, zIndex: 2, brightness: 0.8  },
-  { heightRatio: 1.00, rotate:  0, zIndex: 5, brightness: 1.0  },
-  { heightRatio: 0.75, rotate:  4, zIndex: 2, brightness: 0.8  },
-  { heightRatio: 0.58, rotate:  8, zIndex: 1, brightness: 0.65 },
-];
 
 const CARDS_PER_PAGE = 4;
 
@@ -316,8 +310,6 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
 
   const maxIdx  = Math.max(0, sortedProducts.length - CARDS_PER_PAGE);
   const visible = sortedProducts.slice(carouselIdx, carouselIdx + CARDS_PER_PAGE);
-  const heroItems = filteredProducts.slice(0, 5);
-
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
@@ -336,134 +328,11 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
   return (
     <div style={{ color: 'var(--text-primary)' }}>
 
-      {/* ── HERO BANNER ── */}
-      <div style={{
-        position: 'relative',
-        background: 'linear-gradient(160deg, #080c14 0%, #111825 100%)',
-        borderRadius: '14px',
-        overflow: 'hidden',
-        marginBottom: '1.5rem',
-        height: '290px',
-        border: '1px solid #1a1f2e'
-      }}>
-        {/* Central glow */}
-        <div style={{
-          position: 'absolute',
-          left: '55%',
-          top: '40%',
-          transform: 'translate(-50%, -50%)',
-          width: '460px',
-          height: '220px',
-          background: 'radial-gradient(ellipse, rgba(255,255,255,0.07) 0%, transparent 68%)',
-          pointerEvents: 'none'
-        }} />
-
-        {/* Podium ellipse */}
-        <div style={{
-          position: 'absolute',
-          bottom: '-18px',
-          left: '50%',
-          transform: 'translateX(-30%)',
-          width: '580px',
-          height: '55px',
-          background: 'radial-gradient(ellipse, rgba(255,255,255,0.09) 0%, transparent 72%)',
-          borderRadius: '50%',
-          pointerEvents: 'none'
-        }} />
-
-        {/* Sneakers */}
-        <div style={{
-          position: 'absolute',
-          right: '-20px',
-          bottom: '0',
-          width: '58%',
-          height: '100%',
-          display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'center',
-          paddingBottom: '0'
-        }}>
-          {heroItems.map((p, i) => {
-            const cfg = HERO_CONFIG[i] ?? HERO_CONFIG[2];
-            const BASE_H = 200;
-            return (
-              <img
-                key={p.id}
-                src={p.image_url}
-                alt={p.name}
-                onError={e => { e.target.style.display = 'none'; }}
-                style={{
-                  height: `${Math.round(BASE_H * cfg.heightRatio)}px`,
-                  objectFit: 'contain',
-                  filter: `brightness(${cfg.brightness}) drop-shadow(0 10px 24px rgba(0,0,0,0.85))`,
-                  transform: `rotate(${cfg.rotate}deg)`,
-                  zIndex: cfg.zIndex,
-                  position: 'relative',
-                  marginBottom: `${(1 - cfg.heightRatio) * 40}px`,
-                  marginLeft: i > 0 ? '-12px' : '0'
-                }}
-              />
-            );
-          })}
-        </div>
-
-        {/* Text */}
-        <div style={{ position: 'relative', zIndex: 10, padding: '2rem 2.5rem', maxWidth: '420px' }}>
-          <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.18em', color: '#FFD700', textTransform: 'uppercase', marginBottom: '0.55rem' }}>
-            KICKS LAB — Premium Footwear
-          </p>
-          <h1 style={{
-            fontSize: 'clamp(1.45rem, 2.6vw, 2.1rem)',
-            fontWeight: 900,
-            textTransform: 'uppercase',
-            color: '#fff',
-            lineHeight: 1.1,
-            fontFamily: 'var(--font-heading)',
-            marginBottom: '0.65rem',
-            letterSpacing: '-0.01em'
-          }}>
-            EL PASO QUE<br />TODOS NOTAN.
-          </h1>
-          <p style={{ fontSize: '0.92rem', color: '#b0b8c8', fontWeight: 500, lineHeight: 1.55, marginBottom: '1.1rem' }}>
-            Zapatillas premium con garantía de autenticidad.<br />
-            Envío gratis en La Plata y alrededores.
-          </p>
-          <button
-            onClick={() => openWA('¡Hola! Quiero conocer los modelos disponibles.')}
-            style={{
-              background: '#FFD700',
-              color: '#000',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '0.6rem 1.3rem',
-              fontWeight: 800,
-              fontSize: '0.82rem',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-              letterSpacing: '0.04em',
-              textTransform: 'uppercase'
-            }}
-          >
-            Ver modelos →
-          </button>
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '0.85rem', flexWrap: 'wrap' }}>
-            {[
-              { icon: '📦', text: 'Stock disponible' },
-              { icon: '🚚', text: 'Envío gratis La Plata' },
-              { icon: '✅', text: 'Originales garantizados' },
-            ].map(({ icon, text }) => (
-              <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                <span style={{ fontSize: '0.72rem' }}>{icon}</span>
-                <span style={{ fontSize: '0.67rem', color: '#7a8699', fontWeight: 500 }}>{text}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-      </div>
+      {/* ── HERO SECTION ── */}
+      <HeroSection products={filteredProducts} />
 
       {/* ── TWO-COLUMN LAYOUT ── */}
-      <div className="store-grid">
+      <div id="catalogo" className="store-grid">
 
         {/* LEFT: Product Carousel */}
         <div>
