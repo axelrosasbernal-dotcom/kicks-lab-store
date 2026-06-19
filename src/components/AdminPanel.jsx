@@ -266,12 +266,8 @@ export default function AdminPanel() {
       brand: formData.brand,
       price: parseFloat(formData.price),
       image_url: uploadedUrls[0] || defaultImg,
-      image_urls: uploadedUrls.length ? uploadedUrls : [defaultImg],
       description: formData.description,
       sizes: formData.sizes,
-      colors: formData.colors,
-      stock: formData.stock !== '' ? parseInt(formData.stock) : null,
-      tags: formData.tags
     };
 
     if (dbStatus === 'connected') {
