@@ -264,7 +264,6 @@ export default function AdminPanel() {
     const productPayload = {
       name: formData.name,
       brand: formData.brand,
-      category: formData.category || null,
       price: parseFloat(formData.price),
       image_url: uploadedUrls[0] || defaultImg,
       image_urls: uploadedUrls.length ? uploadedUrls : [defaultImg],
