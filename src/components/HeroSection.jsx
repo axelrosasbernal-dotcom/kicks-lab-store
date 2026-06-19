@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Jordan1SVG from './Jordan1SVG';
+import giratorioImg from '../assets/giratorio-cutout.png';
 
 const WA_NUMBER = '541123862445';
 
@@ -431,7 +431,17 @@ export default function HeroSection({ products = [] }) {
               transition: spinning ? 'none' : hovered ? 'transform 0.08s linear' : 'transform 0.6s ease',
               willChange: 'transform',
             }}>
-              <Jordan1SVG />
+              <img
+                src={giratorioImg}
+                alt="Sneaker"
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  objectFit: 'contain',
+                  filter: 'drop-shadow(0 28px 44px rgba(0,0,0,0.75))',
+                  display: 'block',
+                }}
+              />
             </div>
 
             {/* GIRAR button */}
