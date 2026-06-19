@@ -167,6 +167,14 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [sortOrder, setSortOrder] = useState('asc');
   const [searchQuery, setSearchQuery] = useState('');
+  const [favProductIds, setFavProductIds] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('kicks_favorites') || '[]'); } catch { return []; }
+  });
+  const [sessionId] = useState(() => {
+    let id = localStorage.getItem('kicks_session');
+    if (!id) { id = crypto.randomUUID(); localStorage.setItem('kicks_session', id); }
+    return id;
+  });
 
   useEffect(() => { fetchProducts(); }, []);
 
@@ -190,6 +198,24 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
     } finally {
       setLoading(false);
     }
+  };
+
+  const toggleFavorite = async (product, e) => {
+    e.stopPropagation();
+    const isFav = favProductIds.includes(product.id);
+    const newFavs = isFav
+      ? favProductIds.filter(id => id !== product.id)
+      : [...favProductIds, product.id];
+    setFavProductIds(newFavs);
+    localStorage.setItem('kicks_favorites', JSON.stringify(newFavs));
+    try {
+      if (isFav) {
+        await supabase.from('favorites').delete().eq('product_id', product.id).eq('session_id', sessionId);
+      } else {
+        const { error } = await supabase.from('favorites').insert([{ product_id: product.id, session_id: sessionId }]);
+        if (error) await supabase.from('favorites').insert([{ product_id: product.id }]);
+      }
+    } catch {}
   };
 
   const fmt = (price) =>
@@ -476,6 +502,51 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                         {product.brand}
                       </div>
                     )}
+                    {/* Botón corazón - favorito */}
+                    <button
+                      onClick={e => toggleFavorite(product, e)}
+                      style={{
+                        position: 'absolute', top: '10px', right: '10px',
+                        background: favProductIds.includes(product.id) ? 'rgba(239,68,68,0.85)' : 'rgba(0,0,0,0.6)',
+                        backdropFilter: 'blur(6px)',
+                        border: `1px solid ${favProductIds.includes(product.id) ? 'rgba(239,68,68,0.7)' : 'rgba(255,255,255,0.12)'}`,
+                        borderRadius: '50%', width: '32px', height: '32px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', fontSize: '0.88rem', lineHeight: 1,
+                        transition: 'all 0.2s', zIndex: 3
+                      }}
+                    >
+                      {favProductIds.includes(product.id) ? '❤️' : '🤍'}
+                    </button>
+                    {/* Badge de descuento sobre imagen */}
+                    {isDiscountActive(product) && product.discount_value && (
+                      <div style={{
+                        position: 'absolute', bottom: '10px', left: '10px',
+                        background: 'rgba(34,197,94,0.93)', backdropFilter: 'blur(4px)',
+                        borderRadius: '6px', padding: '2px 8px',
+                        fontSize: '0.65rem', fontWeight: 800, color: '#fff',
+                        letterSpacing: '0.05em', zIndex: 3
+                      }}>
+                        -{product.discount_value}% OFF
+                      </div>
+                    )}
+                    {/* Badge de stock */}
+                    {(() => {
+                      const s = Number(product.stock);
+                      if (product.stock !== null && product.stock !== undefined && product.stock !== '' && !isNaN(s)) {
+                        if (s === 0) return (
+                          <div key="stock" style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'rgba(239,68,68,0.93)', backdropFilter: 'blur(4px)', borderRadius: '6px', padding: '2px 8px', fontSize: '0.62rem', fontWeight: 800, color: '#fff', zIndex: 3 }}>
+                            Agotado
+                          </div>
+                        );
+                        if (s <= 3) return (
+                          <div key="stock" style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'rgba(250,204,21,0.93)', backdropFilter: 'blur(4px)', borderRadius: '6px', padding: '2px 8px', fontSize: '0.62rem', fontWeight: 800, color: '#000', zIndex: 3 }}>
+                            ¡Últimas {s}!
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
 
                   {/* Miniaturas */}
