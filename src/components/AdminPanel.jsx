@@ -9,7 +9,7 @@ const COLORS_LIST = ['Blanco', 'Negro', 'Rojo', 'Azul', 'Verde', 'Gris', 'Beige'
 const TAGS_LIST = ['Nuevo', 'Oferta', 'Más vendido', 'Exclusivo', 'Edición limitada'];
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_IMAGES = 8;
-const STORAGE_BUCKET = 'product-images';
+const STORAGE_BUCKET = 'axelrb';
 
 const INITIAL_FORM_STATE = {
   name: '',
@@ -32,7 +32,7 @@ function compressImage(file) {
       img.onerror = () => reject(new Error('No se pudo cargar la imagen'));
       img.onload = () => {
         try {
-          const MAX_W = 1200;
+          const MAX_W = 800;
           const ratio = Math.min(MAX_W / img.width, 1);
           const canvas = document.createElement('canvas');
           canvas.width  = Math.round(img.width  * ratio);
@@ -46,7 +46,7 @@ function compressImage(file) {
               resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' }));
             },
             'image/webp',
-            0.85
+            0.65
           );
         } catch (e) { reject(e); }
       };
@@ -132,8 +132,9 @@ export default function AdminPanel() {
   const [errorMessage, setErrorMessage] = useState('');
   const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
 
-  const fileInputRef = useRef(null);
-  const imagesRef    = useRef([]);
+  const fileInputRef  = useRef(null);
+  const imagesRef     = useRef([]);
+  const modalScrollRef = useRef(null);
   useEffect(() => { imagesRef.current = images; }, [images]);
 
   useEffect(() => { fetchProducts(); }, []);
@@ -337,7 +338,8 @@ export default function AdminPanel() {
         closeModal();
         fetchProducts();
       } catch (err) {
-        setErrorMessage(`Error al guardar: ${err.message}`);
+        setErrorMessage(`Error al guardar: ${err.message ?? 'El archivo puede ser demasiado grande, intentá con imágenes más pequeñas.'}`);
+        setTimeout(() => modalScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' }), 50);
       } finally {
         setSubmitting(false);
       }
@@ -513,7 +515,7 @@ export default function AdminPanel() {
 
       {/* ── Modal ───────────────────────────────────────────────── */}
       {isModalOpen && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(8px)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', zIndex: 999, padding: '1.5rem', overflowY: 'auto' }}>
+        <div ref={modalScrollRef} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(8px)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', zIndex: 999, padding: '1.5rem', overflowY: 'auto' }}>
           <div className="glass-panel" style={{ maxWidth: 700, width: '100%', margin: 'auto', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255,255,255,0.1)', background: 'linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%)', padding: '2.5rem' }}>
 
             {/* Modal header */}
