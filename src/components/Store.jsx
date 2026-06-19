@@ -8,7 +8,7 @@ const WHATSAPP_DISPLAY = '+54 11 2386-2445';
 
 const WhatsAppIcon = ({ size = 22, color = '#25D366' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
-    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
   </svg>
 );
 
@@ -131,27 +131,27 @@ const StepHeader = ({ step, onClose }) => (
 );
 
 export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all' }) {
-  const [products, setProducts]           = useState([]);
-  const [loading, setLoading]             = useState(true);
-  const [carouselIdx, setCarouselIdx]     = useState(0);
-  const [addedId, setAddedId]             = useState(null);
-  const [contactForm, setContactForm]     = useState({ name: '', price: '', email: '', message: '' });
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [carouselIdx, setCarouselIdx] = useState(0);
+  const [addedId, setAddedId] = useState(null);
+  const [contactForm, setContactForm] = useState({ name: '', price: '', email: '', message: '' });
 
   // Cart state
-  const [cart, setCart]                   = useState([]);
-  const [cartOpen, setCartOpen]           = useState(false);
-  const [checkoutStep, setCheckoutStep]   = useState(0);
-  const [customerData, setCustomerData]   = useState({ nombre: '', telefono: '', direccion: '' });
+  const [cart, setCart] = useState([]);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState(0);
+  const [customerData, setCustomerData] = useState({ nombre: '', telefono: '', direccion: '' });
   const [paymentMethod, setPaymentMethod] = useState('');
-  const [orderId, setOrderId]             = useState('');
+  const [orderId, setOrderId] = useState('');
   const [sizePickerProduct, setSizePickerProduct] = useState(null);
-  const [selectedSize, setSelectedSize]   = useState('');
+  const [selectedSize, setSelectedSize] = useState('');
 
   const [detailProduct, setDetailProduct] = useState(null);
-  const [detailQty, setDetailQty]         = useState(1);
-  const [detailSize, setDetailSize]       = useState('');
-  const [detailThumb, setDetailThumb]     = useState(0);
-  const [cardThumbs, setCardThumbs]       = useState({});
+  const [detailQty, setDetailQty] = useState(1);
+  const [detailSize, setDetailSize] = useState('');
+  const [detailThumb, setDetailThumb] = useState(0);
+  const [cardThumbs, setCardThumbs] = useState({});
 
   const [reviews, setReviews] = useState(() => {
     try {
@@ -159,14 +159,14 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
       return stored ?? SEED_REVIEWS;
     } catch { return SEED_REVIEWS; }
   });
-  const [reviewForm, setReviewForm]         = useState({ name: '', rating: 5, comment: '' });
+  const [reviewForm, setReviewForm] = useState({ name: '', rating: 5, comment: '' });
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
-  const [hoverRating, setHoverRating]       = useState(0);
-  const [contactOpen, setContactOpen]       = useState(false);
-  const [nosotrosTab, setNosotrosTab]       = useState(0);
-  const [selectedSizes, setSelectedSizes]   = useState([]);
-  const [sortOrder, setSortOrder]           = useState('asc');
-  const [searchQuery, setSearchQuery]       = useState('');
+  const [hoverRating, setHoverRating] = useState(0);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [nosotrosTab, setNosotrosTab] = useState(0);
+  const [selectedSizes, setSelectedSizes] = useState([]);
+  const [sortOrder, setSortOrder] = useState('asc');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => { fetchProducts(); }, []);
 
@@ -199,7 +199,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
     if (!p?.discount_enabled) return false;
     const now = new Date();
     if (p.discount_start && new Date(p.discount_start) > now) return false;
-    if (p.discount_end   && new Date(p.discount_end)   < now) return false;
+    if (p.discount_end && new Date(p.discount_end) < now) return false;
     return true;
   };
 
@@ -303,9 +303,9 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
   const searchFiltered = q === ''
     ? filteredProducts
     : filteredProducts.filter(p =>
-        p.name.toLowerCase().includes(q) ||
-        (p.brand && p.brand.toLowerCase().includes(q))
-      );
+      p.name.toLowerCase().includes(q) ||
+      (p.brand && p.brand.toLowerCase().includes(q))
+    );
 
   const sizeFiltered = selectedSizes.length === 0
     ? searchFiltered
@@ -321,12 +321,12 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
   }, {});
   const sizeOptions = Object.entries(allSizes).sort((a, b) => Number(a[0]) - Number(b[0]));
 
-  const maxIdx  = Math.max(0, sortedProducts.length - CARDS_PER_PAGE);
+  const maxIdx = Math.max(0, sortedProducts.length - CARDS_PER_PAGE);
   const visible = sortedProducts.slice(carouselIdx, carouselIdx + CARDS_PER_PAGE);
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
-        <style dangerouslySetInnerHTML={{__html: `@keyframes _spin { to { transform: rotate(360deg); } }`}} />
+        <style dangerouslySetInnerHTML={{ __html: `@keyframes _spin { to { transform: rotate(360deg); } }` }} />
         <div style={{
           width: '38px', height: '38px',
           border: '3px solid rgba(255,63,63,0.15)',
@@ -379,7 +379,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
               stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
               style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
             >
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
             <input
               type="text"
@@ -420,7 +420,8 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
             </p>
           )}
 
-          <style dangerouslySetInnerHTML={{__html: `
+          <style dangerouslySetInnerHTML={{
+            __html: `
             .product-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s; }
             .product-card:hover { border-color: rgba(255,63,63,0.35); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.45); }
             .product-card-img-wrap { position: relative; overflow: hidden; border-radius: 12px 12px 0 0; cursor: pointer; }
@@ -844,7 +845,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
             }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
                 <div style={{ display: 'flex', gap: '2px' }}>
-                  {[1,2,3,4,5].map(s => (
+                  {[1, 2, 3, 4, 5].map(s => (
                     <span key={s} style={{ fontSize: '1rem', color: s <= review.rating ? 'var(--accent-yellow)' : 'var(--star-empty)' }}>★</span>
                   ))}
                 </div>
@@ -904,7 +905,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
               <div>
                 <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '0.4rem', fontWeight: 600 }}>Puntuación</p>
                 <div style={{ display: 'flex', gap: '4px' }}>
-                  {[1,2,3,4,5].map(s => (
+                  {[1, 2, 3, 4, 5].map(s => (
                     <span
                       key={s}
                       onClick={() => setReviewForm(prev => ({ ...prev, rating: s }))}
@@ -1002,9 +1003,9 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
               {
                 icon: (
                   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#E1306C" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
                   </svg>
                 ),
                 label: 'Instagram',
@@ -1087,9 +1088,9 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                   style={{ flex: 1, minWidth: '200px', background: 'linear-gradient(135deg, #833AB4, #E1306C, #F77737)', border: 'none', borderRadius: '10px', padding: '0.9rem 1.5rem', color: '#fff', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', textDecoration: 'none', boxSizing: 'border-box' }}
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
                   </svg>
                   DM en Instagram
                 </a>
@@ -1200,11 +1201,11 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                   const thumbUrls = detailProduct.image_urls?.length > 1
                     ? detailProduct.image_urls
                     : [
-                        detailProduct.image_url,
-                        detailProduct.image_url,
-                        detailProduct.image_url,
-                        detailProduct.image_url,
-                      ];
+                      detailProduct.image_url,
+                      detailProduct.image_url,
+                      detailProduct.image_url,
+                      detailProduct.image_url,
+                    ];
                   const thumbStyles = [
                     {},
                     { transform: 'scaleX(-1)' },
@@ -1295,7 +1296,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                 {detailProduct.sizes && detailProduct.sizes.length > 0 && (
                   <div>
                     <p style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.6rem', letterSpacing: '0.05em' }}>
-                      TALLE: <span style={{ color: 'var(--text-primary)' }}>{cleanSize(detailSize)}</span>
+                      TALLE: <span style={{ color: 'var(--text-primary)' }}>{cleanSize(detailSize)} EUR</span>
                     </p>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem' }}>
                       {detailProduct.sizes.map(size => (
@@ -1315,7 +1316,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                             transition: 'all 0.15s'
                           }}
                         >
-                          {cleanSize(size)}
+                          {cleanSize(size)} EUR
                         </button>
                       ))}
                     </div>
@@ -1451,7 +1452,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                     fontFamily: 'inherit', transition: 'all 0.15s'
                   }}
                 >
-                  {cleanSize(size)}
+                  {cleanSize(size)} EUR
                 </button>
               ))}
             </div>
@@ -1526,39 +1527,39 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                 {cart.length === 0
                   ? <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2.5rem 0' }}>Tu carrito está vacío</p>
                   : <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                      {cart.map(({ product, size, qty }) => (
-                        <div key={`${product.id}-${size}`} style={{
-                          background: 'var(--bg-tertiary)', borderRadius: '12px',
-                          padding: '0.85rem', display: 'flex', gap: '0.85rem',
-                          alignItems: 'center', position: 'relative'
-                        }}>
-                          <img
-                            src={product.image_url} alt={product.name}
-                            style={{ width: '72px', height: '72px', objectFit: 'contain', borderRadius: '8px', flexShrink: 0 }}
-                          />
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <p style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.2rem' }}>{product.name}</p>
-                            {size && <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: '0.5rem' }}>Talle {cleanSize(size)}</p>}
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                              <div style={{
-                                display: 'flex', alignItems: 'center', gap: '0.6rem',
-                                background: 'var(--bg-secondary)', borderRadius: '8px', padding: '0.3rem 0.6rem'
-                              }}>
-                                <button onClick={() => updateQty(product, size, -1)} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 700, lineHeight: 1, padding: 0 }}>−</button>
-                                <span style={{ fontWeight: 700, fontSize: '0.9rem', minWidth: '18px', textAlign: 'center' }}>{qty}</span>
-                                <button onClick={() => updateQty(product, size, 1)} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 700, lineHeight: 1, padding: 0 }}>+</button>
-                              </div>
-                              <span style={{ fontWeight: 800, fontSize: '1rem' }}>{fmt(effectivePrice(product) * qty)}</span>
+                    {cart.map(({ product, size, qty }) => (
+                      <div key={`${product.id}-${size}`} style={{
+                        background: 'var(--bg-tertiary)', borderRadius: '12px',
+                        padding: '0.85rem', display: 'flex', gap: '0.85rem',
+                        alignItems: 'center', position: 'relative'
+                      }}>
+                        <img
+                          src={product.image_url} alt={product.name}
+                          style={{ width: '72px', height: '72px', objectFit: 'contain', borderRadius: '8px', flexShrink: 0 }}
+                        />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.2rem' }}>{product.name}</p>
+                          {size && <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: '0.5rem' }}>Talle {cleanSize(size)} EUR</p>}
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{
+                              display: 'flex', alignItems: 'center', gap: '0.6rem',
+                              background: 'var(--bg-secondary)', borderRadius: '8px', padding: '0.3rem 0.6rem'
+                            }}>
+                              <button onClick={() => updateQty(product, size, -1)} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 700, lineHeight: 1, padding: 0 }}>−</button>
+                              <span style={{ fontWeight: 700, fontSize: '0.9rem', minWidth: '18px', textAlign: 'center' }}>{qty}</span>
+                              <button onClick={() => updateQty(product, size, 1)} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 700, lineHeight: 1, padding: 0 }}>+</button>
                             </div>
+                            <span style={{ fontWeight: 800, fontSize: '1rem' }}>{fmt(effectivePrice(product) * qty)}</span>
                           </div>
-                          <button onClick={() => removeFromCart(product, size)} style={{
-                            position: 'absolute', top: '8px', right: '8px',
-                            background: 'none', border: 'none', color: 'var(--text-muted)',
-                            cursor: 'pointer', fontSize: '1rem', lineHeight: 1
-                          }}>×</button>
                         </div>
-                      ))}
-                    </div>
+                        <button onClick={() => removeFromCart(product, size)} style={{
+                          position: 'absolute', top: '8px', right: '8px',
+                          background: 'none', border: 'none', color: 'var(--text-muted)',
+                          cursor: 'pointer', fontSize: '1rem', lineHeight: 1
+                        }}>×</button>
+                      </div>
+                    ))}
+                  </div>
                 }
               </div>
 
@@ -1649,9 +1650,9 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
               <div style={{ flex: 1, overflow: 'auto', padding: '1.5rem' }}>
                 <h2 style={{ fontWeight: 900, fontSize: '1.4rem', textTransform: 'uppercase', marginBottom: '1.5rem' }}>Forma de Pago</h2>
                 {[
-                  { id: 'Efectivo',       icon: '💵', desc: 'Abonás al recibir' },
-                  { id: 'Transferencia',  icon: '🏦', desc: 'Te enviamos el CBU' },
-                  { id: 'Tarjeta',        icon: '💳', desc: 'Hasta 6 cuotas sin interés' },
+                  { id: 'Efectivo', icon: '💵', desc: 'Abonás al recibir' },
+                  { id: 'Transferencia', icon: '🏦', desc: 'Te enviamos el CBU' },
+                  { id: 'Tarjeta', icon: '💳', desc: 'Hasta 6 cuotas sin interés' },
                 ].map(({ id, icon, desc }) => (
                   <div
                     key={id}
@@ -1745,9 +1746,9 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                 <div style={{ background: 'var(--bg-tertiary)', borderRadius: '12px', padding: '1rem', width: '100%', textAlign: 'left' }}>
                   {[
                     { label: 'N° de orden', value: orderId },
-                    { label: 'Total',       value: fmt(totalPrice) },
+                    { label: 'Total', value: fmt(totalPrice) },
                     { label: 'Entrega en', value: customerData.direccion },
-                    { label: 'Pago',        value: paymentMethod },
+                    { label: 'Pago', value: paymentMethod },
                   ].map(({ label, value }, idx, arr) => (
                     <div key={label} style={{
                       display: 'flex', justifyContent: 'space-between',
