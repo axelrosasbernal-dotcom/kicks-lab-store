@@ -179,7 +179,7 @@ function App() {
         background: 'var(--bg-secondary)'
       }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '1rem', alignItems: 'center' }}>
-          <span>© {new Date().getFullYear()} KICKS LAB. Todos los derechos reservados.</span>
+          <span>© {new Date().getFullYear()} $NEAKERS NIK. Todos los derechos reservados.</span>
           <div style={{ display: 'flex', gap: '1.5rem' }}>
             <a href="#" style={{ hover: { color: '#fff' } }}>Términos</a>
             <a href="#">Privacidad</a>

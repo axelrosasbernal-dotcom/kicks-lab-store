@@ -1,25 +1,22 @@
 import React from 'react';
 import { ShoppingCart, Sun, Moon, LogIn, LogOut, Settings } from 'lucide-react';
+import logoImg from '../assets/logo.png';
 
-const KicksLabLogo = () => (
+const BrandLogo = () => (
   <div style={{
-    width: '58px',
-    height: '58px',
+    width: '62px',
+    height: '62px',
     borderRadius: '50%',
-    background: '#000',
-    border: '2px solid #2a2a2a',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
     overflow: 'hidden',
-    padding: '6px',
-    gap: '1px'
+    flexShrink: 0,
+    boxShadow: '0 0 0 2px rgba(255,215,0,0.35), 0 4px 18px rgba(0,0,0,0.6)',
+    transition: 'box-shadow 0.25s'
   }}>
-    <span style={{ fontSize: '0.38rem', fontWeight: 900, color: '#fff', letterSpacing: '0.12em', textTransform: 'uppercase', lineHeight: 1 }}>KICKS</span>
-    <span style={{ fontSize: '1.4rem', lineHeight: 1 }}>👟</span>
-    <span style={{ fontSize: '0.38rem', fontWeight: 900, color: '#fff', letterSpacing: '0.12em', textTransform: 'uppercase', lineHeight: 1 }}>LAB</span>
+    <img
+      src={logoImg}
+      alt="$NEAKERS NIK"
+      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+    />
   </div>
 );
 
@@ -71,8 +68,13 @@ export default function Navbar({ user, activeTab, setActiveTab, onSignOut, darkM
       }}>
 
         {/* Circular Logo */}
-        <div onClick={() => setActiveTab('store')} style={{ cursor: 'pointer', flexShrink: 0 }}>
-          <KicksLabLogo />
+        <div
+          onClick={() => setActiveTab('store')}
+          style={{ cursor: 'pointer', flexShrink: 0 }}
+          onMouseEnter={e => e.currentTarget.firstChild.style.boxShadow = '0 0 0 2px rgba(255,215,0,0.7), 0 6px 24px rgba(0,0,0,0.7)'}
+          onMouseLeave={e => e.currentTarget.firstChild.style.boxShadow = '0 0 0 2px rgba(255,215,0,0.35), 0 4px 18px rgba(0,0,0,0.6)'}
+        >
+          <BrandLogo />
         </div>
 
         {/* Center Nav Items */}
