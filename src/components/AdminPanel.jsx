@@ -401,14 +401,19 @@ export default function AdminPanel() {
       ? [...new Set([...formData.tags, 'Oferta'])]
       : formData.tags.filter(t => t !== 'Oferta');
 
-    const productPayload = {
-      name:             formData.name,
-      brand:            formData.brand,
+    // Campos base — existen desde siempre en la tabla
+    const corePayload = {
+      name:        formData.name,
+      brand:       formData.brand,
+      price:       parseFloat(formData.price),
+      image_url:   allUrls[0],
+      description: formData.description,
+      sizes:       formData.sizes,
+    };
+
+    // Campos extendidos — requieren haber corrido el ALTER TABLE en Supabase
+    const extendedPayload = {
       category:         formData.category || null,
-      price:            parseFloat(formData.price),
-      image_url:        allUrls[0],
-      description:      formData.description,
-      sizes:            formData.sizes,
       colors:           formData.colors,
       stock:            formData.stock !== '' ? parseInt(formData.stock) : null,
       tags:             finalTags,
@@ -421,23 +426,36 @@ export default function AdminPanel() {
       discount_end:     formData.discount_enabled && formData.discount_end   ? formData.discount_end   : null,
     };
 
+    // payload local completo (para modo demo / localStorage)
+    const productPayload = { ...corePayload, ...extendedPayload };
+
     setSubmitting(true);
 
     if (dbStatus === 'connected') {
       try {
         let savedId = editingId;
+
+        // Paso 1: guardar campos base (siempre funciona)
         if (editingId) {
-          const { error } = await supabase.from('products').update(productPayload).eq('id', editingId);
+          const { error } = await supabase.from('products').update(corePayload).eq('id', editingId);
           if (error) throw error;
         } else {
           const newId = crypto.randomUUID();
-          const { error } = await supabase.from('products').insert([{ ...productPayload, id: newId }]);
+          const { error } = await supabase.from('products').insert([{ ...corePayload, id: newId }]);
           if (error) throw error;
           savedId = newId;
         }
+
+        // Paso 2: actualizar campos extendidos (silencioso si las columnas no existen aún)
+        if (savedId) {
+          await supabase.from('products').update(extendedPayload).eq('id', savedId);
+        }
+
+        // Paso 3: actualizar image_urls (silencioso)
         if (savedId && allUrls.length > 0) {
           await supabase.from('products').update({ image_urls: allUrls }).eq('id', savedId);
         }
+
         showNotification(editingId ? '¡Zapatilla actualizada!' : '¡Zapatilla agregada con éxito!');
         closeModal();
         fetchProducts();
