@@ -119,6 +119,8 @@ export default function AdminPanel() {
   const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
 
   const fileInputRef = useRef(null);
+  const imagesRef    = useRef([]);
+  useEffect(() => { imagesRef.current = images; }, [images]);
 
   useEffect(() => { fetchProducts(); }, []);
 
@@ -149,30 +151,27 @@ export default function AdminPanel() {
   // ── Image management ──────────────────────────────────────────
 
   const addFiles = useCallback((rawFiles) => {
-    setImages(prev => {
-      const slots = MAX_IMAGES - prev.length;
-      if (slots <= 0) return prev;
+    const slots = MAX_IMAGES - imagesRef.current.length;
+    if (slots <= 0) return;
 
-      const valid = Array.from(rawFiles)
-        .filter(f => ACCEPTED_TYPES.includes(f.type))
-        .slice(0, slots);
+    const valid = Array.from(rawFiles)
+      .filter(f => ACCEPTED_TYPES.includes(f.type))
+      .slice(0, slots);
 
-      if (!valid.length) return prev;
+    if (!valid.length) return;
 
-      const newImgs = valid.map(file => ({
-        id: `img-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        file,
-        previewUrl: URL.createObjectURL(file),
-        uploadedUrl: null,
-        uploading: false,
-        progress: 0,
-        error: null
-      }));
+    const newImgs = valid.map(file => ({
+      id: `img-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      file,
+      previewUrl: URL.createObjectURL(file),
+      uploadedUrl: null,
+      uploading: false,
+      progress: 0,
+      error: null
+    }));
 
-      setTimeout(() => newImgs.forEach(img => uploadToStorage(img, setImages)), 0);
-
-      return [...prev, ...newImgs];
-    });
+    setImages(prev => [...prev, ...newImgs]);
+    newImgs.forEach(img => uploadToStorage(img, setImages));
   }, []);
 
   const retryImage = (id) => {
@@ -291,11 +290,13 @@ export default function AdminPanel() {
 
     setSubmitting(true);
 
+    const allUrls = uploadedUrls.length > 0 ? uploadedUrls : [defaultImg];
     const productPayload = {
       name: formData.name,
       brand: formData.brand,
       price: parseFloat(formData.price),
-      image_url: uploadedUrls[0] || defaultImg,
+      image_url: allUrls[0],
+      image_urls: allUrls,
       description: formData.description,
       sizes: formData.sizes,
     };

@@ -1257,7 +1257,11 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                   padding: '1.5rem'
                 }}>
                   <img
-                    src={detailProduct.image_url}
+                    src={
+                      detailProduct.image_urls?.length > 1
+                        ? detailProduct.image_urls[detailThumb] ?? detailProduct.image_url
+                        : detailProduct.image_url
+                    }
                     alt={detailProduct.name}
                     onError={e => { e.target.src = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800'; }}
                     style={{
@@ -1265,52 +1269,67 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                       maxHeight: '300px',
                       objectFit: 'contain',
                       filter: 'drop-shadow(0 12px 32px rgba(0,0,0,0.6))',
-                      transform: detailThumb === 1 ? 'scaleX(-1)' : detailThumb === 3 ? 'rotate(-8deg) scale(0.9)' : 'none',
                       transition: 'all 0.25s',
-                      opacity: detailThumb === 2 ? 0.7 : 1
+                      ...(detailProduct.image_urls?.length > 1 ? {} : {
+                        transform: detailThumb === 1 ? 'scaleX(-1)' : detailThumb === 3 ? 'rotate(-8deg) scale(0.9)' : 'none',
+                        opacity: detailThumb === 2 ? 0.7 : 1
+                      })
                     }}
                   />
                 </div>
 
                 {/* Fila de miniaturas */}
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  {[
-                    { label: 'Principal', style: {} },
-                    { label: 'Lateral',   style: { transform: 'scaleX(-1)' } },
-                    { label: 'Detalle',   style: { filter: 'brightness(0.7)' } },
-                    { label: 'Ángulo',    style: { transform: 'rotate(-8deg) scale(0.9)', filter: 'brightness(0.6) contrast(1.1)' } },
-                  ].map((thumb, ti) => (
-                    <div
-                      key={ti}
-                      onClick={() => setDetailThumb(ti)}
-                      style={{
-                        flex: 1,
-                        aspectRatio: '1',
-                        background: 'var(--bg-secondary)',
-                        borderRadius: '10px',
-                        overflow: 'hidden',
-                        border: `2px solid ${detailThumb === ti ? 'var(--accent-yellow)' : 'var(--border-color)'}`,
-                        cursor: 'pointer',
-                        transition: 'border-color 0.15s',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '0.4rem'
-                      }}
-                    >
-                      <img
-                        src={detailProduct.image_url}
-                        alt=""
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'contain',
-                          ...thumb.style
-                        }}
-                      />
+                {(() => {
+                  const thumbUrls = detailProduct.image_urls?.length > 1
+                    ? detailProduct.image_urls
+                    : [
+                        detailProduct.image_url,
+                        detailProduct.image_url,
+                        detailProduct.image_url,
+                        detailProduct.image_url,
+                      ];
+                  const thumbStyles = [
+                    {},
+                    { transform: 'scaleX(-1)' },
+                    { opacity: 0.7 },
+                    { transform: 'rotate(-8deg) scale(0.9)', opacity: 0.6 },
+                  ];
+                  return (
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      {thumbUrls.slice(0, 4).map((url, ti) => (
+                        <div
+                          key={ti}
+                          onClick={() => setDetailThumb(ti)}
+                          style={{
+                            flex: 1,
+                            aspectRatio: '1',
+                            background: 'var(--bg-secondary)',
+                            borderRadius: '10px',
+                            overflow: 'hidden',
+                            border: `2px solid ${detailThumb === ti ? 'var(--accent-yellow)' : 'var(--border-color)'}`,
+                            cursor: 'pointer',
+                            transition: 'border-color 0.15s',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '0.4rem'
+                          }}
+                        >
+                          <img
+                            src={url}
+                            alt=""
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'contain',
+                              ...(detailProduct.image_urls?.length > 1 ? {} : thumbStyles[ti])
+                            }}
+                          />
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  );
+                })()}
               </div>
 
               {/* ── Columna derecha: detalles ── */}
