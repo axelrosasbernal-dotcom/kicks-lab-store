@@ -153,6 +153,11 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
   const [sizePickerProduct, setSizePickerProduct] = useState(null);
   const [selectedSize, setSelectedSize]   = useState('');
 
+  const [detailProduct, setDetailProduct] = useState(null);
+  const [detailQty, setDetailQty]         = useState(1);
+  const [detailSize, setDetailSize]       = useState('');
+  const [detailThumb, setDetailThumb]     = useState(0);
+
   const [reviews, setReviews] = useState(() => {
     try {
       const stored = JSON.parse(localStorage.getItem('kicks_reviews') || 'null');
@@ -246,6 +251,13 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
       `N° de orden: ${num}`;
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
     setCheckoutStep(3);
+  };
+
+  const openDetail = (product) => {
+    setDetailProduct(product);
+    setDetailQty(1);
+    setDetailSize(product.sizes?.[0] || '');
+    setDetailThumb(0);
   };
 
   const handleAdd = (product) => {
@@ -539,12 +551,16 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.transform = 'translateY(0)'; }}
               >
                 {/* Image + thumbnails */}
-                <div style={{
-                  display: 'flex',
-                  height: '165px',
-                  background: 'var(--bg-primary)',
-                  borderBottom: '1px solid var(--border-color)'
-                }}>
+                <div
+                  onClick={() => openDetail(product)}
+                  style={{
+                    display: 'flex',
+                    height: '165px',
+                    background: 'var(--bg-primary)',
+                    borderBottom: '1px solid var(--border-color)',
+                    cursor: 'pointer'
+                  }}
+                >
                   <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.85rem' }}>
                     <img
                       src={product.image_url}
@@ -599,7 +615,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                     {fmt(product.price)}
                   </p>
                   <button
-                    onClick={() => handleAdd(product)}
+                    onClick={e => { e.stopPropagation(); handleAdd(product); }}
                     style={{
                       width: '100%',
                       background: addedId === product.id ? '#22c55e' : '#fff',
@@ -1165,6 +1181,287 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
           )}
         </div>
       </div>
+
+      {/* ── PRODUCT DETAIL MODAL ── */}
+      {detailProduct && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)',
+            zIndex: 10002, display: 'flex', alignItems: 'center',
+            justifyContent: 'center', padding: '1rem',
+            backdropFilter: 'blur(4px)'
+          }}
+          onClick={e => { if (e.target === e.currentTarget) setDetailProduct(null); }}
+        >
+          <div style={{
+            background: 'var(--bg-secondary)',
+            borderRadius: '20px',
+            width: '100%',
+            maxWidth: '860px',
+            maxHeight: '92vh',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            border: '1px solid var(--border-color)'
+          }}>
+            {/* Header con breadcrumb y botón cerrar */}
+            <div style={{
+              padding: '1rem 1.5rem',
+              borderBottom: '1px solid var(--border-color)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}>
+              <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                Inicio &nbsp;/&nbsp; Ver todas las zapatillas &nbsp;/&nbsp;
+                <span style={{ color: 'var(--text-primary)' }}>{detailProduct.name}</span>
+              </p>
+              <button
+                onClick={() => setDetailProduct(null)}
+                style={{
+                  background: 'var(--bg-tertiary)', border: 'none', borderRadius: '50%',
+                  width: '34px', height: '34px', cursor: 'pointer',
+                  color: 'var(--text-primary)', fontSize: '1.2rem',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                }}
+              >×</button>
+            </div>
+
+            {/* Cuerpo: dos columnas */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 0,
+              flex: 1,
+              overflow: 'auto'
+            }}>
+              {/* ── Columna izquierda: imagen grande + miniaturas ── */}
+              <div style={{
+                padding: '1.5rem',
+                borderRight: '1px solid var(--border-color)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+                background: 'var(--bg-primary)'
+              }}>
+                {/* Imagen principal */}
+                <div style={{
+                  flex: 1,
+                  minHeight: '280px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'var(--bg-secondary)',
+                  borderRadius: '14px',
+                  overflow: 'hidden',
+                  padding: '1.5rem'
+                }}>
+                  <img
+                    src={detailProduct.image_url}
+                    alt={detailProduct.name}
+                    onError={e => { e.target.src = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800'; }}
+                    style={{
+                      maxWidth: '100%',
+                      maxHeight: '300px',
+                      objectFit: 'contain',
+                      filter: 'drop-shadow(0 12px 32px rgba(0,0,0,0.6))',
+                      transform: detailThumb === 1 ? 'scaleX(-1)' : detailThumb === 3 ? 'rotate(-8deg) scale(0.9)' : 'none',
+                      transition: 'all 0.25s',
+                      opacity: detailThumb === 2 ? 0.7 : 1
+                    }}
+                  />
+                </div>
+
+                {/* Fila de miniaturas */}
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  {[
+                    { label: 'Principal', style: {} },
+                    { label: 'Lateral',   style: { transform: 'scaleX(-1)' } },
+                    { label: 'Detalle',   style: { filter: 'brightness(0.7)' } },
+                    { label: 'Ángulo',    style: { transform: 'rotate(-8deg) scale(0.9)', filter: 'brightness(0.6) contrast(1.1)' } },
+                  ].map((thumb, ti) => (
+                    <div
+                      key={ti}
+                      onClick={() => setDetailThumb(ti)}
+                      style={{
+                        flex: 1,
+                        aspectRatio: '1',
+                        background: 'var(--bg-secondary)',
+                        borderRadius: '10px',
+                        overflow: 'hidden',
+                        border: `2px solid ${detailThumb === ti ? 'var(--accent-yellow)' : 'var(--border-color)'}`,
+                        cursor: 'pointer',
+                        transition: 'border-color 0.15s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '0.4rem'
+                      }}
+                    >
+                      <img
+                        src={detailProduct.image_url}
+                        alt=""
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'contain',
+                          ...thumb.style
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* ── Columna derecha: detalles ── */}
+              <div style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', overflowY: 'auto' }}>
+                {/* Nombre y precio */}
+                <div>
+                  {detailProduct.brand && (
+                    <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.15em', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                      {detailProduct.brand}
+                    </p>
+                  )}
+                  <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text-primary)', lineHeight: 1.2, marginBottom: '0.65rem' }}>
+                    {detailProduct.name}
+                  </h2>
+                  <p style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--text-primary)' }}>
+                    {fmt(detailProduct.price)}
+                  </p>
+                </div>
+
+                {/* Descripción */}
+                {detailProduct.description && (
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.65 }}>
+                    {detailProduct.description}
+                  </p>
+                )}
+
+                {/* Selector de talle */}
+                {detailProduct.sizes && detailProduct.sizes.length > 0 && (
+                  <div>
+                    <p style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.6rem', letterSpacing: '0.05em' }}>
+                      TALLE: <span style={{ color: 'var(--text-primary)' }}>{detailSize} EUR</span>
+                    </p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem' }}>
+                      {detailProduct.sizes.map(size => (
+                        <button
+                          key={size}
+                          onClick={() => setDetailSize(size)}
+                          style={{
+                            padding: '0.5rem 1rem',
+                            borderRadius: '9px',
+                            border: `1.5px solid ${detailSize === size ? 'var(--accent-yellow)' : 'var(--border-color)'}`,
+                            background: detailSize === size ? 'rgba(255,215,0,0.12)' : 'var(--bg-tertiary)',
+                            color: detailSize === size ? 'var(--accent-yellow)' : 'var(--text-primary)',
+                            fontWeight: 700,
+                            fontSize: '0.88rem',
+                            cursor: 'pointer',
+                            fontFamily: 'inherit',
+                            transition: 'all 0.15s'
+                          }}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Selector de cantidad */}
+                <div>
+                  <p style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.6rem', letterSpacing: '0.05em' }}>
+                    CANTIDAD
+                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 0, width: 'fit-content' }}>
+                    <button
+                      onClick={() => setDetailQty(q => Math.max(1, q - 1))}
+                      style={{
+                        width: '40px', height: '40px',
+                        background: 'var(--bg-tertiary)',
+                        border: '1.5px solid var(--border-color)',
+                        borderRadius: '9px 0 0 9px',
+                        color: 'var(--text-primary)',
+                        fontSize: '1.25rem',
+                        cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontFamily: 'inherit', fontWeight: 700
+                      }}
+                    >−</button>
+                    <div style={{
+                      width: '52px', height: '40px',
+                      background: 'var(--bg-secondary)',
+                      border: '1.5px solid var(--border-color)',
+                      borderLeft: 'none', borderRight: 'none',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontWeight: 800, fontSize: '1rem', color: 'var(--text-primary)'
+                    }}>
+                      {detailQty}
+                    </div>
+                    <button
+                      onClick={() => setDetailQty(q => q + 1)}
+                      style={{
+                        width: '40px', height: '40px',
+                        background: 'var(--bg-tertiary)',
+                        border: '1.5px solid var(--border-color)',
+                        borderRadius: '0 9px 9px 0',
+                        color: 'var(--text-primary)',
+                        fontSize: '1.25rem',
+                        cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontFamily: 'inherit', fontWeight: 700
+                      }}
+                    >+</button>
+                  </div>
+                </div>
+
+                {/* Botón agregar al carrito */}
+                <button
+                  onClick={() => {
+                    for (let i = 0; i < detailQty; i++) {
+                      addToCart(detailProduct, detailSize);
+                    }
+                    setDetailProduct(null);
+                  }}
+                  style={{
+                    width: '100%',
+                    background: '#fff',
+                    color: '#000',
+                    border: 'none',
+                    borderRadius: '10px',
+                    padding: '0.95rem',
+                    fontWeight: 900,
+                    fontSize: '0.95rem',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#FFD700'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = '#fff'; }}
+                >
+                  Agregar al Carrito
+                </button>
+
+                {/* Badges de confianza */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', paddingTop: '0.25rem' }}>
+                  {[
+                    { icon: '✅', text: 'Producto 100% original garantizado' },
+                    { icon: '🚚', text: 'Envío gratis en La Plata y alrededores' },
+                    { icon: '💳', text: 'Pagás al recibir el producto' },
+                  ].map(({ icon, text }) => (
+                    <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+                      <span style={{ fontSize: '0.85rem' }}>{icon}</span>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── SIZE PICKER MODAL ── */}
       {sizePickerProduct && (
