@@ -570,30 +570,38 @@ export default function AdminPanel() {
               {/* ── Images ── */}
               <div className="form-group" style={{ margin: 0 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                  <label className="form-label" style={{ margin: 0 }}>
+                  <span className="form-label" style={{ margin: 0 }}>
                     Imágenes del modelo
                     <span style={{ color: 'var(--text-muted)', fontWeight: 400, marginLeft: '0.4rem' }}>({images.length}/{MAX_IMAGES})</span>
-                  </label>
+                  </span>
                   {images.length < MAX_IMAGES && (
-                    <button type="button" onClick={() => fileInputRef.current?.click()} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', borderRadius: 6, color: 'var(--text-secondary)', fontSize: '0.78rem', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 600 }}>
+                    <label htmlFor="file-upload-input" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', borderRadius: 6, color: 'var(--text-secondary)', fontSize: '0.78rem', padding: '0.3rem 0.7rem', cursor: 'pointer', fontWeight: 600 }}>
                       <Plus size={13} /> Seleccionar imágenes
-                    </button>
+                    </label>
                   )}
                 </div>
 
-                <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" multiple style={{ display: 'none' }}
+                {/* Input nativo — label htmlFor lo activa sin JS */}
+                <input
+                  id="file-upload-input"
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                  style={{ display: 'none' }}
                   onChange={e => { addFiles(e.target.files); e.target.value = ''; }}
                 />
 
                 {/* Drop zone */}
                 {images.length < MAX_IMAGES && (
-                  <div
+                  <label
+                    htmlFor="file-upload-input"
                     className="drop-zone"
                     onDrop={handleDrop}
                     onDragOver={e => { e.preventDefault(); setIsDragOver(true); }}
                     onDragLeave={() => setIsDragOver(false)}
-                    onClick={() => fileInputRef.current?.click()}
                     style={{
+                      display: 'block',
                       border: `2px dashed ${isDragOver ? '#ff3f3f' : 'var(--glass-border)'}`,
                       borderRadius: 'var(--radius-sm)',
                       padding: images.length === 0 ? '2.5rem' : '1rem',
@@ -608,12 +616,12 @@ export default function AdminPanel() {
                     {images.length === 0 ? (
                       <>
                         <p style={{ color: 'var(--text-secondary)', margin: '0.25rem 0', fontSize: '0.9rem', fontWeight: 600 }}>Arrastrá imágenes acá o hacé clic para seleccionar</p>
-                        <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '0.75rem' }}>JPG, PNG o WEBP · Hasta {MAX_IMAGES} imágenes · Se comprimen y suben automáticamente</p>
+                        <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '0.75rem' }}>JPG, PNG o WEBP · Hasta {MAX_IMAGES} imágenes · Se comprimen automáticamente</p>
                       </>
                     ) : (
                       <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '0.78rem' }}>Arrastrá más imágenes o hacé clic para agregar</p>
                     )}
-                  </div>
+                  </label>
                 )}
 
                 {/* Preview grid */}
@@ -673,12 +681,12 @@ export default function AdminPanel() {
                       </div>
                     ))}
 
-                    {/* Add more slot */}
+                    {/* Add more slot — label activa el input sin JS */}
                     {images.length < MAX_IMAGES && (
-                      <div onClick={() => fileInputRef.current?.click()} style={{ border: '2px dashed var(--glass-border)', borderRadius: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', aspectRatio: '1', color: 'var(--text-muted)', gap: '0.25rem', transition: 'border-color 0.2s' }}>
+                      <label htmlFor="file-upload-input" style={{ border: '2px dashed var(--glass-border)', borderRadius: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', aspectRatio: '1', color: 'var(--text-muted)', gap: '0.25rem', transition: 'border-color 0.2s' }}>
                         <Plus size={20} />
                         <span style={{ fontSize: '0.68rem' }}>Agregar</span>
-                      </div>
+                      </label>
                     )}
                   </div>
                 )}
