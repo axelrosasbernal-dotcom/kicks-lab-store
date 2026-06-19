@@ -9,7 +9,7 @@ const INITIAL_FORM_STATE = {
   name: '',
   brand: 'Nike',
   price: '',
-  image_url: '',
+  image_urls: [''],
   description: '',
   sizes: []
 };
@@ -95,7 +95,7 @@ export default function AdminPanel() {
       name: product.name,
       brand: product.brand,
       price: product.price,
-      image_url: product.image_url,
+      image_urls: product.image_urls?.length ? product.image_urls : (product.image_url ? [product.image_url] : ['']),
       description: product.description || '',
       sizes: product.sizes || []
     });
@@ -124,6 +124,21 @@ export default function AdminPanel() {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleImageUrlChange = (index, value) => {
+    const updated = [...formData.image_urls];
+    updated[index] = value;
+    setFormData({ ...formData, image_urls: updated });
+  };
+
+  const handleAddImageUrl = () => {
+    setFormData({ ...formData, image_urls: [...formData.image_urls, ''] });
+  };
+
+  const handleRemoveImageUrl = (index) => {
+    const updated = formData.image_urls.filter((_, i) => i !== index);
+    setFormData({ ...formData, image_urls: updated.length ? updated : [''] });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
@@ -134,11 +149,13 @@ export default function AdminPanel() {
     }
 
     setSubmitting(true);
+    const validImageUrls = formData.image_urls.map(u => u.trim()).filter(Boolean);
     const productPayload = {
       name: formData.name,
       brand: formData.brand,
       price: parseFloat(formData.price),
-      image_url: formData.image_url || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800',
+      image_url: validImageUrls[0] || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800',
+      image_urls: validImageUrls.length ? validImageUrls : ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800'],
       description: formData.description,
       sizes: formData.sizes
     };
@@ -321,7 +338,7 @@ export default function AdminPanel() {
         </div>
         <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Precio Promedio</span>
-          <span style={{ fontSize: '2.25rem', fontWeight: 800, color: '#ff3f3f' }}>${avgPrice.toLocaleString('es-CL')}</span>
+          <span style={{ fontSize: '2.25rem', fontWeight: 800, color: '#ff3f3f' }}>${avgPrice.toLocaleString('es-AR')}</span>
         </div>
       </div>
 
@@ -415,7 +432,7 @@ export default function AdminPanel() {
                     </div>
                   </td>
                   <td style={{ padding: '1rem 1.5rem', fontWeight: 'bold', color: '#fff' }}>
-                    ${Number(product.price).toLocaleString('es-CL')}
+                    ${Number(product.price).toLocaleString('es-AR')}
                   </td>
                   <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
                     <div style={{ display: 'inline-flex', gap: '0.5rem' }}>
@@ -560,15 +577,15 @@ export default function AdminPanel() {
                 </div>
 
                 <div className="form-group" style={{ margin: '0' }}>
-                  <label className="form-label" htmlFor="prod-price">Precio ($ USD / CLP)</label>
-                  <input 
+                  <label className="form-label" htmlFor="prod-price">Precio en pesos argentinos ($)</label>
+                  <input
                     id="prod-price"
-                    type="number" 
+                    type="number"
                     name="price"
                     required
                     min={0}
-                    step="0.01"
-                    placeholder="ej. 120"
+                    step="1"
+                    placeholder="ej. 150000"
                     className="form-input"
                     value={formData.price}
                     onChange={handleInputChange}
@@ -577,26 +594,84 @@ export default function AdminPanel() {
               </div>
 
               <div className="form-group" style={{ margin: '0' }}>
-                <label className="form-label" htmlFor="prod-image">URL de la Imagen</label>
-                <div style={{ position: 'relative' }}>
-                  <ImageIcon size={16} style={{
-                    position: 'absolute',
-                    left: '1rem',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    color: 'var(--text-muted)'
-                  }} />
-                  <input 
-                    id="prod-image"
-                    type="url" 
-                    name="image_url"
-                    placeholder="https://images.unsplash.com/... o vacío para defecto"
-                    className="form-input"
-                    value={formData.image_url}
-                    onChange={handleInputChange}
-                    style={{ paddingLeft: '2.5rem' }}
-                  />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <label className="form-label" style={{ margin: 0 }}>Imágenes del modelo</label>
+                  <button
+                    type="button"
+                    onClick={handleAddImageUrl}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.3rem',
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid var(--glass-border)',
+                      borderRadius: '6px',
+                      color: 'var(--text-secondary)',
+                      fontSize: '0.78rem',
+                      padding: '0.3rem 0.65rem',
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      transition: 'background 0.15s'
+                    }}
+                  >
+                    <Plus size={13} /> Agregar imagen
+                  </button>
                 </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {formData.image_urls.map((url, index) => (
+                    <div key={index} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <div style={{ position: 'relative', flex: 1 }}>
+                        <ImageIcon size={15} style={{
+                          position: 'absolute',
+                          left: '0.85rem',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          color: 'var(--text-muted)',
+                          pointerEvents: 'none'
+                        }} />
+                        <input
+                          type="url"
+                          placeholder={index === 0 ? 'URL imagen principal' : `URL imagen ${index + 1}`}
+                          className="form-input"
+                          value={url}
+                          onChange={e => handleImageUrlChange(index, e.target.value)}
+                          style={{ paddingLeft: '2.25rem' }}
+                        />
+                      </div>
+                      {url.trim() && (
+                        <img
+                          src={url}
+                          alt={`preview-${index}`}
+                          onError={e => { e.target.style.display = 'none'; }}
+                          style={{ width: '38px', height: '38px', objectFit: 'contain', borderRadius: '6px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border-color)', flexShrink: 0 }}
+                        />
+                      )}
+                      {formData.image_urls.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImageUrl(index)}
+                          title="Quitar imagen"
+                          style={{
+                            background: 'rgba(239,68,68,0.1)',
+                            border: '1px solid rgba(239,68,68,0.25)',
+                            borderRadius: '6px',
+                            color: '#f87171',
+                            padding: '0.4rem',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            flexShrink: 0
+                          }}
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '0.4rem' }}>
+                  La primera imagen es la principal. Podés agregar hasta las que quieras.
+                </p>
               </div>
 
               <div className="form-group" style={{ margin: '0' }}>
