@@ -259,8 +259,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
 
   const handleAdd = (product) => {
     if (product.sizes && product.sizes.length > 0) {
-      setSizePickerProduct(product);
-      setSelectedSize(product.sizes[0]);
+      openDetail(product);
     } else {
       addToCart(product, '');
       setAddedId(product.id);
