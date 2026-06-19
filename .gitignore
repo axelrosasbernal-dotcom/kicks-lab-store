@@ -1,0 +1,21 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno (contienen claves privadas - NO subir jamás)
+.env
+.env.local
+.env.production
+
+# Carpeta de build de Vite
+dist/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Vercel
+.vercel
+
+# Logs
+*.log
+npm-debug.log*
