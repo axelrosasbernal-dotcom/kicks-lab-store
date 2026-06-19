@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ShoppingCart, Sun, Moon, LogIn, LogOut, Settings } from 'lucide-react';
 import logoImg from '../assets/logo.png';
 
@@ -29,18 +29,37 @@ const SCROLL_MAP = {
 };
 
 export default function Navbar({ user, isAdmin, activeTab, setActiveTab, onSignOut, darkMode, onToggleDarkMode, cartCount = 0, onCartClick, genderFilter, setGenderFilter }) {
+  const [activeNavItem, setActiveNavItem] = useState('Novedades');
+  const [pillStyle, setPillStyle] = useState({ left: 0, width: 0, opacity: 0 });
+  const navContainerRef = useRef(null);
+  const buttonRefs = useRef({});
+
+  const updatePill = (item) => {
+    const btn = buttonRefs.current[item];
+    const container = navContainerRef.current;
+    if (btn && container) {
+      const btnRect = btn.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      setPillStyle({ left: btnRect.left - containerRect.left, width: btnRect.width, opacity: 1 });
+    }
+  };
+
+  useEffect(() => { updatePill(activeNavItem); }, [activeNavItem]);
+
+  useEffect(() => {
+    const onResize = () => updatePill(activeNavItem);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [activeNavItem]);
+
   const handleNavClick = (item) => {
+    setActiveNavItem(item);
     setActiveTab('store');
     if (SCROLL_MAP[item]) {
       setTimeout(() => document.getElementById(SCROLL_MAP[item])?.scrollIntoView({ behavior: 'smooth' }), 80);
     } else {
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 80);
     }
-  };
-
-  const isNavActive = (item) => {
-    if (item === 'Novedades') return activeTab === 'store';
-    return false;
   };
 
   return (
@@ -74,25 +93,48 @@ export default function Navbar({ user, isAdmin, activeTab, setActiveTab, onSignO
         </div>
 
         {/* Center Nav Items */}
-        <div style={{ display: 'flex', gap: '0.15rem', flex: 1, justifyContent: 'center', flexWrap: 'wrap' }}>
+        <div
+          ref={navContainerRef}
+          style={{ display: 'flex', gap: '0.15rem', flex: 1, justifyContent: 'center', flexWrap: 'wrap', position: 'relative' }}
+        >
+          {/* Sliding pill */}
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            left: pillStyle.left,
+            width: pillStyle.width,
+            height: '34px',
+            background: 'rgba(255,255,255,0.12)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: '6px',
+            transition: 'left 0.28s cubic-bezier(0.4,0,0.2,1), width 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.15s',
+            opacity: pillStyle.opacity,
+            pointerEvents: 'none',
+            zIndex: 0,
+          }} />
+
           {NAV_ITEMS.map((item) => {
-            const active = isNavActive(item);
+            const active = activeNavItem === item;
             return (
               <button
                 key={item}
+                ref={el => { buttonRefs.current[item] = el; }}
                 onClick={() => handleNavClick(item)}
                 style={{
-                  background: active ? 'rgba(255,255,255,0.12)' : 'transparent',
-                  border: active ? '1px solid rgba(255,255,255,0.15)' : '1px solid transparent',
+                  background: 'transparent',
+                  border: '1px solid transparent',
                   color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
                   padding: '0.45rem 0.85rem',
                   borderRadius: '6px',
                   cursor: 'pointer',
                   fontSize: '0.88rem',
                   fontWeight: active ? 700 : 400,
-                  transition: 'all 0.2s',
+                  transition: 'color 0.2s, font-weight 0.2s',
                   whiteSpace: 'nowrap',
-                  fontFamily: 'inherit'
+                  fontFamily: 'inherit',
+                  position: 'relative',
+                  zIndex: 1,
                 }}
               >
                 {item}
