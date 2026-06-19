@@ -195,13 +195,24 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
   const fmt = (price) =>
     `$${Number(price).toLocaleString('es-AR', { minimumFractionDigits: 0 })}`;
 
+  const isDiscountActive = (p) => {
+    if (!p?.discount_enabled) return false;
+    const now = new Date();
+    if (p.discount_start && new Date(p.discount_start) > now) return false;
+    if (p.discount_end   && new Date(p.discount_end)   < now) return false;
+    return true;
+  };
+
+  const effectivePrice = (p) =>
+    isDiscountActive(p) && p.sale_price ? Number(p.sale_price) : Number(p.price);
+
   const cleanSize = (s) => String(s).replace(/\s*(euros?|EUR|Euro)\s*/gi, '').trim();
 
   const openWA = (msg = '¡Hola! Quiero consultar sobre sus productos.') =>
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
 
   const totalItems = cart.reduce((sum, i) => sum + i.qty, 0);
-  const totalPrice = cart.reduce((sum, i) => sum + i.product.price * i.qty, 0);
+  const totalPrice = cart.reduce((sum, i) => sum + effectivePrice(i.product) * i.qty, 0);
 
   const addToCart = (product, size) => {
     setCart(prev => {
@@ -236,7 +247,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
     const num = 'NK-' + Math.floor(100000 + Math.random() * 900000);
     setOrderId(num);
     const lines = cart
-      .map(i => `• ${i.product.name}${i.size ? ` (Talle ${i.size})` : ''} x${i.qty} = ${fmt(i.product.price * i.qty)}`)
+      .map(i => `• ${i.product.name}${i.size ? ` (Talle ${i.size})` : ''} x${i.qty} = ${fmt(effectivePrice(i.product) * i.qty)}`)
       .join('\n');
     const msg =
       `¡Hola! Quiero confirmar mi pedido:\n\n${lines}\n\n` +
@@ -500,9 +511,25 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                     }}>
                       {product.name}
                     </p>
-                    <p style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>
-                      {fmt(product.price)}
-                    </p>
+                    {isDiscountActive(product) && product.sale_price ? (
+                      <div style={{ marginBottom: '0.75rem' }}>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textDecoration: 'line-through', display: 'block', lineHeight: 1.4 }}>
+                          {fmt(product.price)}
+                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: '1rem', fontWeight: 800, color: '#4ade80' }}>{fmt(product.sale_price)}</span>
+                          {product.discount_value && (
+                            <span style={{ fontSize: '0.65rem', background: 'rgba(34,197,94,0.15)', color: '#4ade80', padding: '0.1rem 0.35rem', borderRadius: 4, fontWeight: 700 }}>
+                              {product.discount_value}% OFF
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <p style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>
+                        {fmt(product.price)}
+                      </p>
+                    )}
                     <button
                       onClick={e => { e.stopPropagation(); handleAdd(product); }}
                       style={{
@@ -1234,9 +1261,27 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                   <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text-primary)', lineHeight: 1.2, marginBottom: '0.65rem' }}>
                     {detailProduct.name}
                   </h2>
-                  <p style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--text-primary)' }}>
-                    {fmt(detailProduct.price)}
-                  </p>
+                  {isDiscountActive(detailProduct) && detailProduct.sale_price ? (
+                    <div>
+                      <span style={{ fontSize: '1rem', color: 'var(--text-muted)', textDecoration: 'line-through', display: 'block', marginBottom: '0.2rem' }}>
+                        {fmt(detailProduct.price)}
+                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '1.75rem', fontWeight: 900, color: '#4ade80' }}>
+                          {fmt(detailProduct.sale_price)}
+                        </span>
+                        {detailProduct.discount_value && (
+                          <span style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80', padding: '0.25rem 0.65rem', borderRadius: 6, fontWeight: 800, fontSize: '0.88rem' }}>
+                            {detailProduct.discount_value}% OFF
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <p style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--text-primary)' }}>
+                      {fmt(detailProduct.price)}
+                    </p>
+                  )}
                 </div>
 
                 {/* Descripción */}
@@ -1503,7 +1548,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                                 <span style={{ fontWeight: 700, fontSize: '0.9rem', minWidth: '18px', textAlign: 'center' }}>{qty}</span>
                                 <button onClick={() => updateQty(product, size, 1)} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 700, lineHeight: 1, padding: 0 }}>+</button>
                               </div>
-                              <span style={{ fontWeight: 800, fontSize: '1rem' }}>{fmt(product.price * qty)}</span>
+                              <span style={{ fontWeight: 800, fontSize: '1rem' }}>{fmt(effectivePrice(product) * qty)}</span>
                             </div>
                           </div>
                           <button onClick={() => removeFromCart(product, size)} style={{
