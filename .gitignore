@@ -19,3 +19,6 @@ Thumbs.db
 # Logs
 *.log
 npm-debug.log*
+
+# Scripts con tokens sensibles (solo uso local)
+connectVercelGitHub.mjs
