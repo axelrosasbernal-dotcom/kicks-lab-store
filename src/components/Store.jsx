@@ -164,7 +164,8 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
   const [hoverRating, setHoverRating]       = useState(0);
   const [contactOpen, setContactOpen]       = useState(false);
   const [nosotrosTab, setNosotrosTab]       = useState(0);
-  const [budget, setBudget]                 = useState(200000);
+  const [selectedSizes, setSelectedSizes]   = useState([]);
+  const [sortOrder, setSortOrder]           = useState('asc');
 
   useEffect(() => { fetchProducts(); }, []);
 
@@ -278,11 +279,23 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
     ? products
     : products.filter(p => !p.gender || p.gender === genderFilter);
 
-  const budgetProducts = filteredProducts.filter(p => p.price <= budget);
-  const maxIdx         = Math.max(0, budgetProducts.length - CARDS_PER_PAGE);
-  const visible        = budgetProducts.slice(carouselIdx, carouselIdx + CARDS_PER_PAGE);
-  const heroItems      = filteredProducts.slice(0, 5);
-  const sideFeatures   = budgetProducts.slice(0, 3);
+  const sizeFiltered = selectedSizes.length === 0
+    ? filteredProducts
+    : filteredProducts.filter(p => p.sizes?.some(s => selectedSizes.includes(s)));
+
+  const sortedProducts = [...sizeFiltered].sort((a, b) =>
+    sortOrder === 'asc' ? a.price - b.price : b.price - a.price
+  );
+
+  const allSizes = filteredProducts.reduce((acc, p) => {
+    (p.sizes || []).forEach(s => { acc[s] = (acc[s] || 0) + 1; });
+    return acc;
+  }, {});
+  const sizeOptions = Object.entries(allSizes).sort((a, b) => Number(a[0]) - Number(b[0]));
+
+  const maxIdx  = Math.max(0, sortedProducts.length - CARDS_PER_PAGE);
+  const visible = sortedProducts.slice(carouselIdx, carouselIdx + CARDS_PER_PAGE);
+  const heroItems = filteredProducts.slice(0, 5);
 
   if (loading) {
     return (
@@ -557,98 +570,96 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
         {/* RIGHT: Utility Panel */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
-          {/* Mini Featured Products */}
+          {/* Ordenar por */}
           <div style={{
             background: 'var(--bg-secondary)',
             border: '1px solid var(--border-color)',
             borderRadius: '12px',
             padding: '1rem'
           }}>
-            <h3 style={{ fontSize: '0.88rem', fontWeight: 700, marginBottom: '0.7rem' }}>Destacados</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {sideFeatures.map(p => (
-                <div key={p.id} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.6rem',
-                  background: 'var(--bg-tertiary)',
-                  borderRadius: '8px',
-                  padding: '0.5rem',
-                  border: '1px solid var(--border-color)'
-                }}>
-                  <img src={p.image_url} alt={p.name} style={{ width: '54px', height: '44px', objectFit: 'contain', flexShrink: 0 }} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: '0.66rem', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {p.name}
-                    </p>
-                    <p style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '0.1rem' }}>
-                      {fmt(p.price)}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => handleAdd(p)}
-                    style={{
-                      background: '#fff',
-                      color: '#000',
-                      border: 'none',
-                      borderRadius: '5px',
-                      padding: '0.28rem 0.45rem',
-                      fontSize: '0.6rem',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap',
-                      flexShrink: 0,
-                      fontFamily: 'inherit',
-                      transition: 'opacity 0.2s'
-                    }}
-                  >
-                    Añadir al Carrito
-                  </button>
-                </div>
+            <h4 style={{ fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.75rem' }}>Ordenar por</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              {[
+                { label: 'Precio: Menor a Mayor', value: 'asc' },
+                { label: 'Precio: Mayor a Menor', value: 'desc' },
+              ].map(({ label, value }) => (
+                <button
+                  key={value}
+                  onClick={() => { setSortOrder(value); setCarouselIdx(0); }}
+                  style={{
+                    background: sortOrder === value ? 'rgba(255,215,0,0.1)' : 'var(--bg-tertiary)',
+                    border: `1px solid ${sortOrder === value ? '#FFD700' : 'var(--border-color)'}`,
+                    borderRadius: '8px',
+                    padding: '0.55rem 0.75rem',
+                    color: sortOrder === value ? '#FFD700' : 'var(--text-secondary)',
+                    fontWeight: sortOrder === value ? 700 : 400,
+                    cursor: 'pointer',
+                    fontSize: '0.78rem',
+                    textAlign: 'left',
+                    fontFamily: 'inherit',
+                    transition: 'all 0.15s'
+                  }}
+                >
+                  {label}
+                </button>
               ))}
             </div>
           </div>
 
-          {/* Budget Filter */}
+          {/* Filtrar por talle */}
           <div style={{
             background: 'var(--bg-secondary)',
             border: '1px solid var(--border-color)',
             borderRadius: '12px',
             padding: '1rem'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
-              <span style={{ fontSize: '1rem' }}>🎯</span>
-              <h3 style={{ fontSize: '0.88rem', fontWeight: 700 }}>Encontrá tu par</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <h4 style={{ fontSize: '0.82rem', fontWeight: 700 }}>Filtrar por talle</h4>
+              {selectedSizes.length > 0 && (
+                <button
+                  onClick={() => { setSelectedSizes([]); setCarouselIdx(0); }}
+                  style={{ fontSize: '0.68rem', color: '#ff3f3f', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}
+                >
+                  Limpiar
+                </button>
+              )}
             </div>
-            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Presupuesto máximo</p>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
-              <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>$30.000</span>
-              <span style={{ fontSize: '0.98rem', fontWeight: 800, color: '#FFD700' }}>{fmt(budget)}</span>
-              <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>$200.000</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.05rem', maxHeight: '230px', overflowY: 'auto' }}>
+              {sizeOptions.map(([size, count]) => {
+                const checked = selectedSizes.includes(size);
+                return (
+                  <label
+                    key={size}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', padding: '0.38rem 0.3rem', borderRadius: '6px', transition: 'background 0.15s' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-tertiary)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => {
+                        setSelectedSizes(prev =>
+                          prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]
+                        );
+                        setCarouselIdx(0);
+                      }}
+                      style={{ accentColor: '#FFD700', width: '14px', height: '14px', cursor: 'pointer', flexShrink: 0 }}
+                    />
+                    <span style={{ fontSize: '0.78rem', color: checked ? 'var(--text-primary)' : 'var(--text-secondary)', flex: 1, fontWeight: checked ? 600 : 400 }}>
+                      {size} EUR
+                    </span>
+                    <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', background: 'var(--bg-tertiary)', borderRadius: '4px', padding: '0.1rem 0.4rem', flexShrink: 0 }}>
+                      {count}
+                    </span>
+                  </label>
+                );
+              })}
             </div>
-            <input
-              type="range"
-              min={30000}
-              max={200000}
-              step={5000}
-              value={budget}
-              onChange={e => { setBudget(Number(e.target.value)); setCarouselIdx(0); }}
-              style={{ width: '100%', accentColor: '#FFD700', cursor: 'pointer' }}
-            />
-            <div style={{
-              marginTop: '0.7rem',
-              background: 'var(--bg-tertiary)',
-              borderRadius: '8px',
-              padding: '0.5rem 0.75rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}>
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Modelos disponibles</span>
-              <span style={{ fontSize: '0.88rem', fontWeight: 800, color: budgetProducts.length > 0 ? '#FFD700' : 'var(--text-muted)' }}>
-                {budgetProducts.length} {budgetProducts.length === 1 ? 'par' : 'pares'}
-              </span>
-            </div>
+            {selectedSizes.length > 0 && (
+              <div style={{ marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid var(--border-color)', fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                {sortedProducts.length} {sortedProducts.length === 1 ? 'producto encontrado' : 'productos encontrados'}
+              </div>
+            )}
           </div>
 
           {/* Métodos de pago */}

@@ -41,8 +41,10 @@ export default function Navbar({ user, activeTab, setActiveTab, onSignOut, darkM
       setTimeout(() => document.getElementById(SCROLL_MAP[item])?.scrollIntoView({ behavior: 'smooth' }), 80);
     } else if (GENDER_MAP[item]) {
       setGenderFilter(GENDER_MAP[item]);
+      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 80);
     } else {
       setGenderFilter('all');
+      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 80);
     }
   };
 
