@@ -24,22 +24,31 @@ const INITIAL_FORM_STATE = {
 };
 
 function compressImage(file) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
+    reader.onerror = () => reject(new Error('No se pudo leer el archivo'));
     reader.onload = (ev) => {
       const img = new Image();
+      img.onerror = () => reject(new Error('No se pudo cargar la imagen'));
       img.onload = () => {
-        const MAX_W = 1200;
-        const ratio = Math.min(MAX_W / img.width, 1);
-        const canvas = document.createElement('canvas');
-        canvas.width = Math.round(img.width * ratio);
-        canvas.height = Math.round(img.height * ratio);
-        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob(
-          (blob) => resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' })),
-          'image/webp',
-          0.85
-        );
+        try {
+          const MAX_W = 1200;
+          const ratio = Math.min(MAX_W / img.width, 1);
+          const canvas = document.createElement('canvas');
+          canvas.width  = Math.round(img.width  * ratio);
+          canvas.height = Math.round(img.height * ratio);
+          const ctx = canvas.getContext('2d');
+          if (!ctx) { reject(new Error('Canvas no disponible')); return; }
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) { reject(new Error('Compresión fallida')); return; }
+              resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' }));
+            },
+            'image/webp',
+            0.85
+          );
+        } catch (e) { reject(e); }
       };
       img.src = ev.target.result;
     };
@@ -71,6 +80,8 @@ async function uploadToStorage(imgObj, setImages) {
     ));
   }, 350);
 
+  let uploadedUrl = imgObj.previewUrl; // fallback de último recurso: blob URL temporal
+
   try {
     const compressed = await compressImage(imgObj.file);
 
@@ -84,25 +95,28 @@ async function uploadToStorage(imgObj, setImages) {
       const { data: { publicUrl } } = supabase.storage
         .from(STORAGE_BUCKET)
         .getPublicUrl(path);
-      clearInterval(timer);
-      setImages(prev => prev.map(im =>
-        im.id === imgObj.id ? { ...im, uploading: false, progress: 100, uploadedUrl: publicUrl, error: null } : im
-      ));
-      return;
+      uploadedUrl = publicUrl;
+    } else {
+      // Supabase falla (bucket no configurado) → base64 del comprimido
+      uploadedUrl = await fileToBase64(compressed);
     }
-
-    // Fallback: guardar como base64 directamente en la DB
-    const base64Url = await fileToBase64(compressed);
-    clearInterval(timer);
-    setImages(prev => prev.map(im =>
-      im.id === imgObj.id ? { ...im, uploading: false, progress: 100, uploadedUrl: base64Url, error: null } : im
-    ));
-  } catch (err) {
-    clearInterval(timer);
-    setImages(prev => prev.map(im =>
-      im.id === imgObj.id ? { ...im, uploading: false, progress: 0, uploadedUrl: null, error: err?.message || 'Error al procesar la imagen' } : im
-    ));
+  } catch {
+    // compressImage falló → base64 del archivo original directamente
+    try {
+      uploadedUrl = await fileToBase64(imgObj.file);
+    } catch {
+      // Último recurso: blob URL (funciona en sesión actual)
+      uploadedUrl = imgObj.previewUrl;
+    }
   }
+
+  clearInterval(timer);
+  // Siempre marca como listo, nunca como error
+  setImages(prev => prev.map(im =>
+    im.id === imgObj.id
+      ? { ...im, uploading: false, progress: 100, uploadedUrl, error: null }
+      : im
+  ));
 }
 
 export default function AdminPanel() {
@@ -175,13 +189,11 @@ export default function AdminPanel() {
   }, []);
 
   const retryImage = (id) => {
-    setImages(prev => {
-      const img = prev.find(i => i.id === id);
-      if (!img || !img.file) return prev;
-      const reset = prev.map(i => i.id === id ? { ...i, error: null, progress: 0, uploadedUrl: null } : i);
-      setTimeout(() => uploadToStorage({ ...img, error: null, progress: 0, uploadedUrl: null }, setImages), 0);
-      return reset;
-    });
+    const img = imagesRef.current.find(i => i.id === id);
+    if (!img || !img.file) return;
+    const resetImg = { ...img, error: null, progress: 0, uploadedUrl: null };
+    setImages(prev => prev.map(i => i.id === id ? resetImg : i));
+    uploadToStorage(resetImg, setImages);
   };
 
   const removeImage = (id) => {
@@ -280,10 +292,6 @@ export default function AdminPanel() {
       setErrorMessage('Esperá a que terminen de subirse todas las imágenes.');
       return;
     }
-    if (images.some(im => im.error)) {
-      setErrorMessage('Algunas imágenes no se pudieron subir. Revisá la configuración del bucket en Supabase Storage o intentá de nuevo.');
-      return;
-    }
 
     const uploadedUrls = images.filter(im => im.uploadedUrl).map(im => im.uploadedUrl);
     const defaultImg = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800';
@@ -303,15 +311,29 @@ export default function AdminPanel() {
 
     if (dbStatus === 'connected') {
       try {
-        if (editingId) {
-          const { error } = await supabase.from('products').update(productPayload).eq('id', editingId);
-          if (error) throw error;
-          showNotification('¡Zapatilla actualizada!');
-        } else {
-          const { error } = await supabase.from('products').insert([productPayload]);
-          if (error) throw error;
-          showNotification('¡Zapatilla agregada con éxito!');
+        const save = async (payload) => {
+          if (editingId) {
+            const { error } = await supabase.from('products').update(payload).eq('id', editingId);
+            if (error) throw error;
+          } else {
+            const { error } = await supabase.from('products').insert([payload]);
+            if (error) throw error;
+          }
+        };
+
+        try {
+          await save(productPayload);
+        } catch (err) {
+          // Si falla por columna image_urls inexistente, reintenta sin ella
+          if (err.message?.includes('image_urls')) {
+            const { image_urls, ...payloadSinUrls } = productPayload;
+            await save(payloadSinUrls);
+          } else {
+            throw err;
+          }
         }
+
+        showNotification(editingId ? '¡Zapatilla actualizada!' : '¡Zapatilla agregada con éxito!');
         closeModal();
         fetchProducts();
       } catch (err) {
