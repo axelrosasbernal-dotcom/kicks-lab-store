@@ -9,6 +9,15 @@ function App() {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('store');
   const [authLoading, setAuthLoading] = useState(true);
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('darkMode');
+    return saved !== null ? saved === 'true' : true;
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+    localStorage.setItem('darkMode', darkMode);
+  }, [darkMode]);
 
   useEffect(() => {
     // Check active session on mount
@@ -102,11 +111,13 @@ function App() {
   return (
     <div className="app-container">
       {/* Header Navigation */}
-      <Navbar 
-        user={user} 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        onSignOut={handleSignOut} 
+      <Navbar
+        user={user}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onSignOut={handleSignOut}
+        darkMode={darkMode}
+        onToggleDarkMode={() => setDarkMode(prev => !prev)}
       />
 
       {/* Main Content Area */}

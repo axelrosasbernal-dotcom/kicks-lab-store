@@ -1,7 +1,7 @@
 import React from 'react';
-import { ShoppingBag, LogIn, LogOut, User, Settings } from 'lucide-react';
+import { ShoppingBag, LogIn, LogOut, User, Settings, Sun, Moon } from 'lucide-react';
 
-export default function Navbar({ user, activeTab, setActiveTab, onSignOut }) {
+export default function Navbar({ user, activeTab, setActiveTab, onSignOut, darkMode, onToggleDarkMode }) {
   return (
     <nav className="glass-panel" style={{
       margin: '1rem auto',
@@ -83,6 +83,25 @@ export default function Navbar({ user, activeTab, setActiveTab, onSignOut }) {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <button
+          onClick={onToggleDarkMode}
+          title={darkMode ? 'Modo claro' : 'Modo oscuro'}
+          style={{
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid var(--glass-border)',
+            borderRadius: 'var(--radius-sm)',
+            padding: '0.45rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--text-secondary)',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
+
         {user ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <div style={{
