@@ -320,13 +320,13 @@ export default function AdminPanel() {
           const { error } = await supabase.from('products').update(corePayload).eq('id', editingId);
           if (error) throw error;
         } else {
-          const { data: inserted, error } = await supabase
+          // Generar ID en el cliente para no depender de SELECT después del INSERT
+          const newId = crypto.randomUUID();
+          const { error } = await supabase
             .from('products')
-            .insert([corePayload])
-            .select('id')
-            .single();
+            .insert([{ ...corePayload, id: newId }]);
           if (error) throw error;
-          savedId = inserted?.id;
+          savedId = newId;
         }
 
         // Paso 2: actualizar image_urls por separado (fallo silencioso — el producto ya se guardó)
