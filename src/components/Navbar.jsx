@@ -25,7 +25,7 @@ const KicksLabLogo = () => (
 
 const NAV_ITEMS = ['Novedades', 'Hombre', 'Mujer', 'Colecciones', 'Sobre Nosotros'];
 
-export default function Navbar({ user, activeTab, setActiveTab, onSignOut, darkMode, onToggleDarkMode, cartCount = 0 }) {
+export default function Navbar({ user, activeTab, setActiveTab, onSignOut, darkMode, onToggleDarkMode, cartCount = 0, onCartClick }) {
   return (
     <nav style={{
       background: 'var(--bg-secondary)',
@@ -100,7 +100,7 @@ export default function Navbar({ user, activeTab, setActiveTab, onSignOut, darkM
           </button>
 
           {/* Cart icon with badge */}
-          <div style={{ position: 'relative', padding: '0.4rem', cursor: 'pointer' }}>
+          <div onClick={onCartClick} style={{ position: 'relative', padding: '0.4rem', cursor: 'pointer' }}>
             <ShoppingCart size={22} color="var(--text-primary)" />
             {cartCount > 0 && (
               <span style={{
