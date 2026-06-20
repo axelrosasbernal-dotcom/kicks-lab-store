@@ -306,3 +306,50 @@ button, input, textarea, select {
 .animate-fade-in {
   animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* ── Mobile overrides ── */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1.25rem 1rem;
+  }
+
+  .footer-inner {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+
+  .admin-table-scroll {
+    border-radius: 12px !important;
+  }
+  .admin-product-table {
+    min-width: 620px;
+    font-size: 0.82rem !important;
+  }
+  .admin-modal-inner {
+    border-radius: 20px 20px 0 0 !important;
+    max-width: 100% !important;
+    padding: 1.25rem !important;
+    margin: 0 !important;
+  }
+  .admin-form-grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+  .admin-form-actions {
+    flex-direction: column-reverse !important;
+  }
+  .admin-form-actions button {
+    width: 100% !important;
+    justify-content: center !important;
+    min-width: unset !important;
+  }
+  .admin-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .admin-header > button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}

@@ -4,7 +4,9 @@ import {
   Upload, Star, Eye, Heart, TrendingUp, Package, Percent,
   DollarSign, ChevronUp, ChevronDown, Tag
 } from 'lucide-react';
-import { supabase } from '../supabaseClient';
+import { getProducts, getFavoritesRanking, saveProduct, deleteProduct, uploadProductImage } from '../services/supabaseService';
+import { getStockStatus, isDiscountActive } from '../utils/productHelpers';
+import { compressImage, fileToBase64 } from '../utils/imageCompressor';
 
 const STANDARD_SIZES = ['35','36','37','38','39','40','41','42','43','44','45','46'];
 const BRANDS_LIST    = ['Nike','Adidas','Jordan','Puma','New Balance','Reebok','Asics','Vans','Converse','Fila'];
@@ -14,99 +16,6 @@ const TAGS_LIST      = ['Nuevo','Más vendido','Exclusivo','Edición limitada'];
 const ACCEPTED_TYPES = ['image/jpeg','image/png','image/webp'];
 const MAX_IMAGES     = 8;
 const STORAGE_BUCKET = 'axelrb';
-
-// ── Helpers ────────────────────────────────────────────────────────────────────
-
-function getStockStatus(stock) {
-  const s = Number(stock);
-  if (stock === '' || stock === null || stock === undefined || isNaN(s)) return null;
-  if (s === 0)  return { label: 'Agotado',        color: '#ef4444', bg: 'rgba(239,68,68,0.13)' };
-  if (s <= 3)   return { label: 'Pocas unidades', color: '#facc15', bg: 'rgba(250,204,21,0.13)' };
-  return              { label: 'Disponible',       color: '#22c55e', bg: 'rgba(34,197,94,0.13)' };
-}
-
-function isDiscountActive(p) {
-  if (!p.discount_enabled) return false;
-  const now = new Date();
-  if (p.discount_start && new Date(p.discount_start) > now) return false;
-  if (p.discount_end   && new Date(p.discount_end)   < now) return false;
-  return true;
-}
-
-// ── Image utilities ────────────────────────────────────────────────────────────
-
-function compressImage(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = () => reject(new Error('No se pudo leer el archivo'));
-    reader.onload  = (ev) => {
-      const img = new Image();
-      img.onerror = () => reject(new Error('No se pudo cargar la imagen'));
-      img.onload  = () => {
-        try {
-          const MAX_W = 800;
-          const ratio = Math.min(MAX_W / img.width, 1);
-          const canvas = document.createElement('canvas');
-          canvas.width  = Math.round(img.width  * ratio);
-          canvas.height = Math.round(img.height * ratio);
-          const ctx = canvas.getContext('2d');
-          if (!ctx) { reject(new Error('Canvas no disponible')); return; }
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          canvas.toBlob(
-            (blob) => {
-              if (!blob) { reject(new Error('Compresión fallida')); return; }
-              resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' }));
-            },
-            'image/webp', 0.65
-          );
-        } catch (e) { reject(e); }
-      };
-      img.src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload  = e => resolve(e.target.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-async function uploadToStorage(imgObj, setImages) {
-  if (!imgObj.file) return;
-  setImages(prev => prev.map(im => im.id === imgObj.id ? { ...im, uploading: true, progress: 5 } : im));
-
-  let prog = 5;
-  const timer = setInterval(() => {
-    prog = Math.min(prog + 10, 85);
-    setImages(prev => prev.map(im => im.id === imgObj.id ? { ...im, progress: prog } : im));
-  }, 350);
-
-  let uploadedUrl = imgObj.previewUrl;
-  try {
-    const compressed = await compressImage(imgObj.file);
-    const path = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
-    const { error: uploadError } = await supabase.storage
-      .from(STORAGE_BUCKET).upload(path, compressed, { contentType: 'image/webp', upsert: false });
-    if (!uploadError) {
-      const { data: { publicUrl } } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-      uploadedUrl = publicUrl;
-    } else {
-      uploadedUrl = await fileToBase64(compressed);
-    }
-  } catch {
-    try { uploadedUrl = await fileToBase64(imgObj.file); } catch { uploadedUrl = imgObj.previewUrl; }
-  }
-
-  clearInterval(timer);
-  setImages(prev => prev.map(im =>
-    im.id === imgObj.id ? { ...im, uploading: false, progress: 100, uploadedUrl, error: null } : im
-  ));
-}
 
 // ── Sub-component: Toggle Switch ───────────────────────────────────────────────
 
@@ -230,8 +139,7 @@ export default function AdminPanel() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
-      if (error) throw error;
+      const data = await getProducts();
       setProducts(data || []);
       setDbStatus('connected');
     } catch {
@@ -245,15 +153,7 @@ export default function AdminPanel() {
   const fetchFavorites = useCallback(async () => {
     setFavLoading(true);
     try {
-      const { data, error } = await supabase.from('favorites').select('product_id');
-      if (error) throw error;
-      const counts = {};
-      data?.forEach(f => { counts[f.product_id] = (counts[f.product_id] || 0) + 1; });
-      const ranking = Object.entries(counts)
-        .sort(([, a], [, b]) => b - a)
-        .slice(0, 10)
-        .map(([pid, count]) => ({ product: products.find(p => p.id === pid), count }))
-        .filter(r => r.product);
+      const ranking = await getFavoritesRanking(products);
       setFavorites(ranking);
     } catch {
       setFavorites([]);
@@ -263,6 +163,31 @@ export default function AdminPanel() {
   useEffect(() => {
     if (activeTab === 'favorites' && products.length > 0) fetchFavorites();
   }, [activeTab, products, fetchFavorites]);
+
+  async function uploadToStorage(imgObj, setImages) {
+    if (!imgObj.file) return;
+    setImages(prev => prev.map(im => im.id === imgObj.id ? { ...im, uploading: true, progress: 5 } : im));
+
+    let prog = 5;
+    const timer = setInterval(() => {
+      prog = Math.min(prog + 10, 85);
+      setImages(prev => prev.map(im => im.id === imgObj.id ? { ...im, progress: prog } : im));
+    }, 350);
+
+    let uploadedUrl = imgObj.previewUrl;
+    try {
+      const compressed = await compressImage(imgObj.file);
+      const path = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+      uploadedUrl = await uploadProductImage(STORAGE_BUCKET, path, compressed);
+    } catch {
+      try { uploadedUrl = await fileToBase64(imgObj.file); } catch { uploadedUrl = imgObj.previewUrl; }
+    }
+
+    clearInterval(timer);
+    setImages(prev => prev.map(im =>
+      im.id === imgObj.id ? { ...im, uploading: false, progress: 100, uploadedUrl, error: null } : im
+    ));
+  }
 
   // ── Image management ─────────────────────────────────────────────────────────
   const addFiles = useCallback((rawFiles) => {
@@ -433,29 +358,7 @@ export default function AdminPanel() {
 
     if (dbStatus === 'connected') {
       try {
-        let savedId = editingId;
-
-        // Paso 1: guardar campos base (siempre funciona)
-        if (editingId) {
-          const { error } = await supabase.from('products').update(corePayload).eq('id', editingId);
-          if (error) throw error;
-        } else {
-          const newId = crypto.randomUUID();
-          const { error } = await supabase.from('products').insert([{ ...corePayload, id: newId }]);
-          if (error) throw error;
-          savedId = newId;
-        }
-
-        // Paso 2: actualizar campos extendidos (silencioso si las columnas no existen aún)
-        if (savedId) {
-          await supabase.from('products').update(extendedPayload).eq('id', savedId);
-        }
-
-        // Paso 3: actualizar image_urls (silencioso)
-        if (savedId && allUrls.length > 0) {
-          await supabase.from('products').update({ image_urls: allUrls }).eq('id', savedId);
-        }
-
+        await saveProduct(editingId, corePayload, extendedPayload, allUrls);
         showNotification(editingId ? '¡Zapatilla actualizada!' : '¡Zapatilla agregada con éxito!');
         closeModal();
         fetchProducts();
@@ -485,8 +388,7 @@ export default function AdminPanel() {
     if (!window.confirm('¿Eliminar este producto?')) return;
     if (dbStatus === 'connected') {
       try {
-        const { error } = await supabase.from('products').delete().eq('id', id);
-        if (error) throw error;
+        await deleteProduct(id);
         showNotification('¡Producto eliminado!', 'error');
         fetchProducts();
       } catch (err) { alert(`Error: ${err.message}`); }
@@ -517,6 +419,10 @@ export default function AdminPanel() {
         .discount-header      { padding: 0.9rem 1rem; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); cursor: pointer; user-select: none; transition: background 0.15s; }
         .discount-header:hover{ background: rgba(255,255,255,0.035); }
         input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+        @media (max-width: 768px) {
+          .admin-modal-overlay { padding: 0 !important; align-items: flex-end !important; }
+          .admin-modal-overlay::before { display: none; }
+        }
       ` }} />
 
       {/* ── Toast ──────────────────────────────────────────────────────────── */}
@@ -534,7 +440,7 @@ export default function AdminPanel() {
       )}
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+      <div className="admin-header" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
         <div>
           <h1 style={{ fontSize: '2rem' }}>Panel de Administración</h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
@@ -589,13 +495,13 @@ export default function AdminPanel() {
           TAB: Productos
       ══════════════════════════════════════════════════════════════════════ */}
       {activeTab === 'products' && (
-        <div className="glass-panel animate-fade-in" style={{ overflowX: 'auto', padding: 0 }}>
+        <div className="glass-panel animate-fade-in admin-table-scroll" style={{ overflowX: 'auto', padding: 0 }}>
           {loading ? (
             <div style={{ padding: '4rem', display: 'flex', justifyContent: 'center', color: 'var(--text-secondary)' }}>Cargando...</div>
           ) : products.length === 0 ? (
             <div style={{ padding: '4rem', textAlign: 'center', color: 'var(--text-secondary)' }}>No hay zapatillas. Agregá una para comenzar.</div>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.88rem' }}>
+            <table className="admin-product-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.88rem' }}>
               <thead>
                 <tr style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid var(--border-color)' }}>
                   <SortTh field="name"       sortField={sortField} sortDir={sortDir} onSort={handleSort}>Zapatilla</SortTh>
@@ -774,8 +680,9 @@ export default function AdminPanel() {
       ══════════════════════════════════════════════════════════════════════ */}
       {isModalOpen && (
         <div ref={modalScrollRef}
+          className="admin-modal-overlay"
           style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(8px)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', zIndex: 999, padding: '1.5rem', overflowY: 'auto' }}>
-          <div className="glass-panel" style={{ maxWidth: 700, width: '100%', margin: 'auto', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255,255,255,0.1)', background: 'linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%)', padding: '2.5rem' }}>
+          <div className="glass-panel admin-modal-inner" style={{ maxWidth: 700, width: '100%', margin: 'auto', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255,255,255,0.1)', background: 'linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%)', padding: '2.5rem' }}>
 
             {/* Modal header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem', marginBottom: '1.75rem' }}>
@@ -786,21 +693,23 @@ export default function AdminPanel() {
             </div>
 
             {errorMessage && (
-              <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
-                {errorMessage}
+              <div style={{ background: 'rgba(239,68,68,0.13)', border: '1px solid rgba(239,68,68,0.25)', color: '#ef4444', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Info size={16} style={{ flexShrink: 0 }} />
+                <span>{errorMessage}</span>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {/* Modal form */}
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
               {/* Nombre */}
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label">Nombre del Modelo</label>
+                <label className="form-label">Nombre del modelo</label>
                 <input type="text" name="name" required placeholder="ej. Air Force 1 '07" className="form-input" value={formData.name} onChange={handleInputChange} />
               </div>
 
               {/* Marca + Categoría */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="admin-form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div className="form-group" style={{ margin: 0 }}>
                   <label className="form-label">Marca</label>
                   <select name="brand" className="form-input" value={formData.brand} onChange={handleInputChange} style={{ cursor: 'pointer' }}>
@@ -859,7 +768,7 @@ export default function AdminPanel() {
                     </div>
 
                     {/* Valor + preview */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', alignItems: 'flex-end' }}>
+                    <div className="admin-form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', alignItems: 'flex-end' }}>
                       <div>
                         {formData.discount_type === 'percentage' ? (
                           <>
@@ -894,7 +803,7 @@ export default function AdminPanel() {
                     </div>
 
                     {/* Fechas */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div className="admin-form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                       <div>
                         <label className="form-label">Inicio de oferta (opcional)</label>
                         <input type="datetime-local" className="form-input" value={formData.discount_start}
@@ -914,7 +823,7 @@ export default function AdminPanel() {
               </div>
 
               {/* ── STOCK ───────────────────────────────────────────────────── */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', alignItems: 'flex-end' }}>
+              <div className="admin-form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', alignItems: 'flex-end' }}>
                 <div className="form-group" style={{ margin: 0 }}>
                   <label className="form-label">Stock disponible (unidades)</label>
                   <input type="number" name="stock" min={0} step={1} placeholder="ej. 10" className="form-input" value={formData.stock} onChange={handleInputChange} />
@@ -1105,7 +1014,7 @@ export default function AdminPanel() {
               </div>
 
               {/* ── Botones ─────────────────────────────────────────────────── */}
-              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
+              <div className="admin-form-actions" style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
                 <button type="button" className="btn-secondary" onClick={closeModal} disabled={submitting} style={{ padding: '0.6rem 1.25rem' }}>Cancelar</button>
                 <button type="submit" className="btn-primary" disabled={submitting || anyUploading} style={{ padding: '0.6rem 1.5rem', minWidth: 160 }}>
                   {submitting

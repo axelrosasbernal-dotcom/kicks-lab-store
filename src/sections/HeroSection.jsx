@@ -135,7 +135,7 @@ export default function HeroSection({ products = [] }) {
       `}</style>
 
       {/* ── WRAPPER CARD ── */}
-      <div style={{
+      <div className="nik-hero-card" style={{
         position: 'relative',
         borderRadius: '24px',
         overflow: 'hidden',
@@ -191,6 +191,7 @@ export default function HeroSection({ products = [] }) {
           className="nik-hero-inner"
         >
 
+
           {/* ── LEFT: Text block ── */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.35rem' }}>
 
@@ -209,7 +210,7 @@ export default function HeroSection({ products = [] }) {
             </p>
 
             {/* Headline */}
-            <h1 style={{
+            <h1 className="nik-hero-title" style={{
               fontSize: 'clamp(2rem, 3.8vw, 3.2rem)',
               fontWeight: 900,
               textTransform: 'uppercase',
@@ -234,7 +235,7 @@ export default function HeroSection({ products = [] }) {
             </h1>
 
             {/* Subtitle */}
-            <p style={{
+            <p className="nik-hero-subtitle" style={{
               fontSize: '0.95rem',
               color: '#7a8aaa',
               lineHeight: 1.65,
@@ -250,7 +251,7 @@ export default function HeroSection({ products = [] }) {
             </p>
 
             {/* Buttons */}
-            <div style={{
+            <div className="nik-hero-btns" style={{
               display: 'flex',
               gap: '0.85rem',
               flexWrap: 'wrap',
@@ -345,6 +346,7 @@ export default function HeroSection({ products = [] }) {
 
           {/* ── RIGHT: Sneaker stage ── */}
           <div
+            className="nik-hero-stage"
             ref={rightRef}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
@@ -418,7 +420,7 @@ export default function HeroSection({ products = [] }) {
             }} />
 
             {/* Sneaker SVG */}
-            <div style={{
+            <div className="nik-hero-shoe" style={{
               position: 'relative',
               zIndex: 5,
               width: 'clamp(280px, 30vw, 430px)',
@@ -493,10 +495,38 @@ export default function HeroSection({ products = [] }) {
         {/* ── Responsive style override ── */}
         <style>{`
           @media (max-width: 768px) {
+            .nik-hero-card {
+              min-height: auto !important;
+              border-radius: 16px !important;
+            }
             .nik-hero-inner {
               grid-template-columns: 1fr !important;
-              padding: 2rem 1.5rem 1.5rem !important;
+              padding: 2rem 1.25rem 1.5rem !important;
               gap: 0 !important;
+            }
+            .nik-hero-title {
+              font-size: 1.65rem !important;
+              letter-spacing: -0.01em !important;
+            }
+            .nik-hero-subtitle {
+              max-width: 100% !important;
+              font-size: 0.88rem !important;
+            }
+            .nik-hero-btns {
+              flex-direction: column !important;
+              gap: 0.65rem !important;
+            }
+            .nik-hero-btn-primary,
+            .nik-hero-btn-secondary {
+              width: 100% !important;
+              justify-content: center !important;
+            }
+            .nik-hero-stage {
+              min-height: 300px !important;
+              margin-top: 0.5rem !important;
+            }
+            .nik-hero-shoe {
+              width: clamp(200px, 72vw, 280px) !important;
             }
           }
         `}</style>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../integrations/supabase/supabaseClient';
 
 const ADMIN_EMAIL = 'axelrosasbernal@gmail.com';
 

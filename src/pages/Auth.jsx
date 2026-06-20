@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../integrations/supabase/supabaseClient';
 import { Mail, Lock, LogIn, UserPlus, AlertCircle, Sparkles } from 'lucide-react';
 
 function GoogleIcon() {
@@ -79,7 +79,7 @@ export default function Auth({ onAuthSuccess }) {
         setError(err.message || 'Ocurrió un error inesperado');
       }
     } finally {
-      setLoading(false);
+      loading && setLoading(false);
     }
   };
 

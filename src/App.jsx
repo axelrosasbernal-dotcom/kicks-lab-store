@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from './components/Navbar';
-import Store from './components/Store';
-import Auth from './components/Auth';
-import AdminPanel from './components/AdminPanel';
-import { supabase } from './supabaseClient';
+import Navbar from './layouts/Navbar';
+import Store from './pages/Store';
+import Auth from './pages/Auth';
+import AdminPanel from './pages/AdminPanel';
+import { supabase } from './integrations/supabase/supabaseClient';
 import { useUserRole } from './hooks/useUserRole';
 
 function App() {
@@ -186,7 +186,7 @@ function App() {
         fontSize: '0.85rem',
         background: 'var(--bg-secondary)'
       }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '1rem', alignItems: 'center' }}>
+        <div className="footer-inner" style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '1rem', alignItems: 'center' }}>
           <span>© {new Date().getFullYear()} $NEAKERS NIK. Todos los derechos reservados.</span>
           <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
             <a href="#" style={{ color: 'var(--text-muted)', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}>Términos</a>
