@@ -396,6 +396,8 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
               .detail-info-col { overflow-y: auto !important; padding: 1.25rem 1.25rem 5.5rem !important; }
               .detail-cta-bar { display: flex !important; }
               .detail-cta-desktop { display: none !important; }
+              /* ── Nosotros Historia tab ── */
+              .nosotros-historia-grid { grid-template-columns: 1fr !important; gap: 1.5rem !important; }
             }
           `}} />
           <div className="product-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
@@ -744,7 +746,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
           {/* Tab content */}
           <div style={{ padding: '2rem 2.5rem' }}>
             {nosotrosTab === 0 && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem', alignItems: 'start' }}>
+              <div className="nosotros-historia-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem', alignItems: 'start' }}>
                 <div>
                   <p style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.6, marginBottom: '1rem' }}>
                     Somos $NEAKERS NIK, tu tienda de zapatillas deportivas urbanas en La Plata. Estilo sin compromisos.
