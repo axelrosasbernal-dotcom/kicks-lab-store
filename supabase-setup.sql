@@ -96,3 +96,33 @@ SELECT id, 'admin'
 FROM auth.users
 WHERE email = 'axelrosasbernal@gmail.com'
 ON CONFLICT (id) DO UPDATE SET role = 'admin';
+
+-- ============================================================
+-- 6. Tabla de favoritos (clicks de corazón de los clientes)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.favorites (
+  id         UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  product_id UUID NOT NULL,
+  session_id TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.favorites ENABLE ROW LEVEL SECURITY;
+
+-- Cualquiera puede ver favoritos (datos no sensibles: solo product_id + sesión anónima)
+DROP POLICY IF EXISTS "Todos pueden ver favoritos" ON public.favorites;
+CREATE POLICY "Todos pueden ver favoritos"
+  ON public.favorites FOR SELECT
+  USING (true);
+
+-- Cualquiera puede agregar un favorito
+DROP POLICY IF EXISTS "Cualquiera puede agregar favoritos" ON public.favorites;
+CREATE POLICY "Cualquiera puede agregar favoritos"
+  ON public.favorites FOR INSERT
+  WITH CHECK (true);
+
+-- Cualquiera puede borrar favoritos (el cliente controla por product_id + session_id)
+DROP POLICY IF EXISTS "Cualquiera puede borrar favoritos" ON public.favorites;
+CREATE POLICY "Cualquiera puede borrar favoritos"
+  ON public.favorites FOR DELETE
+  USING (true);
