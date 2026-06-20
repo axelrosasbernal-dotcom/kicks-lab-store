@@ -112,6 +112,7 @@ export default function Navbar({ user, isAdmin, activeTab, setActiveTab, onSignO
         {!isMobile && (
           <div
             ref={navContainerRef}
+            className="nav-desktop-links"
             style={{ display: 'flex', gap: '0.15rem', flex: 1, justifyContent: 'center', flexWrap: 'wrap', position: 'relative' }}
           >
             {/* Sliding pill */}
