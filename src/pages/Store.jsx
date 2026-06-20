@@ -17,6 +17,18 @@ const WhatsAppIcon = ({ size = 22, color = '#25D366' }) => (
 
 const CARDS_PER_PAGE = 4;
 
+const BADGE_COLORS = {
+  'Nuevo':            '#3b82f6',
+  'Más vendido':      '#f97316',
+  'Oferta':           '#ef4444',
+  'Destacado':        '#ca8a04',
+  'Últimas unidades': '#b45309',
+  'Premium':          '#d4af37',
+  'Tendencia':        '#7c3aed',
+  'Exclusivo':        '#8b5cf6',
+  'Edición limitada': '#ec4899',
+};
+
 const StepHeader = ({ step, onClose }) => (
   <div style={{
     padding: '1rem 1.5rem',
@@ -254,9 +266,11 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
     ? searchFiltered
     : searchFiltered.filter(p => p.sizes?.some(s => selectedSizes.includes(s)));
 
-  const sortedProducts = [...sizeFiltered].sort((a, b) =>
-    sortOrder === 'asc' ? a.price - b.price : b.price - a.price
-  );
+  const sortedProducts = [...sizeFiltered].sort((a, b) => {
+    if (b.featured && !a.featured) return 1;
+    if (a.featured && !b.featured) return -1;
+    return sortOrder === 'asc' ? a.price - b.price : b.price - a.price;
+  });
 
   const allSizes = searchFiltered.reduce((acc, p) => {
     (p.sizes || []).forEach(s => { acc[s] = (acc[s] || 0) + 1; });
@@ -366,6 +380,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
 
           <style dangerouslySetInnerHTML={{
             __html: `
+            @keyframes badgeFadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
             .product-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s; }
             .product-card:hover { border-color: rgba(255,63,63,0.35); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.45); }
             .product-card-img-wrap { position: relative; overflow: hidden; border-radius: 12px 12px 0 0; cursor: pointer; }
@@ -437,10 +452,26 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                         style={activeStyle}
                       />
                     </div>
+                    {/* Badge de etiqueta (tags[0]) */}
+                    {product.tags?.[0] && (
+                      <div style={{
+                        position: 'absolute', top: '10px', left: '10px',
+                        background: BADGE_COLORS[product.tags[0]] || 'rgba(0,0,0,0.6)',
+                        borderRadius: '6px', padding: '2px 8px',
+                        fontSize: '0.62rem', fontWeight: 800, color: '#fff',
+                        letterSpacing: '0.05em', zIndex: 4,
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.35)',
+                        animation: 'badgeFadeIn 0.4s ease'
+                      }}>
+                        {product.tags[0]}
+                      </div>
+                    )}
                     {/* Badge de marca */}
                     {product.brand && (
                       <div style={{
-                        position: 'absolute', top: '10px', left: '10px',
+                        position: 'absolute',
+                        top: product.tags?.[0] ? '36px' : '10px',
+                        left: '10px',
                         background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)',
                         border: '1px solid rgba(255,255,255,0.1)',
                         borderRadius: '6px', padding: '2px 8px',
@@ -521,6 +552,18 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
 
                   {/* Card body */}
                   <div style={{ padding: '0.85rem 0.85rem 0.9rem' }}>
+                    {product.featured && (
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+                        fontSize: '0.6rem', fontWeight: 700, color: '#FFD700',
+                        background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.25)',
+                        borderRadius: '4px', padding: '0.12rem 0.45rem',
+                        marginBottom: '0.3rem', letterSpacing: '0.04em',
+                        animation: 'badgeFadeIn 0.4s ease'
+                      }}>
+                        ⭐ Destacado
+                      </span>
+                    )}
                     <p style={{
                       fontSize: '0.76rem',
                       color: 'var(--text-secondary)',
