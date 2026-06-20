@@ -385,6 +385,17 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
               .reviews-grid::-webkit-scrollbar { display: none; }
               .review-card { min-width: 78vw !important; flex-shrink: 0 !important; scroll-snap-align: start !important; }
               .review-card p { font-size: 0.82rem !important; }
+              /* ── Product detail modal ── */
+              .detail-overlay { padding: 0 !important; align-items: flex-end !important; }
+              .detail-modal { border-radius: 0 !important; max-width: 100% !important; max-height: 100dvh !important; height: 100dvh !important; }
+              .detail-body { grid-template-columns: 1fr !important; overflow: visible !important; }
+              .detail-img-col { border-right: none !important; border-bottom: 1px solid var(--border-color) !important; min-height: unset !important; height: 42vmax !important; max-height: 44vh !important; flex-direction: row !important; padding: 1rem !important; gap: 0.75rem !important; }
+              .detail-img-main { flex: none !important; min-height: unset !important; height: 100% !important; width: calc(100% - 60px) !important; padding: 0.75rem !important; }
+              .detail-thumbs-row { flex-direction: column !important; width: 52px !important; gap: 0.4rem !important; }
+              .detail-thumbs-row > div { flex: none !important; width: 52px !important; height: 52px !important; aspect-ratio: 1 !important; }
+              .detail-info-col { overflow-y: auto !important; padding: 1.25rem 1.25rem 5.5rem !important; }
+              .detail-cta-bar { display: flex !important; }
+              .detail-cta-desktop { display: none !important; }
             }
           `}} />
           <div className="product-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
@@ -1100,6 +1111,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
       {/* ── PRODUCT DETAIL MODAL ── */}
       {detailProduct && (
         <div
+          className="detail-overlay"
           style={{
             position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)',
             zIndex: 10002, display: 'flex', alignItems: 'center',
@@ -1108,17 +1120,20 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
           }}
           onClick={e => { if (e.target === e.currentTarget) setDetailProduct(null); }}
         >
-          <div style={{
-            background: 'var(--bg-secondary)',
-            borderRadius: '20px',
-            width: '100%',
-            maxWidth: '860px',
-            maxHeight: '92vh',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-            border: '1px solid var(--border-color)'
-          }}>
+          <div
+            className="detail-modal"
+            style={{
+              background: 'var(--bg-secondary)',
+              borderRadius: '20px',
+              width: '100%',
+              maxWidth: '860px',
+              maxHeight: '92vh',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+              border: '1px solid var(--border-color)'
+            }}
+          >
             {/* Header con breadcrumb y botón cerrar */}
             <div style={{
               padding: '1rem 1.5rem',
@@ -1143,34 +1158,43 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
             </div>
 
             {/* Cuerpo: dos columnas */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: 0,
-              flex: 1,
-              overflow: 'auto'
-            }}>
+            <div
+              className="detail-body"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: 0,
+                flex: 1,
+                overflow: 'auto'
+              }}
+            >
               {/* ── Columna izquierda: imagen grande + miniaturas ── */}
-              <div style={{
-                padding: '1.5rem',
-                borderRight: '1px solid var(--border-color)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1rem',
-                background: 'var(--bg-primary)'
-              }}>
-                {/* Imagen principal */}
-                <div style={{
-                  flex: 1,
-                  minHeight: '280px',
+              <div
+                className="detail-img-col"
+                style={{
+                  padding: '1.5rem',
+                  borderRight: '1px solid var(--border-color)',
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: 'var(--bg-secondary)',
-                  borderRadius: '14px',
-                  overflow: 'hidden',
-                  padding: '1.5rem'
-                }}>
+                  flexDirection: 'column',
+                  gap: '1rem',
+                  background: 'var(--bg-primary)'
+                }}
+              >
+                {/* Imagen principal */}
+                <div
+                  className="detail-img-main"
+                  style={{
+                    flex: 1,
+                    minHeight: '280px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'var(--bg-secondary)',
+                    borderRadius: '14px',
+                    overflow: 'hidden',
+                    padding: '1.5rem'
+                  }}
+                >
                   <img
                     src={
                       detailProduct.image_urls?.length > 1
@@ -1210,7 +1234,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                     { transform: 'rotate(-8deg) scale(0.9)', opacity: 0.6 },
                   ];
                   return (
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div className="detail-thumbs-row" style={{ display: 'flex', gap: '0.5rem' }}>
                       {thumbUrls.slice(0, 4).map((url, ti) => (
                         <div
                           key={ti}
@@ -1248,7 +1272,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
               </div>
 
               {/* ── Columna derecha: detalles ── */}
-              <div style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', overflowY: 'auto' }}>
+              <div className="detail-info-col" style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', overflowY: 'auto' }}>
                 {/* Nombre y precio */}
                 <div>
                   {detailProduct.brand && (
@@ -1367,8 +1391,9 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                   </div>
                 </div>
 
-                {/* Botón agregar al carrito */}
+                {/* Botón agregar al carrito — desktop (hidden on mobile via .detail-cta-bar) */}
                 <button
+                  className="detail-cta-desktop"
                   onClick={() => {
                     for (let i = 0; i < detailQty; i++) {
                       addToCart(detailProduct, detailSize);
@@ -1410,6 +1435,48 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                   ))}
                 </div>
               </div>
+            </div>
+
+            {/* Barra CTA fija al fondo — solo mobile */}
+            <div
+              className="detail-cta-bar"
+              style={{
+                display: 'none',
+                position: 'sticky',
+                bottom: 0,
+                padding: '0.85rem 1.25rem',
+                background: 'var(--bg-secondary)',
+                borderTop: '1px solid var(--border-color)',
+                zIndex: 2
+              }}
+            >
+              <button
+                onClick={() => {
+                  for (let i = 0; i < detailQty; i++) {
+                    addToCart(detailProduct, detailSize);
+                  }
+                  setDetailProduct(null);
+                }}
+                style={{
+                  width: '100%',
+                  background: '#fff',
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: '10px',
+                  padding: '1rem',
+                  fontWeight: 900,
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  transition: 'background 0.2s'
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = '#FFD700'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#fff'; }}
+              >
+                Agregar al Carrito
+              </button>
             </div>
           </div>
         </div>
