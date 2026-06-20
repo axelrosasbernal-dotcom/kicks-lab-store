@@ -117,6 +117,15 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
     if (cartOpenSignal) setCartOpen(true);
   }, [cartOpenSignal]);
 
+  useEffect(() => {
+    if (detailProduct) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [detailProduct]);
+
   const fetchProducts = async () => {
     setLoading(true);
     try {
@@ -387,14 +396,14 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
               .review-card p { font-size: 0.82rem !important; }
               /* ── Product detail modal ── */
               .detail-overlay { padding: 0 !important; align-items: flex-end !important; }
-              .detail-modal { border-radius: 0 !important; max-width: 100% !important; max-height: 100dvh !important; height: 100dvh !important; }
-              .detail-body { grid-template-columns: 1fr !important; overflow: visible !important; }
-              .detail-img-col { border-right: none !important; border-bottom: 1px solid var(--border-color) !important; min-height: unset !important; height: 42vmax !important; max-height: 44vh !important; flex-direction: row !important; padding: 1rem !important; gap: 0.75rem !important; }
+              .detail-modal { border-radius: 0 !important; max-width: 100% !important; max-height: 100dvh !important; height: 100dvh !important; overflow: hidden !important; }
+              .detail-body { grid-template-columns: 1fr !important; overflow-y: auto !important; overflow-x: hidden !important; -webkit-overflow-scrolling: touch !important; overscroll-behavior: contain !important; }
+              .detail-img-col { border-right: none !important; border-bottom: 1px solid var(--border-color) !important; min-height: unset !important; height: 42vmax !important; max-height: 44vh !important; flex-direction: row !important; padding: 1rem !important; gap: 0.75rem !important; flex-shrink: 0 !important; }
               .detail-img-main { flex: none !important; min-height: unset !important; height: 100% !important; width: calc(100% - 60px) !important; padding: 0.75rem !important; }
               .detail-thumbs-row { flex-direction: column !important; width: 52px !important; gap: 0.4rem !important; }
               .detail-thumbs-row > div { flex: none !important; width: 52px !important; height: 52px !important; aspect-ratio: 1 !important; }
-              .detail-info-col { overflow-y: auto !important; padding: 1.25rem 1.25rem 5.5rem !important; }
-              .detail-cta-bar { display: flex !important; }
+              .detail-info-col { overflow-y: visible !important; padding: 1.25rem 1.25rem 1.5rem !important; }
+              .detail-cta-bar { display: flex !important; position: sticky !important; flex-shrink: 0 !important; }
               .detail-cta-desktop { display: none !important; }
               /* ── Nosotros Historia tab ── */
               .nosotros-historia-grid { grid-template-columns: 1fr !important; gap: 1.5rem !important; }
