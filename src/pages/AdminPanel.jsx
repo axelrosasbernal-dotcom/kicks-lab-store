@@ -2,11 +2,12 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Plus, Edit2, Trash2, X, Check, Info, ArrowUp, ArrowDown,
   Upload, Star, Eye, Heart, TrendingUp, Package, Percent,
-  DollarSign, ChevronUp, ChevronDown, Tag
+  DollarSign, ChevronUp, ChevronDown, Tag, ShoppingBag
 } from 'lucide-react';
 import { getProducts, getFavoritesRanking, saveProduct, deleteProduct, uploadProductImage } from '../services/supabaseService';
 import { getStockStatus, isDiscountActive } from '../utils/productHelpers';
 import { compressImage, fileToBase64 } from '../utils/imageCompressor';
+import OrdersPanel from './OrdersPanel';
 
 const STANDARD_SIZES = ['35','36','37','38','39','40','41','42','43','44','45','46'];
 const BRANDS_LIST    = ['Nike','Adidas','Jordan','Puma','New Balance','Reebok','Asics','Vans','Converse','Fila'];
@@ -484,6 +485,7 @@ export default function AdminPanel() {
         {[
           { id: 'products',  label: 'Lista de Productos' },
           { id: 'favorites', label: <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Heart size={13} />Favoritos</span> },
+          { id: 'orders',    label: <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}><ShoppingBag size={13} />Historial de Compras</span> },
         ].map(tab => (
           <button key={tab.id} className={`admin-tab${activeTab === tab.id ? ' active' : ''}`} onClick={() => setActiveTab(tab.id)}>
             {tab.label}
@@ -674,6 +676,11 @@ export default function AdminPanel() {
           )}
         </div>
       )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          TAB: Historial de Compras
+      ══════════════════════════════════════════════════════════════════════ */}
+      {activeTab === 'orders' && <OrdersPanel />}
 
       {/* ══════════════════════════════════════════════════════════════════════
           MODAL: Agregar / Editar

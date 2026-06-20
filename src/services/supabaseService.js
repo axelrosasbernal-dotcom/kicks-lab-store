@@ -106,6 +106,34 @@ export async function deleteProduct(id) {
   if (error) throw error;
 }
 
+// ── Orders ────────────────────────────────────────────────────────────────────
+
+export async function getOrders() {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function saveOrder(id, payload) {
+  if (id) {
+    const { error } = await supabase.from('orders').update(payload).eq('id', id);
+    if (error) throw error;
+  } else {
+    const { error } = await supabase.from('orders').insert([payload]);
+    if (error) throw error;
+  }
+}
+
+export async function deleteOrder(id) {
+  const { error } = await supabase.from('orders').delete().eq('id', id);
+  if (error) throw error;
+}
+
+// ── Storage ───────────────────────────────────────────────────────────────────
+
 export async function uploadProductImage(bucket, path, file) {
   const { error } = await supabase.storage
     .from(bucket)
