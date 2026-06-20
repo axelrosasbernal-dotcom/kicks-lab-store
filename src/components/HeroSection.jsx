@@ -222,14 +222,14 @@ export default function HeroSection({ products = [] }) {
               animation: loaded ? 'nik-fadeup 0.6s ease forwards' : 'none',
               animationDelay: '0.15s',
             }}>
-              EL PASO QUE<br />
+              SI TE MIRAN,<br />
               <span style={{
                 WebkitTextFillColor: 'transparent',
                 WebkitBackgroundClip: 'text',
                 backgroundClip: 'text',
                 backgroundImage: 'linear-gradient(90deg, #fff 0%, #c8d4ff 100%)',
               }}>
-                TODOS NOTAN.
+                QUE SEA POR LAS SNEAKERS.
               </span>
             </h1>
 
