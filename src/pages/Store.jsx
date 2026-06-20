@@ -264,7 +264,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
 
   const sizeFiltered = selectedSizes.length === 0
     ? searchFiltered
-    : searchFiltered.filter(p => p.sizes?.some(s => selectedSizes.includes(s)));
+    : searchFiltered.filter(p => p.sizes?.some(s => selectedSizes.includes(cleanSize(s))));
 
   const sortedProducts = [...sizeFiltered].sort((a, b) => {
     if (b.featured && !a.featured) return 1;
@@ -273,7 +273,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
   });
 
   const allSizes = searchFiltered.reduce((acc, p) => {
-    (p.sizes || []).forEach(s => { acc[s] = (acc[s] || 0) + 1; });
+    (p.sizes || []).forEach(s => { const k = cleanSize(s); acc[k] = (acc[k] || 0) + 1; });
     return acc;
   }, {});
   const sizeOptions = Object.entries(allSizes).sort((a, b) => Number(a[0]) - Number(b[0]));
