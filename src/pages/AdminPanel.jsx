@@ -2,12 +2,13 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Plus, Edit2, Trash2, X, Check, Info, ArrowUp, ArrowDown,
   Upload, Star, Eye, Heart, TrendingUp, Package, Percent,
-  DollarSign, ChevronUp, ChevronDown, Tag, ShoppingBag
+  DollarSign, ChevronUp, ChevronDown, Tag, ShoppingBag, FileSpreadsheet
 } from 'lucide-react';
 import { getProducts, getFavoritesRanking, saveProduct, deleteProduct, uploadProductImage } from '../services/supabaseService';
 import { getStockStatus, isDiscountActive } from '../utils/productHelpers';
 import { compressImage, fileToBase64 } from '../utils/imageCompressor';
 import OrdersPanel from './OrdersPanel';
+import BulkImportModal from './BulkImportModal';
 
 const STANDARD_SIZES = ['35','36','37','38','39','40','41','42','43','44','45','46'];
 const BRANDS_LIST    = ['Nike','Adidas','Jordan','Puma','New Balance','Reebok','Asics','Vans','Converse','Fila'];
@@ -61,6 +62,7 @@ export default function AdminPanel() {
   const [loading,      setLoading]      = useState(true);
   const [dbStatus,     setDbStatus]     = useState('checking');
   const [isModalOpen,  setIsModalOpen]  = useState(false);
+  const [isBulkOpen,   setIsBulkOpen]   = useState(false);
   const [formData,     setFormData]     = useState(INITIAL_FORM);
   const [images,       setImages]       = useState([]);
   const [isDragOver,   setIsDragOver]   = useState(false);
@@ -408,6 +410,7 @@ export default function AdminPanel() {
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes slideIn { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes spin    { to   { transform: rotate(360deg); } }
+        .spin              { animation: spin 0.8s linear infinite; }
         .table-row:hover      { background: rgba(255,255,255,0.016) !important; }
         .img-card:hover .img-overlay { opacity: 1 !important; }
         .drop-zone:hover      { border-color: rgba(255,63,63,0.5) !important; background: rgba(255,63,63,0.04) !important; }
@@ -448,10 +451,23 @@ export default function AdminPanel() {
             Gestiona el catálogo, el stock y las métricas de la tienda.
           </p>
         </div>
-        <button onClick={handleOpenAddModal} className="btn-primary" style={{ padding: '0.75rem 1.25rem', borderRadius: 'var(--radius-sm)' }}>
-          <Plus size={18} /><span>Agregar Zapatilla</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button onClick={() => setIsBulkOpen(true)} className="btn-secondary" style={{ padding: '0.75rem 1.25rem', borderRadius: 'var(--radius-sm)' }}>
+            <FileSpreadsheet size={18} /><span>Importación masiva</span>
+          </button>
+          <button onClick={handleOpenAddModal} className="btn-primary" style={{ padding: '0.75rem 1.25rem', borderRadius: 'var(--radius-sm)' }}>
+            <Plus size={18} /><span>Agregar Zapatilla</span>
+          </button>
+        </div>
       </div>
+
+      {isBulkOpen && (
+        <BulkImportModal
+          dbStatus={dbStatus}
+          onClose={() => setIsBulkOpen(false)}
+          onImported={fetchProducts}
+        />
+      )}
 
       {dbStatus === 'offline' && (
         <div style={{ background: 'rgba(234,179,8,0.12)', border: '1px solid rgba(234,179,8,0.25)', color: '#facc15', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
