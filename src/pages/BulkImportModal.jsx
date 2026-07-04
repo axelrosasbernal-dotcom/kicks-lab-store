@@ -226,6 +226,7 @@ export default function BulkImportModal({ dbStatus, onClose, onImported }) {
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
                   <thead>
                     <tr style={{ background: 'rgba(255,255,255,0.03)', position: 'sticky', top: 0 }}>
+                      <th style={{ padding: '0.6rem 0.9rem', textAlign: 'left' }}>Foto</th>
                       <th style={{ padding: '0.6rem 0.9rem', textAlign: 'left' }}>Fila</th>
                       <th style={{ padding: '0.6rem 0.9rem', textAlign: 'left' }}>Nombre</th>
                       <th style={{ padding: '0.6rem 0.9rem', textAlign: 'left' }}>Precio</th>
@@ -234,8 +235,17 @@ export default function BulkImportModal({ dbStatus, onClose, onImported }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {products.map((p, i) => (
+                    {products.map((p, i) => {
+                      const firstImg = p.imageNames.map(n => imageFiles[n.toLowerCase()]).find(Boolean);
+                      return (
                       <tr key={i} style={{ borderTop: '1px solid var(--border-color)' }}>
+                        <td style={{ padding: '0.55rem 0.9rem' }}>
+                          <div style={{ width: 42, height: 42, borderRadius: 6, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                            {firstImg
+                              ? <img src={URL.createObjectURL(firstImg)} alt={p.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                              : <AlertCircle size={16} style={{ color: p.imageNames.length ? '#ef4444' : 'var(--text-muted)' }} />}
+                          </div>
+                        </td>
                         <td style={{ padding: '0.55rem 0.9rem', color: 'var(--text-muted)' }}>{p.rowNumber}</td>
                         <td style={{ padding: '0.55rem 0.9rem' }}>{p.name || <em style={{ color: '#ef4444' }}>sin nombre</em>}</td>
                         <td style={{ padding: '0.55rem 0.9rem' }}>{p.price ? `$${Number(p.price).toLocaleString('es-AR')}` : '—'}</td>
@@ -247,7 +257,7 @@ export default function BulkImportModal({ dbStatus, onClose, onImported }) {
                           {statuses[i]?.state === 'error' && <span style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: 4 }}><AlertCircle size={13} /> {statuses[i].message}</span>}
                         </td>
                       </tr>
-                    ))}
+                    );})}
                   </tbody>
                 </table>
               </div>
