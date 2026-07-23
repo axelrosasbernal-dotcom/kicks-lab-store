@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- Los usuarios solo pueden leer su propio perfil
+DROP POLICY IF EXISTS "Usuarios ven su propio perfil" ON public.profiles;
 CREATE POLICY "Usuarios ven su propio perfil"
   ON public.profiles FOR SELECT
   USING (auth.uid() = id);
