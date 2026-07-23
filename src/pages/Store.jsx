@@ -388,8 +388,8 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
             .product-card-img-wrap:hover .product-card-img-inner { transform: scale(1.05); }
             .product-card-img { max-width: 100%; max-height: 260px; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 16px 32px rgba(0,0,0,0.7)); transition: filter 0.3s; }
             .product-card-img-wrap:hover .product-card-img { filter: drop-shadow(0 20px 40px rgba(0,0,0,0.85)); }
-            .product-card-thumbs { display: flex; gap: 6px; padding: 0.65rem 0.85rem 0; }
-            .product-card-thumb { flex: 1; aspect-ratio: 1; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid transparent; background: #0d1220; padding: 4px; transition: border-color 0.15s, transform 0.15s; }
+            .product-card-thumbs { display: flex; justify-content: center; gap: 6px; padding: 0.65rem 0.85rem 0; }
+            .product-card-thumb { flex: 0 0 40px; width: 40px; aspect-ratio: 1; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid transparent; background: #0d1220; padding: 3px; transition: border-color 0.15s, transform 0.15s; }
             .product-card-thumb:hover { transform: scale(1.08); }
             .product-card-thumb.active { border-color: var(--accent-yellow); }
             .product-card-thumb img { width: 100%; height: 100%; object-fit: contain; }
@@ -398,7 +398,7 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
               .product-card-img-inner { height: 400px !important; padding: 2rem 2rem 1.25rem !important; }
               .product-card-img { max-height: 320px !important; }
               .product-card-thumbs { padding: 0.9rem 1rem 0 !important; gap: 10px !important; }
-              .product-card-thumb { border-radius: 10px !important; padding: 6px !important; }
+              .product-card-thumb { flex: 0 0 52px !important; width: 52px !important; border-radius: 10px !important; padding: 6px !important; }
               .product-card:hover { transform: none !important; }
               /* ── Cart bottom-sheet ── */
               .cart-overlay { align-items: flex-end !important; padding: 0 !important; }
@@ -1288,24 +1288,25 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                     { transform: 'rotate(-8deg) scale(0.9)', opacity: 0.6 },
                   ];
                   return (
-                    <div className="detail-thumbs-row" style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div className="detail-thumbs-row" style={{ display: 'flex', justifyContent: 'center', gap: '0.6rem' }}>
                       {thumbUrls.slice(0, 4).map((url, ti) => (
                         <div
                           key={ti}
                           onClick={e => { e.stopPropagation(); setDetailThumb(ti); }}
                           style={{
-                            flex: 1,
+                            flex: '0 0 64px',
+                            width: '64px',
                             aspectRatio: '1',
                             background: 'var(--bg-secondary)',
                             borderRadius: '10px',
                             overflow: 'hidden',
                             border: `2px solid ${detailThumb === ti ? 'var(--accent-yellow)' : 'var(--border-color)'}`,
                             cursor: 'pointer',
-                            transition: 'border-color 0.15s',
+                            transition: 'border-color 0.15s, transform 0.15s',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            padding: '0.4rem'
+                            padding: '0.35rem'
                           }}
                         >
                           <img
