@@ -128,7 +128,69 @@ CREATE POLICY "Cualquiera puede borrar favoritos"
   USING (true);
 
 -- ============================================================
--- 7. Políticas de Storage para el bucket AXELRB (fotos de productos)
+-- 7bis. RLS en la tabla orders (pedidos: nombre y teléfono del cliente)
+--       Solo se usa desde el panel de admin (OrdersPanel.jsx), nunca
+--       desde el checkout público, así que es 100% admin-only.
+-- ============================================================
+ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Solo admin ve pedidos" ON public.orders;
+CREATE POLICY "Solo admin ve pedidos"
+  ON public.orders FOR SELECT
+  USING (public.is_admin());
+
+DROP POLICY IF EXISTS "Solo admin crea pedidos" ON public.orders;
+CREATE POLICY "Solo admin crea pedidos"
+  ON public.orders FOR INSERT
+  WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS "Solo admin actualiza pedidos" ON public.orders;
+CREATE POLICY "Solo admin actualiza pedidos"
+  ON public.orders FOR UPDATE
+  USING (public.is_admin());
+
+DROP POLICY IF EXISTS "Solo admin elimina pedidos" ON public.orders;
+CREATE POLICY "Solo admin elimina pedidos"
+  ON public.orders FOR DELETE
+  USING (public.is_admin());
+
+-- ============================================================
+-- 7ter. Endurecer favorites: validar product_id contra products
+--       y exigir session_id no vacío en insert.
+--       Nota: no hay auth real de por medio (sesión anónima por
+--       localStorage), así que esto no impide que alguien mande
+--       un session_id ajeno a propósito; sí evita el caso más común
+--       de bots/spam sin session_id y de product_id inventados.
+--       Una defensa completa requeriría Supabase Auth anónimo.
+-- ============================================================
+-- Limpia favoritos huérfanos (product_id que ya no existe en products)
+-- antes de poder agregar la FK.
+DELETE FROM public.favorites f
+WHERE NOT EXISTS (SELECT 1 FROM public.products p WHERE p.id = f.product_id);
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'favorites_product_id_fkey'
+  ) THEN
+    ALTER TABLE public.favorites
+      ADD CONSTRAINT favorites_product_id_fkey
+      FOREIGN KEY (product_id) REFERENCES public.products(id) ON DELETE CASCADE;
+  END IF;
+END $$;
+
+DROP POLICY IF EXISTS "Cualquiera puede agregar favoritos" ON public.favorites;
+CREATE POLICY "Cualquiera puede agregar favoritos"
+  ON public.favorites FOR INSERT
+  WITH CHECK (session_id IS NOT NULL AND session_id <> '');
+
+DROP POLICY IF EXISTS "Cualquiera puede borrar favoritos" ON public.favorites;
+CREATE POLICY "Cualquiera puede borrar favoritos"
+  ON public.favorites FOR DELETE
+  USING (session_id IS NOT NULL);
+
+-- ============================================================
+-- 8. Políticas de Storage para el bucket AXELRB (fotos de productos)
 -- ============================================================
 
 -- Cualquiera puede ver las imágenes (bucket público, tienda visible sin login)
