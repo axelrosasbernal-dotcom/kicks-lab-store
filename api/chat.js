@@ -40,6 +40,12 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'GEMINI_API_KEY no configurada en el servidor' });
   }
 
+  if (req.query?.listModels === 'true') {
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${GEMINI_API_KEY}`);
+    const d = await r.json();
+    return res.status(200).json(d);
+  }
+
   const { message, history } = req.body || {};
   if (!message || typeof message !== 'string') {
     return res.status(400).json({ error: 'Falta el mensaje' });
