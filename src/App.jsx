@@ -94,7 +94,7 @@ function App() {
 
     switch (activeTab) {
       case 'store':
-        return <Store onAddToCart={() => setCartCount(c => c + 1)} cartOpenSignal={cartOpenSignal} genderFilter={genderFilter} />;
+        return <Store onCartChange={setCartCount} cartOpenSignal={cartOpenSignal} genderFilter={genderFilter} />;
       case 'auth':
         return <Auth onAuthSuccess={(u) => {
           setUser(u);
@@ -110,7 +110,7 @@ function App() {
         if (!isAdmin) {
           // No autorizado: redirigir a tienda
           setActiveTab('store');
-          return <Store onAddToCart={() => setCartCount(c => c + 1)} cartOpenSignal={cartOpenSignal} genderFilter={genderFilter} />;
+          return <Store onCartChange={setCartCount} cartOpenSignal={cartOpenSignal} genderFilter={genderFilter} />;
         }
         return <AdminPanel />;
       default:

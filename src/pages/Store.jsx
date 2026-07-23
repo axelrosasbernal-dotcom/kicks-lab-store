@@ -75,15 +75,19 @@ const StepHeader = ({ step, onClose }) => (
   </div>
 );
 
-export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all' }) {
+export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'all' }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [carouselIdx, setCarouselIdx] = useState(0);
   const [addedId, setAddedId] = useState(null);
   const [contactForm, setContactForm] = useState({ name: '', price: '', email: '', message: '' });
 
-  // Cart state
-  const [cart, setCart] = useState([]);
+  // Cart state — persistido en localStorage para que sobreviva a un F5
+  // o a cambiar de pestaña (el componente Store se desmonta al navegar
+  // a Admin/Auth y se remonta al volver a la tienda).
+  const [cart, setCart] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('kicks_cart') || '[]'); } catch { return []; }
+  });
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState(0);
   const [customerData, setCustomerData] = useState({ nombre: '', telefono: '', direccion: '' });
@@ -126,6 +130,11 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
   useEffect(() => {
     if (cartOpenSignal) setCartOpen(true);
   }, [cartOpenSignal]);
+
+  useEffect(() => {
+    localStorage.setItem('kicks_cart', JSON.stringify(cart));
+    onCartChange?.(cart.reduce((sum, i) => sum + i.qty, 0));
+  }, [cart]);
 
   useEffect(() => {
     if (detailProduct) {
@@ -182,7 +191,6 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
       if (existing) return prev.map(i => i === existing ? { ...i, qty: i.qty + 1 } : i);
       return [...prev, { product, size, qty: 1 }];
     });
-    onAddToCart?.();
     setCartOpen(true);
   };
 
