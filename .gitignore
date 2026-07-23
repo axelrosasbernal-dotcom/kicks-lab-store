@@ -22,3 +22,7 @@ npm-debug.log*
 
 # Scripts con tokens sensibles (solo uso local)
 connectVercelGitHub.mjs
+
+# Carpetas de fotos de origen para importar productos (uso local, no son código)
+Productos Nuevos Zapas/
+Productos Nuevos Zapas - Listos para importar/

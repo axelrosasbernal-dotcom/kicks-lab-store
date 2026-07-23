@@ -12,7 +12,6 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",
     "lucide-react": "^1.21.0",
-    "pg": "^8.22.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },
@@ -25,8 +24,6 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
-    "jimp": "^1.6.1",
-    "playwright": "^1.61.0",
     "sharp": "^0.35.2",
     "vite": "^8.0.12"
   }
