@@ -5,6 +5,7 @@ import Auth from './pages/Auth';
 import AdminPanel from './pages/AdminPanel';
 import { supabase } from './integrations/supabase/supabaseClient';
 import { useUserRole } from './hooks/useUserRole';
+import ChatBot from './components/ChatBot';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -139,6 +140,9 @@ function App() {
       <main className="main-content">
         {renderContent()}
       </main>
+
+      {/* Chatbot flotante */}
+      <ChatBot />
 
       {/* Floating WhatsApp Button */}
       <a
