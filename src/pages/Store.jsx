@@ -417,6 +417,12 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
             .product-card-thumb:hover { transform: scale(1.08); }
             .product-card-thumb.active { border-color: var(--accent-yellow); }
             .product-card-thumb img { width: 100%; height: 100%; object-fit: contain; }
+            @media (min-width: 1400px) {
+              .product-grid { grid-template-columns: repeat(4, 1fr) !important; }
+            }
+            @media (min-width: 1024px) and (max-width: 1399px) {
+              .product-grid { grid-template-columns: repeat(3, 1fr) !important; }
+            }
             @media (max-width: 768px) {
               .product-grid { grid-template-columns: 1fr !important; }
               .product-card-img-inner { height: 400px !important; padding: 2rem 2rem 1.25rem !important; }

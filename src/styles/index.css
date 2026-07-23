@@ -273,10 +273,34 @@ button, input, textarea, select {
 
 .main-content {
   flex: 1;
-  max-width: 1200px;
+  max-width: 1680px;
   width: 100%;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
+  padding: 2rem 1rem;
+}
+
+@media (min-width: 768px) {
+  .main-content {
+    padding: 2rem 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main-content {
+    padding: 2rem 4rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .nav-inner {
+    padding: 0 2rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .nav-inner {
+    padding: 0 4rem !important;
+  }
 }
 
 /* Store two-column layout */

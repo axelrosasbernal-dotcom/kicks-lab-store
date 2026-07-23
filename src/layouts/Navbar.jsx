@@ -87,10 +87,10 @@ export default function Navbar({ user, isAdmin, activeTab, setActiveTab, onSignO
       zIndex: 100,
       width: '100%'
     }}>
-      <div style={{
-        maxWidth: '1200px',
+      <div className="nav-inner" style={{
+        maxWidth: '1680px',
         margin: '0 auto',
-        padding: '0 1.5rem',
+        padding: '0 1rem',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',

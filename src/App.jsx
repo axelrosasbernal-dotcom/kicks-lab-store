@@ -186,7 +186,7 @@ function App() {
         fontSize: '0.85rem',
         background: 'var(--bg-secondary)'
       }}>
-        <div className="footer-inner" style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '1rem', alignItems: 'center' }}>
+        <div className="footer-inner" style={{ maxWidth: '1680px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '1rem', alignItems: 'center' }}>
           <span>© {new Date().getFullYear()} $NEAKERS NIK. Todos los derechos reservados.</span>
           <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
             <a href="#" style={{ color: 'var(--text-muted)', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}>Términos</a>

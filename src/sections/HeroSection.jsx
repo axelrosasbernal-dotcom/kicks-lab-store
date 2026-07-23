@@ -134,14 +134,19 @@ export default function HeroSection({ products = [] }) {
         }
       `}</style>
 
-      {/* ── WRAPPER CARD ── */}
+      {/* ── WRAPPER CARD (full-bleed: se extiende a todo el ancho de la pantalla) ── */}
       <div className="nik-hero-card" style={{
         position: 'relative',
-        borderRadius: '24px',
+        width: '100vw',
+        left: '50%',
+        right: '50%',
+        marginLeft: '-50vw',
+        marginRight: '-50vw',
         overflow: 'hidden',
         marginBottom: '1.5rem',
         background: 'linear-gradient(140deg, #020510 0%, #040c1e 40%, #070e24 70%, #030810 100%)',
-        border: '1px solid rgba(99,131,255,0.18)',
+        borderTop: '1px solid rgba(99,131,255,0.18)',
+        borderBottom: '1px solid rgba(99,131,255,0.18)',
         boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 40px 80px rgba(0,0,0,0.7)',
         minHeight: '560px',
         display: 'flex',
@@ -182,9 +187,12 @@ export default function HeroSection({ products = [] }) {
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           width: '100%',
+          maxWidth: '1680px',
+          margin: '0 auto',
           alignItems: 'center',
           gap: 0,
-          padding: '3rem 3.5rem 3rem 3.5rem',
+          padding: '3rem 1rem',
+          boxSizing: 'border-box',
           position: 'relative',
           zIndex: 2,
         }}
@@ -494,10 +502,19 @@ export default function HeroSection({ products = [] }) {
 
         {/* ── Responsive style override ── */}
         <style>{`
+          @media (min-width: 768px) {
+            .nik-hero-inner {
+              padding: 3rem 2rem !important;
+            }
+          }
+          @media (min-width: 1024px) {
+            .nik-hero-inner {
+              padding: 3rem 4rem !important;
+            }
+          }
           @media (max-width: 768px) {
             .nik-hero-card {
               min-height: auto !important;
-              border-radius: 16px !important;
             }
             .nik-hero-inner {
               grid-template-columns: 1fr !important;
