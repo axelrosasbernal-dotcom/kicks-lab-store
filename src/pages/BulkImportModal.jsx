@@ -113,8 +113,8 @@ export default function BulkImportModal({ dbStatus, onClose, onImported }) {
       const p = products[i];
       updateStatus(i, { state: 'uploading', message: '' });
 
-      if (!p.name || !p.price || p.sizes.length === 0) {
-        updateStatus(i, { state: 'error', message: 'Faltan campos obligatorios (nombre, precio o talles).' });
+      if (!p.name) {
+        updateStatus(i, { state: 'error', message: 'Falta el nombre.' });
         continue;
       }
 
@@ -133,7 +133,7 @@ export default function BulkImportModal({ dbStatus, onClose, onImported }) {
         const corePayload = {
           name: p.name,
           brand: p.brand,
-          price: parseFloat(p.price),
+          price: p.price ? parseFloat(p.price) : 0,
           image_url: allUrls[0],
           description: p.description,
           sizes: p.sizes,
