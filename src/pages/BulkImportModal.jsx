@@ -3,7 +3,7 @@ import { Upload, X, FileSpreadsheet, Check, AlertCircle, Download, Loader } from
 import { saveProduct, uploadProductImage } from '../services/supabaseService';
 import { compressImage } from '../utils/imageCompressor';
 
-const STORAGE_BUCKET = 'axelrb';
+const STORAGE_BUCKET = 'AXELRB';
 const DEFAULT_IMG = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800';
 
 const TEMPLATE_HEADERS = ['nombre', 'marca', 'categoria', 'precio', 'descripcion', 'talles', 'colores', 'stock', 'tags', 'destacado', 'imagenes'];

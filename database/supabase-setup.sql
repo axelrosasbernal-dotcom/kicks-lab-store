@@ -126,3 +126,31 @@ DROP POLICY IF EXISTS "Cualquiera puede borrar favoritos" ON public.favorites;
 CREATE POLICY "Cualquiera puede borrar favoritos"
   ON public.favorites FOR DELETE
   USING (true);
+
+-- ============================================================
+-- 7. Políticas de Storage para el bucket AXELRB (fotos de productos)
+-- ============================================================
+
+-- Cualquiera puede ver las imágenes (bucket público, tienda visible sin login)
+DROP POLICY IF EXISTS "Todos pueden ver imágenes de AXELRB" ON storage.objects;
+CREATE POLICY "Todos pueden ver imágenes de AXELRB"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'AXELRB');
+
+-- Solo admins pueden subir imágenes
+DROP POLICY IF EXISTS "Solo admin sube imágenes a AXELRB" ON storage.objects;
+CREATE POLICY "Solo admin sube imágenes a AXELRB"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'AXELRB' AND public.is_admin());
+
+-- Solo admins pueden reemplazar/actualizar imágenes
+DROP POLICY IF EXISTS "Solo admin actualiza imágenes en AXELRB" ON storage.objects;
+CREATE POLICY "Solo admin actualiza imágenes en AXELRB"
+  ON storage.objects FOR UPDATE
+  USING (bucket_id = 'AXELRB' AND public.is_admin());
+
+-- Solo admins pueden borrar imágenes
+DROP POLICY IF EXISTS "Solo admin borra imágenes en AXELRB" ON storage.objects;
+CREATE POLICY "Solo admin borra imágenes en AXELRB"
+  ON storage.objects FOR DELETE
+  USING (bucket_id = 'AXELRB' AND public.is_admin());

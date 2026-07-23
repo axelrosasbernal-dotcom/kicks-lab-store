@@ -17,7 +17,7 @@ const COLORS_LIST    = ['Blanco','Negro','Rojo','Azul','Verde','Gris','Beige','M
 const TAGS_LIST      = ['Nuevo','Más vendido','Exclusivo','Edición limitada']; // 'Oferta' es automático
 const ACCEPTED_TYPES = ['image/jpeg','image/png','image/webp'];
 const MAX_IMAGES     = 8;
-const STORAGE_BUCKET = 'axelrb';
+const STORAGE_BUCKET = 'AXELRB';
 
 // ── Sub-component: Toggle Switch ───────────────────────────────────────────────
 
