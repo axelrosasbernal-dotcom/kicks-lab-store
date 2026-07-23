@@ -80,7 +80,7 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       console.error('Error de Gemini:', data);
-      return res.status(502).json({ error: 'Error al consultar el asistente' });
+      return res.status(502).json({ error: 'Error al consultar el asistente', debug: data });
     }
 
     const reply =
