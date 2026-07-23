@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODEL = 'gemini-2.5-flash';
+const GEMINI_MODEL = 'gemini-2.0-flash';
 const WHATSAPP_LINK = 'https://wa.me/542212267568';
 
 const supabase = createClient(
