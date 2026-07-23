@@ -129,10 +129,28 @@ CREATE POLICY "Cualquiera puede borrar favoritos"
   USING (true);
 
 -- ============================================================
--- 7bis. RLS en la tabla orders (pedidos: nombre y teléfono del cliente)
---       Solo se usa desde el panel de admin (OrdersPanel.jsx), nunca
---       desde el checkout público, así que es 100% admin-only.
+-- 7bis. Tabla orders + RLS (pedidos: nombre y teléfono del cliente)
+--       La tabla nunca se creó (OrdersPanel.jsx atrapaba el error y
+--       mostraba la lista vacía en silencio). Solo se usa desde el
+--       panel de admin, nunca desde el checkout público, así que
+--       queda 100% admin-only.
 -- ============================================================
+CREATE TABLE IF NOT EXISTS public.orders (
+  id             UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  customer_name  TEXT NOT NULL,
+  customer_phone TEXT NOT NULL,
+  product_name   TEXT NOT NULL,
+  brand          TEXT,
+  size           TEXT,
+  price          NUMERIC,
+  quantity       INTEGER DEFAULT 1,
+  total_price    NUMERIC,
+  status         TEXT NOT NULL DEFAULT 'Pendiente'
+                 CHECK (status IN ('Pendiente', 'En proceso', 'Entregado', 'Cancelado')),
+  notes          TEXT,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Solo admin ve pedidos" ON public.orders;
