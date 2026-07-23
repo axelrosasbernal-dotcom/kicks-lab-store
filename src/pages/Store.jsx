@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { getProducts, toggleFavorite as toggleFavoriteDb } from '../services/supabaseService';
+import { getProducts, toggleFavorite as toggleFavoriteDb, getReviews, addReview } from '../services/supabaseService';
 import { isDiscountActive, effectivePrice, cleanSize } from '../utils/productHelpers';
 import { fmt } from '../utils/format';
 import { MOCK_PRODUCTS, SEED_REVIEWS } from '../data/mockData';
@@ -98,14 +98,10 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
   const [detailThumb, setDetailThumb] = useState(0);
   const [cardThumbs, setCardThumbs] = useState({});
 
-  const [reviews, setReviews] = useState(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem('kicks_reviews') || 'null');
-      return stored ?? SEED_REVIEWS;
-    } catch { return SEED_REVIEWS; }
-  });
+  const [reviews, setReviews] = useState(SEED_REVIEWS);
   const [reviewForm, setReviewForm] = useState({ name: '', rating: 5, comment: '' });
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [hoverRating, setHoverRating] = useState(0);
   const [contactOpen, setContactOpen] = useState(false);
   const [nosotrosTab, setNosotrosTab] = useState(0);
@@ -122,6 +118,8 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
   });
 
   useEffect(() => { fetchProducts(); }, []);
+
+  useEffect(() => { fetchReviews(); }, []);
 
   useEffect(() => { setCarouselIdx(0); }, [genderFilter]);
 
@@ -147,6 +145,15 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
       setProducts(MOCK_PRODUCTS);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchReviews = async () => {
+    try {
+      const data = await getReviews();
+      setReviews(data && data.length > 0 ? data : SEED_REVIEWS);
+    } catch {
+      setReviews(SEED_REVIEWS);
     }
   };
 
@@ -233,21 +240,24 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
     }
   };
 
-  const submitReview = () => {
-    if (!reviewForm.name.trim() || !reviewForm.comment.trim()) return;
-    const newReview = {
-      id: Date.now(),
-      name: reviewForm.name.trim(),
-      rating: reviewForm.rating,
-      comment: reviewForm.comment.trim(),
-      date: new Date().toLocaleDateString('es-AR')
-    };
-    const updated = [newReview, ...reviews];
-    setReviews(updated);
-    localStorage.setItem('kicks_reviews', JSON.stringify(updated));
-    setReviewForm({ name: '', rating: 5, comment: '' });
-    setReviewSubmitted(true);
-    setTimeout(() => setReviewSubmitted(false), 3000);
+  const submitReview = async () => {
+    if (!reviewForm.name.trim() || !reviewForm.comment.trim() || reviewSubmitting) return;
+    setReviewSubmitting(true);
+    try {
+      const saved = await addReview({
+        name: reviewForm.name.trim(),
+        rating: reviewForm.rating,
+        comment: reviewForm.comment.trim()
+      });
+      setReviews(prev => [saved, ...prev]);
+      setReviewForm({ name: '', rating: 5, comment: '' });
+      setReviewSubmitted(true);
+      setTimeout(() => setReviewSubmitted(false), 3000);
+    } catch {
+      alert('No se pudo publicar la reseña. Probá de nuevo en un momento.');
+    } finally {
+      setReviewSubmitting(false);
+    }
   };
 
   const filteredProducts = genderFilter === 'all'
@@ -911,7 +921,9 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
                     <span key={s} style={{ fontSize: '1rem', color: s <= review.rating ? 'var(--accent-yellow)' : 'var(--star-empty)' }}>★</span>
                   ))}
                 </div>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{review.date}</span>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                  {review.date || (review.created_at ? new Date(review.created_at).toLocaleDateString('es-AR') : '')}
+                </span>
               </div>
               <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '0.75rem' }}>
                 "{review.comment}"
@@ -995,17 +1007,17 @@ export default function Store({ onAddToCart, cartOpenSignal, genderFilter = 'all
               />
               <button
                 onClick={submitReview}
-                disabled={!reviewForm.name.trim() || !reviewForm.comment.trim()}
+                disabled={!reviewForm.name.trim() || !reviewForm.comment.trim() || reviewSubmitting}
                 style={{
-                  background: reviewForm.name.trim() && reviewForm.comment.trim() ? '#FFD700' : 'var(--bg-tertiary)',
-                  color: reviewForm.name.trim() && reviewForm.comment.trim() ? '#000' : 'var(--text-muted)',
+                  background: reviewForm.name.trim() && reviewForm.comment.trim() && !reviewSubmitting ? '#FFD700' : 'var(--bg-tertiary)',
+                  color: reviewForm.name.trim() && reviewForm.comment.trim() && !reviewSubmitting ? '#000' : 'var(--text-muted)',
                   border: 'none', borderRadius: '8px', padding: '0.8rem',
-                  fontWeight: 800, fontSize: '0.88rem', cursor: reviewForm.name.trim() && reviewForm.comment.trim() ? 'pointer' : 'not-allowed',
+                  fontWeight: 800, fontSize: '0.88rem', cursor: reviewForm.name.trim() && reviewForm.comment.trim() && !reviewSubmitting ? 'pointer' : 'not-allowed',
                   fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.05em',
                   transition: 'all 0.2s', width: '100%'
                 }}
               >
-                Publicar reseña
+                {reviewSubmitting ? 'Publicando...' : 'Publicar reseña'}
               </button>
             </div>
           )}
