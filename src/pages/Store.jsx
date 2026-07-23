@@ -43,12 +43,12 @@ const StepHeader = ({ step, onClose }) => (
     {[{ n: 1, label: 'DATOS' }, { n: 2, label: 'PAGO' }, { n: 3, label: 'LISTO' }].map(({ n, label }, i) => (
       <React.Fragment key={n}>
         {i > 0 && (
-          <div style={{ height: '1px', flex: 1, background: n <= step ? '#FFD700' : 'var(--border-color)' }} />
+          <div style={{ height: '1px', flex: 1, background: n <= step ? 'var(--accent-yellow)' : 'var(--border-color)' }} />
         )}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <div style={{
             width: '26px', height: '26px', borderRadius: '50%',
-            background: n <= step ? '#FFD700' : 'var(--bg-tertiary)',
+            background: n <= step ? 'var(--accent-yellow)' : 'var(--bg-tertiary)',
             color: n <= step ? '#000' : 'var(--text-muted)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: '0.72rem', fontWeight: 900, flexShrink: 0
@@ -579,7 +579,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                     {product.featured && (
                       <span style={{
                         display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
-                        fontSize: '0.6rem', fontWeight: 700, color: '#FFD700',
+                        fontSize: '0.6rem', fontWeight: 700, color: 'var(--accent-yellow)',
                         background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.25)',
                         borderRadius: '4px', padding: '0.12rem 0.45rem',
                         marginBottom: '0.3rem', letterSpacing: '0.04em',
@@ -718,7 +718,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                         );
                         setCarouselIdx(0);
                       }}
-                      style={{ accentColor: '#FFD700', width: '14px', height: '14px', cursor: 'pointer', flexShrink: 0 }}
+                      style={{ accentColor: 'var(--accent-yellow)', width: '14px', height: '14px', cursor: 'pointer', flexShrink: 0 }}
                     />
                     <span style={{ fontSize: '0.78rem', color: checked ? 'var(--text-primary)' : 'var(--text-secondary)', flex: 1, fontWeight: checked ? 600 : 400 }}>
                       {cleanSize(size)} EUR
@@ -782,7 +782,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
         }}>
           {/* Header */}
           <div style={{ borderBottom: '1px solid var(--border-color)', padding: '2rem 2.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ width: '4px', height: '2.5rem', background: 'linear-gradient(180deg, #FFD700, #ff8008)', borderRadius: '2px', flexShrink: 0 }} />
+            <div style={{ width: '4px', height: '2.5rem', background: 'linear-gradient(180deg, var(--accent-yellow), #ff8008)', borderRadius: '2px', flexShrink: 0 }} />
             <div style={{ flex: 1 }}>
               <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.2em', color: 'var(--accent-yellow)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>
                 Quiénes somos
@@ -861,7 +861,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
             {nosotrosTab === 1 && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
                 {[
-                  { title: 'Calidad premium', desc: 'Solo vendemos modelos con certificado de autenticidad. Sin réplicas, sin compromisos.', icon: '🏆', color: '#FFD700' },
+                  { title: 'Calidad premium', desc: 'Solo vendemos modelos con certificado de autenticidad. Sin réplicas, sin compromisos.', icon: '🏆', color: 'var(--accent-yellow)' },
                   { title: 'Atención real', desc: 'Te respondemos por WhatsApp en minutos. Un asesor de carne y hueso para cada duda.', icon: '💬', color: '#25D366' },
                   { title: 'Devolución sin drama', desc: 'Si algo no está bien, lo resolvemos. Tu satisfacción es nuestra reputación.', icon: '🔄', color: '#60a5fa' },
                   { title: 'Envío express', desc: 'Entrega en 24hs en La Plata. A todo el país con seguimiento en tiempo real.', icon: '📦', color: '#f59e0b' },
@@ -913,7 +913,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
       {/* ── RESEÑAS ── */}
       <div id="testimonios" style={{ marginTop: '3.5rem', marginBottom: '2rem', scrollMarginTop: '90px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-          <div style={{ width: '4px', height: '2rem', background: 'linear-gradient(180deg, #FFD700, #ff8008)', borderRadius: '2px', flexShrink: 0 }} />
+          <div style={{ width: '4px', height: '2rem', background: 'linear-gradient(180deg, var(--accent-yellow), #ff8008)', borderRadius: '2px', flexShrink: 0 }} />
           <div>
             <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.2em', color: 'var(--accent-yellow)', textTransform: 'uppercase', marginBottom: '0.2rem' }}>Opiniones</p>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-primary)' }}>Lo que dicen nuestros clientes</h2>
@@ -1023,7 +1023,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                 onClick={submitReview}
                 disabled={!reviewForm.name.trim() || !reviewForm.comment.trim() || reviewSubmitting}
                 style={{
-                  background: reviewForm.name.trim() && reviewForm.comment.trim() && !reviewSubmitting ? '#FFD700' : 'var(--bg-tertiary)',
+                  background: reviewForm.name.trim() && reviewForm.comment.trim() && !reviewSubmitting ? 'var(--accent-yellow)' : 'var(--bg-tertiary)',
                   color: reviewForm.name.trim() && reviewForm.comment.trim() && !reviewSubmitting ? '#000' : 'var(--text-muted)',
                   border: 'none', borderRadius: '8px', padding: '0.8rem',
                   fontWeight: 800, fontSize: '0.88rem', cursor: reviewForm.name.trim() && reviewForm.comment.trim() && !reviewSubmitting ? 'pointer' : 'not-allowed',
@@ -1108,7 +1108,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                 value: 'Envíos a todo el país',
                 cta: 'Ver en mapa →',
                 action: () => window.open('https://maps.app.goo.gl/j6rdPnXscngJXasj8', '_blank'),
-                borderColor: '#FFD700'
+                borderColor: 'var(--accent-yellow)'
               },
               {
                 icon: <span style={{ fontSize: '1.6rem' }}>⏰</span>,
@@ -1496,7 +1496,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                     letterSpacing: '0.05em',
                     transition: 'all 0.2s'
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.background = '#FFD700'; }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-yellow)'; }}
                   onMouseLeave={e => { e.currentTarget.style.background = '#fff'; }}
                 >
                   Agregar al Carrito
@@ -1553,7 +1553,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                   letterSpacing: '0.05em',
                   transition: 'background 0.2s'
                 }}
-                onMouseEnter={e => { e.currentTarget.style.background = '#FFD700'; }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-yellow)'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = '#fff'; }}
               >
                 Agregar al Carrito
@@ -1620,7 +1620,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                   setSizePickerProduct(null);
                 }}
                 style={{
-                  flex: 2, background: '#FFD700', color: '#000',
+                  flex: 2, background: 'var(--accent-yellow)', color: '#000',
                   border: 'none', borderRadius: '10px', padding: '0.85rem',
                   fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
                   textTransform: 'uppercase', letterSpacing: '0.04em'
@@ -1726,7 +1726,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                   disabled={cart.length === 0}
                   onClick={() => setCheckoutStep(1)}
                   style={{
-                    width: '100%', background: cart.length === 0 ? 'var(--bg-tertiary)' : '#FFD700',
+                    width: '100%', background: cart.length === 0 ? 'var(--bg-tertiary)' : 'var(--accent-yellow)',
                     color: '#000', border: 'none', borderRadius: '10px', padding: '1rem',
                     fontWeight: 900, fontSize: '0.95rem', textTransform: 'uppercase',
                     letterSpacing: '0.06em', cursor: cart.length === 0 ? 'not-allowed' : 'pointer',
@@ -1787,7 +1787,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                       style={{
                         display: 'flex', alignItems: 'center', gap: '1rem',
                         padding: '1rem', marginBottom: '0.75rem', borderRadius: '12px',
-                        border: `1.5px solid ${customerData.deliveryMethod === id ? '#FFD700' : 'var(--border-color)'}`,
+                        border: `1.5px solid ${customerData.deliveryMethod === id ? 'var(--accent-yellow)' : 'var(--border-color)'}`,
                         background: customerData.deliveryMethod === id ? 'rgba(255,215,0,0.06)' : 'var(--bg-tertiary)',
                         cursor: 'pointer', transition: 'all 0.15s'
                       }}
@@ -1799,8 +1799,8 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                       </div>
                       <div style={{
                         width: '20px', height: '20px', borderRadius: '50%',
-                        border: `2px solid ${customerData.deliveryMethod === id ? '#FFD700' : 'var(--border-color)'}`,
-                        background: customerData.deliveryMethod === id ? '#FFD700' : 'transparent',
+                        border: `2px solid ${customerData.deliveryMethod === id ? 'var(--accent-yellow)' : 'var(--border-color)'}`,
+                        background: customerData.deliveryMethod === id ? 'var(--accent-yellow)' : 'transparent',
                         flexShrink: 0, transition: 'all 0.15s'
                       }} />
                     </div>
@@ -1868,7 +1868,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                     style={{
                       display: 'flex', alignItems: 'center', gap: '1rem',
                       padding: '1rem', marginBottom: '0.75rem', borderRadius: '12px',
-                      border: `1.5px solid ${paymentMethod === id ? '#FFD700' : 'var(--border-color)'}`,
+                      border: `1.5px solid ${paymentMethod === id ? 'var(--accent-yellow)' : 'var(--border-color)'}`,
                       background: paymentMethod === id ? 'rgba(255,215,0,0.06)' : 'var(--bg-tertiary)',
                       cursor: 'pointer', transition: 'all 0.15s'
                     }}
@@ -1880,8 +1880,8 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                     </div>
                     <div style={{
                       width: '20px', height: '20px', borderRadius: '50%',
-                      border: `2px solid ${paymentMethod === id ? '#FFD700' : 'var(--border-color)'}`,
-                      background: paymentMethod === id ? '#FFD700' : 'transparent',
+                      border: `2px solid ${paymentMethod === id ? 'var(--accent-yellow)' : 'var(--border-color)'}`,
+                      background: paymentMethod === id ? 'var(--accent-yellow)' : 'transparent',
                       flexShrink: 0, transition: 'all 0.15s'
                     }} />
                   </div>
@@ -1920,7 +1920,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                   disabled={!paymentMethod}
                   onClick={confirmOrder}
                   style={{
-                    flex: 1, background: paymentMethod ? '#FFD700' : 'var(--bg-tertiary)',
+                    flex: 1, background: paymentMethod ? 'var(--accent-yellow)' : 'var(--bg-tertiary)',
                     color: '#000', border: 'none', borderRadius: '10px', padding: '1rem',
                     fontWeight: 900, fontSize: '0.95rem', textTransform: 'uppercase',
                     letterSpacing: '0.05em', cursor: paymentMethod ? 'pointer' : 'not-allowed',
@@ -1941,7 +1941,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
               }}>
                 <div style={{
                   width: '72px', height: '72px', borderRadius: '50%',
-                  background: '#FFD700', display: 'flex', alignItems: 'center',
+                  background: 'var(--accent-yellow)', display: 'flex', alignItems: 'center',
                   justifyContent: 'center', marginBottom: '1.25rem',
                   fontSize: '2rem', color: '#000', fontWeight: 900
                 }}>✓</div>
@@ -1999,7 +1999,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                     setPaymentMethod('');
                   }}
                   style={{
-                    width: '100%', background: '#FFD700', color: '#000',
+                    width: '100%', background: 'var(--accent-yellow)', color: '#000',
                     border: 'none', borderRadius: '10px', padding: '1rem',
                     fontWeight: 900, fontSize: '0.95rem', textTransform: 'uppercase',
                     letterSpacing: '0.05em', cursor: 'pointer', fontFamily: 'inherit'

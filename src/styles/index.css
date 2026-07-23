@@ -42,24 +42,24 @@
 
 [data-theme="light"] {
   color-scheme: light;
-  color: #111827;
-  background-color: #f5f7fa;
+  color: #14161f;
+  background-color: #f4f5f9;
 
-  --bg-primary: #f5f7fa;
-  --bg-secondary: #eef0f5;
-  --bg-tertiary: #e5e8ef;
-  --text-primary: #111827;
-  --text-secondary: #374151;
-  --text-muted: #4b5563;
-  --border-color: rgba(0, 0, 0, 0.08);
-  --border-glow: rgba(255, 63, 63, 0.2);
-  --glass-bg: rgba(255, 255, 255, 0.72);
-  --glass-border: rgba(0, 0, 0, 0.08);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+  --bg-primary: #f4f5f9;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #eef0f6;
+  --text-primary: #14161f;
+  --text-secondary: #52566b;
+  --text-muted: #8b8fa3;
+  --border-color: rgba(20, 22, 31, 0.09);
+  --border-glow: rgba(255, 63, 63, 0.18);
+  --glass-bg: rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(20, 22, 31, 0.08);
+  --glass-shadow: 0 8px 28px 0 rgba(20, 22, 31, 0.08);
 
-  --accent-yellow: #b45309;
-  --star-empty: rgba(0, 0, 0, 0.18);
-  --nosotros-bg: linear-gradient(160deg, #f8fafc 0%, #f0f4f8 100%);
+  --accent-yellow: #c8890a;
+  --star-empty: rgba(20, 22, 31, 0.15);
+  --nosotros-bg: linear-gradient(160deg, #fbfbfe 0%, #f0f1f7 100%);
 }
 
 [data-theme="light"] body {

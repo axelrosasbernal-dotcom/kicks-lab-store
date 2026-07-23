@@ -263,7 +263,7 @@ export default function HeroSection({ products = [] }) {
                 className="nik-hero-btn-primary"
                 onClick={scrollToCatalog}
                 style={{
-                  background: '#FFD700',
+                  background: 'var(--accent-yellow)',
                   color: '#000',
                   border: 'none',
                   borderRadius: '12px',
