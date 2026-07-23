@@ -8,6 +8,9 @@ import HeroSection from '../sections/HeroSection';
 
 const WHATSAPP_NUMBER = '542212267568';
 const WHATSAPP_DISPLAY = '+54 221 226-7568';
+// Completar cuando esté disponible (alias o CBU para transferencias).
+// Mientras esté vacío, se sigue coordinando el pago por WhatsApp.
+const TRANSFER_ALIAS = '';
 
 const WhatsAppIcon = ({ size = 22, color = '#25D366' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
@@ -228,7 +231,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
       `Nombre: ${customerData.nombre}\n` +
       `Teléfono: ${customerData.telefono}\n` +
       `Entrega: ${entrega}\n` +
-      `Pago: ${paymentMethod}\n` +
+      `Pago: ${paymentMethod}${paymentMethod === 'Transferencia' && TRANSFER_ALIAS ? ` (alias ${TRANSFER_ALIAS})` : ''}\n` +
       `N° de orden: ${num}`;
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
     setCheckoutStep(3);
@@ -1856,7 +1859,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                 <h2 style={{ fontWeight: 900, fontSize: '1.4rem', textTransform: 'uppercase', marginBottom: '1.5rem' }}>Forma de Pago</h2>
                 {[
                   { id: 'Efectivo', icon: '💵', desc: 'Abonás al recibir' },
-                  { id: 'Transferencia', icon: '🏦', desc: 'Te enviamos el CBU' },
+                  { id: 'Transferencia', icon: '🏦', desc: TRANSFER_ALIAS ? `Alias: ${TRANSFER_ALIAS}` : 'Te pasamos el alias por WhatsApp' },
                   { id: 'Tarjeta', icon: '💳', desc: 'Hasta 6 cuotas sin interés' },
                 ].map(({ id, icon, desc }) => (
                   <div
@@ -1948,6 +1951,22 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                 <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
                   Gracias {customerData.nombre}, te contactamos pronto al {customerData.telefono}
                 </p>
+                <div style={{ background: 'var(--bg-tertiary)', borderRadius: '12px', padding: '1rem', width: '100%', textAlign: 'left', marginBottom: '0.75rem' }}>
+                  {cart.map((item, idx) => (
+                    <div key={idx} style={{
+                      display: 'flex', justifyContent: 'space-between', gap: '0.75rem',
+                      padding: '0.4rem 0',
+                      borderBottom: idx < cart.length - 1 ? '1px solid var(--border-color)' : 'none'
+                    }}>
+                      <span style={{ fontSize: '0.85rem' }}>
+                        {item.product.name}{item.size ? ` · Talle ${item.size}` : ''} x{item.qty}
+                      </span>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 700, flexShrink: 0 }}>
+                        {fmt(effectivePrice(item.product) * item.qty)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
                 <div style={{ background: 'var(--bg-tertiary)', borderRadius: '12px', padding: '1rem', width: '100%', textAlign: 'left' }}>
                   {[
                     { label: 'N° de orden', value: orderId },
