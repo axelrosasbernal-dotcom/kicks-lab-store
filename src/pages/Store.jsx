@@ -90,7 +90,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
   });
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState(0);
-  const [customerData, setCustomerData] = useState({ nombre: '', telefono: '', direccion: '' });
+  const [customerData, setCustomerData] = useState({ nombre: '', telefono: '', deliveryMethod: '', direccion: '' });
   const [paymentMethod, setPaymentMethod] = useState('');
   const [orderId, setOrderId] = useState('');
   const [sizePickerProduct, setSizePickerProduct] = useState(null);
@@ -219,12 +219,15 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
     const lines = cart
       .map(i => `• ${i.product.name}${i.size ? ` (Talle ${i.size})` : ''} x${i.qty} = ${fmt(effectivePrice(i.product) * i.qty)}`)
       .join('\n');
+    const entrega = customerData.deliveryMethod === 'retiro'
+      ? 'Retiro en el local'
+      : `Envío a domicilio - ${customerData.direccion}`;
     const msg =
       `¡Hola! Quiero confirmar mi pedido:\n\n${lines}\n\n` +
       `Total: ${fmt(totalPrice)}\n` +
       `Nombre: ${customerData.nombre}\n` +
       `Teléfono: ${customerData.telefono}\n` +
-      `Dirección: ${customerData.direccion}\n` +
+      `Entrega: ${entrega}\n` +
       `Pago: ${paymentMethod}\n` +
       `N° de orden: ${num}`;
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
@@ -1740,7 +1743,6 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                 {[
                   { label: 'NOMBRE COMPLETO', key: 'nombre', placeholder: 'Tu nombre', type: 'text' },
                   { label: 'TELÉFONO', key: 'telefono', placeholder: '221 555 1234', type: 'tel' },
-                  { label: 'DIRECCIÓN DE ENTREGA', key: 'direccion', placeholder: 'Calle, número, piso', type: 'text' },
                 ].map(({ label, key, placeholder, type }) => (
                   <div key={key} style={{ marginBottom: '1.1rem' }}>
                     <label style={{
@@ -1764,11 +1766,74 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                     />
                   </div>
                 ))}
+
+                <div style={{ marginBottom: '1.1rem' }}>
+                  <label style={{
+                    display: 'block', fontSize: '0.72rem', fontWeight: 700,
+                    letterSpacing: '0.08em', color: 'var(--text-secondary)', marginBottom: '0.45rem'
+                  }}>
+                    ENTREGA
+                  </label>
+                  {[
+                    { id: 'retiro', icon: '🏬', label: 'Retiro en el local', desc: 'Coordinamos día y horario por WhatsApp' },
+                    { id: 'domicilio', icon: '🚚', label: 'Envío a domicilio', desc: 'Te lo llevamos a tu casa' },
+                  ].map(({ id, icon, label, desc }) => (
+                    <div
+                      key={id}
+                      onClick={() => setCustomerData(prev => ({ ...prev, deliveryMethod: id, direccion: id === 'retiro' ? '' : prev.direccion }))}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '1rem',
+                        padding: '1rem', marginBottom: '0.75rem', borderRadius: '12px',
+                        border: `1.5px solid ${customerData.deliveryMethod === id ? '#FFD700' : 'var(--border-color)'}`,
+                        background: customerData.deliveryMethod === id ? 'rgba(255,215,0,0.06)' : 'var(--bg-tertiary)',
+                        cursor: 'pointer', transition: 'all 0.15s'
+                      }}
+                    >
+                      <span style={{ fontSize: '1.6rem' }}>{icon}</span>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontWeight: 700 }}>{label}</p>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem' }}>{desc}</p>
+                      </div>
+                      <div style={{
+                        width: '20px', height: '20px', borderRadius: '50%',
+                        border: `2px solid ${customerData.deliveryMethod === id ? '#FFD700' : 'var(--border-color)'}`,
+                        background: customerData.deliveryMethod === id ? '#FFD700' : 'transparent',
+                        flexShrink: 0, transition: 'all 0.15s'
+                      }} />
+                    </div>
+                  ))}
+                </div>
+
+                {customerData.deliveryMethod === 'domicilio' && (
+                  <div style={{ marginBottom: '1.1rem' }}>
+                    <label style={{
+                      display: 'block', fontSize: '0.72rem', fontWeight: 700,
+                      letterSpacing: '0.08em', color: 'var(--text-secondary)', marginBottom: '0.45rem'
+                    }}>
+                      DIRECCIÓN DE ENTREGA
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Calle, número, piso"
+                      value={customerData.direccion}
+                      onChange={e => setCustomerData(prev => ({ ...prev, direccion: e.target.value }))}
+                      style={{
+                        width: '100%', background: 'var(--bg-tertiary)',
+                        border: '1px solid var(--border-color)', borderRadius: '8px',
+                        padding: '0.85rem 1rem', color: 'var(--text-primary)',
+                        fontSize: '0.95rem', outline: 'none', fontFamily: 'inherit',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+                )}
               </div>
               <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid var(--border-color)' }}>
                 <button
                   onClick={() => {
-                    if (customerData.nombre && customerData.telefono && customerData.direccion) {
+                    const deliveryOk = customerData.deliveryMethod === 'retiro' ||
+                      (customerData.deliveryMethod === 'domicilio' && customerData.direccion.trim());
+                    if (customerData.nombre && customerData.telefono && deliveryOk) {
                       setCheckoutStep(2);
                     }
                   }}
@@ -1887,7 +1952,12 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                   {[
                     { label: 'N° de orden', value: orderId },
                     { label: 'Total', value: fmt(totalPrice) },
-                    { label: 'Entrega en', value: customerData.direccion },
+                    {
+                      label: 'Entrega',
+                      value: customerData.deliveryMethod === 'retiro'
+                        ? 'Retiro en el local'
+                        : customerData.direccion
+                    },
                     { label: 'Pago', value: paymentMethod },
                   ].map(({ label, value }, idx, arr) => (
                     <div key={label} style={{
@@ -1906,7 +1976,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                   onClick={() => {
                     closeCart();
                     setCart([]);
-                    setCustomerData({ nombre: '', telefono: '', direccion: '' });
+                    setCustomerData({ nombre: '', telefono: '', deliveryMethod: '', direccion: '' });
                     setPaymentMethod('');
                   }}
                   style={{
