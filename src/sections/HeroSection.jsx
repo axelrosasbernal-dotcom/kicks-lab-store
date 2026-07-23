@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import giratorioImg from '../assets/giratorio-cutout.png';
 
-const WA_NUMBER = '541123862445';
+const WA_NUMBER = '542212267568';
 
 const FEATURES = [
   {

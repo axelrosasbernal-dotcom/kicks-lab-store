@@ -6,8 +6,8 @@ import { fmt } from '../utils/format';
 import { MOCK_PRODUCTS, SEED_REVIEWS } from '../data/mockData';
 import HeroSection from '../sections/HeroSection';
 
-const WHATSAPP_NUMBER = '541123862445';
-const WHATSAPP_DISPLAY = '+54 11 2386-2445';
+const WHATSAPP_NUMBER = '542212267568';
+const WHATSAPP_DISPLAY = '+54 221 226-7568';
 
 const WhatsAppIcon = ({ size = 22, color = '#25D366' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
