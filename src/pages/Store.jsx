@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { getProducts, toggleFavorite as toggleFavoriteDb, getReviews, addReview, uploadProductImage } from '../services/supabaseService';
-import { isDiscountActive, effectivePrice, cleanSize } from '../utils/productHelpers';
+import { isDiscountActive, effectivePrice, cleanSize, getStockStatus } from '../utils/productHelpers';
 import { compressImage } from '../utils/imageCompressor';
 import { fmt } from '../utils/format';
 import { MOCK_PRODUCTS, SEED_REVIEWS } from '../data/mockData';
@@ -102,8 +102,6 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
   const [orderId, setOrderId] = useState('');
   const [orderSummary, setOrderSummary] = useState([]);
   const [orderTotal, setOrderTotal] = useState(0);
-  const [sizePickerProduct, setSizePickerProduct] = useState(null);
-  const [selectedSize, setSelectedSize] = useState('');
 
   const [detailProduct, setDetailProduct] = useState(null);
   const [detailQty, setDetailQty] = useState(1);
@@ -352,6 +350,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
 
   const maxIdx = Math.max(0, sortedProducts.length - CARDS_PER_PAGE);
   const visible = sortedProducts.slice(carouselIdx, carouselIdx + CARDS_PER_PAGE);
+  const detailOutOfStock = detailProduct && getStockStatus(detailProduct.stock)?.label === 'Agotado';
 
   if (loading) {
     return (
@@ -372,7 +371,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
     <div style={{ color: 'var(--text-primary)' }}>
 
       {/* ── HERO SECTION ── */}
-      <HeroSection products={filteredProducts} />
+      <HeroSection />
 
       {/* ── TWO-COLUMN LAYOUT ── */}
       <div id="catalogo" className="store-grid">
@@ -505,6 +504,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
           <div className="product-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
             {visible.map(product => {
               const thumbIdx = cardThumbs[product.id] ?? 0;
+              const outOfStock = getStockStatus(product.stock)?.label === 'Agotado';
               const thumbViews = [
                 { style: {} },
                 { style: { transform: 'scaleX(-1)' } },
@@ -589,20 +589,13 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                     )}
                     {/* Badge de stock */}
                     {(() => {
-                      const s = Number(product.stock);
-                      if (product.stock !== null && product.stock !== undefined && product.stock !== '' && !isNaN(s)) {
-                        if (s === 0) return (
-                          <div key="stock" style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'rgba(239,68,68,0.93)', backdropFilter: 'blur(4px)', borderRadius: '6px', padding: '2px 8px', fontSize: '0.62rem', fontWeight: 800, color: '#fff', zIndex: 3 }}>
-                            Agotado
-                          </div>
-                        );
-                        if (s <= 3) return (
-                          <div key="stock" style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'rgba(250,204,21,0.93)', backdropFilter: 'blur(4px)', borderRadius: '6px', padding: '2px 8px', fontSize: '0.62rem', fontWeight: 800, color: '#000', zIndex: 3 }}>
-                            ¡Últimas {s}!
-                          </div>
-                        );
-                      }
-                      return null;
+                      const status = getStockStatus(product.stock);
+                      if (!status || status.label === 'Disponible') return null;
+                      return (
+                        <div key="stock" style={{ position: 'absolute', bottom: '10px', right: '10px', background: status.color === '#ef4444' ? 'rgba(239,68,68,0.93)' : 'rgba(250,204,21,0.93)', backdropFilter: 'blur(4px)', borderRadius: '6px', padding: '2px 8px', fontSize: '0.62rem', fontWeight: 800, color: status.color === '#ef4444' ? '#fff' : '#000', zIndex: 3 }}>
+                          {status.label === 'Agotado' ? 'Agotado' : `¡Últimas ${Number(product.stock)}!`}
+                        </div>
+                      );
                     })()}
                   </div>
 
@@ -672,22 +665,23 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                       </p>
                     )}
                     <button
-                      onClick={e => { e.stopPropagation(); handleAdd(product); }}
+                      disabled={outOfStock}
+                      onClick={e => { e.stopPropagation(); if (!outOfStock) handleAdd(product); }}
                       style={{
                         width: '100%',
-                        background: addedId === product.id ? '#22c55e' : '#fff',
-                        color: addedId === product.id ? '#fff' : '#000',
+                        background: outOfStock ? 'var(--bg-tertiary)' : addedId === product.id ? '#22c55e' : '#fff',
+                        color: outOfStock ? 'var(--text-muted)' : addedId === product.id ? '#fff' : '#000',
                         border: 'none',
                         borderRadius: '8px',
                         padding: '0.62rem',
                         fontWeight: 700,
                         fontSize: '0.78rem',
-                        cursor: 'pointer',
+                        cursor: outOfStock ? 'not-allowed' : 'pointer',
                         transition: 'all 0.25s',
                         fontFamily: 'inherit'
                       }}
                     >
-                      {addedId === product.id ? '✓ Agregado' : 'Añadir al Carrito'}
+                      {outOfStock ? 'Agotado' : addedId === product.id ? '✓ Agregado' : 'Añadir al Carrito'}
                     </button>
                   </div>
                 </div>
@@ -1634,9 +1628,18 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                         border: '1px solid var(--border-color)', background: 'var(--bg-tertiary)',
                         display: 'flex', flexDirection: 'column', gap: '0.5rem'
                       }}>
-                        <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
-                          ¿Qué talle estás buscando?
-                        </p>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
+                            ¿Qué talle estás buscando?
+                          </p>
+                          <button
+                            onClick={() => { setTalleConsultaOpen(false); setTalleConsulta(''); }}
+                            style={{
+                              background: 'none', border: 'none', cursor: 'pointer',
+                              color: 'var(--text-muted)', fontSize: '1rem', lineHeight: 1, padding: 0
+                            }}
+                          >×</button>
+                        </div>
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
                           <select
                             value={talleConsulta}
@@ -1726,7 +1729,9 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                 {/* Botón agregar al carrito — desktop (hidden on mobile via .detail-cta-bar) */}
                 <button
                   className="detail-cta-desktop"
+                  disabled={detailOutOfStock}
                   onClick={() => {
+                    if (detailOutOfStock) return;
                     for (let i = 0; i < detailQty; i++) {
                       addToCart(detailProduct, detailSize);
                     }
@@ -1734,23 +1739,23 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                   }}
                   style={{
                     width: '100%',
-                    background: '#fff',
-                    color: '#000',
+                    background: detailOutOfStock ? 'var(--bg-tertiary)' : '#fff',
+                    color: detailOutOfStock ? 'var(--text-muted)' : '#000',
                     border: 'none',
                     borderRadius: '10px',
                     padding: '0.95rem',
                     fontWeight: 900,
                     fontSize: '0.95rem',
-                    cursor: 'pointer',
+                    cursor: detailOutOfStock ? 'not-allowed' : 'pointer',
                     fontFamily: 'inherit',
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
                     transition: 'all 0.2s'
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-yellow)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = '#fff'; }}
+                  onMouseEnter={e => { if (!detailOutOfStock) e.currentTarget.style.background = 'var(--accent-yellow)'; }}
+                  onMouseLeave={e => { if (!detailOutOfStock) e.currentTarget.style.background = '#fff'; }}
                 >
-                  Agregar al Carrito
+                  {detailOutOfStock ? 'Agotado' : 'Agregar al Carrito'}
                 </button>
 
                 {/* Badges de confianza */}
@@ -1783,7 +1788,9 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
               }}
             >
               <button
+                disabled={detailOutOfStock}
                 onClick={() => {
+                  if (detailOutOfStock) return;
                   for (let i = 0; i < detailQty; i++) {
                     addToCart(detailProduct, detailSize);
                   }
@@ -1791,93 +1798,23 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                 }}
                 style={{
                   width: '100%',
-                  background: '#fff',
-                  color: '#000',
+                  background: detailOutOfStock ? 'var(--bg-tertiary)' : '#fff',
+                  color: detailOutOfStock ? 'var(--text-muted)' : '#000',
                   border: 'none',
                   borderRadius: '10px',
                   padding: '1rem',
                   fontWeight: 900,
                   fontSize: '1rem',
-                  cursor: 'pointer',
+                  cursor: detailOutOfStock ? 'not-allowed' : 'pointer',
                   fontFamily: 'inherit',
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
                   transition: 'background 0.2s'
                 }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-yellow)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = '#fff'; }}
+                onMouseEnter={e => { if (!detailOutOfStock) e.currentTarget.style.background = 'var(--accent-yellow)'; }}
+                onMouseLeave={e => { if (!detailOutOfStock) e.currentTarget.style.background = '#fff'; }}
               >
-                Agregar al Carrito
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── SIZE PICKER MODAL ── */}
-      {sizePickerProduct && (
-        <div
-          style={{
-            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)',
-            zIndex: 10001, display: 'flex', alignItems: 'center',
-            justifyContent: 'center', padding: '1rem'
-          }}
-          onClick={e => { if (e.target === e.currentTarget) setSizePickerProduct(null); }}
-        >
-          <div style={{
-            background: 'var(--bg-secondary)', borderRadius: '16px',
-            padding: '1.5rem', width: '100%', maxWidth: '380px'
-          }}>
-            <h3 style={{ fontWeight: 900, fontSize: '1.1rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
-              Seleccioná tu talle
-            </h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
-              {sizePickerProduct.name}
-            </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.25rem' }}>
-              {sizePickerProduct.sizes.map(size => (
-                <button
-                  key={size}
-                  onClick={() => setSelectedSize(size)}
-                  style={{
-                    padding: '0.5rem 1.1rem', borderRadius: '8px',
-                    border: `1.5px solid ${selectedSize === size ? 'var(--accent-yellow)' : 'var(--border-color)'}`,
-                    background: selectedSize === size ? 'rgba(255,215,0,0.12)' : 'var(--bg-tertiary)',
-                    color: selectedSize === size ? 'var(--accent-yellow)' : 'var(--text-primary)',
-                    fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer',
-                    fontFamily: 'inherit', transition: 'all 0.15s'
-                  }}
-                >
-                  {cleanSize(size)} EUR
-                </button>
-              ))}
-            </div>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button
-                onClick={() => setSizePickerProduct(null)}
-                style={{
-                  flex: 1, background: 'var(--bg-tertiary)', color: 'var(--text-secondary)',
-                  border: 'none', borderRadius: '10px', padding: '0.85rem',
-                  fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit'
-                }}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => {
-                  addToCart(sizePickerProduct, selectedSize);
-                  setAddedId(sizePickerProduct.id);
-                  setTimeout(() => setAddedId(null), 1600);
-                  setSizePickerProduct(null);
-                }}
-                style={{
-                  flex: 2, background: 'var(--accent-yellow)', color: '#000',
-                  border: 'none', borderRadius: '10px', padding: '0.85rem',
-                  fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
-                  textTransform: 'uppercase', letterSpacing: '0.04em'
-                }}
-              >
-                Agregar al carrito
+                {detailOutOfStock ? 'Agotado' : 'Agregar al Carrito'}
               </button>
             </div>
           </div>

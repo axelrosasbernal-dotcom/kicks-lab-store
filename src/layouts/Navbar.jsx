@@ -46,10 +46,26 @@ export default function Navbar({ user, isAdmin, activeTab, setActiveTab, onSignO
   const [pillStyle, setPillStyle] = useState({ left: 0, width: 0, opacity: 0 });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navContainerRef = useRef(null);
+  const navRootRef = useRef(null);
   const buttonRefs = useRef({});
   const isMobile = useIsMobile();
 
   useEffect(() => { if (!isMobile) setMobileMenuOpen(false); }, [isMobile]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const handleClickOutside = (e) => {
+      if (navRootRef.current && !navRootRef.current.contains(e.target)) {
+        setMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [mobileMenuOpen]);
 
   const updatePill = (item) => {
     const btn = buttonRefs.current[item];
@@ -81,7 +97,7 @@ export default function Navbar({ user, isAdmin, activeTab, setActiveTab, onSignO
   };
 
   return (
-    <nav style={{
+    <nav ref={navRootRef} style={{
       background: 'var(--bg-secondary)',
       borderBottom: '1px solid var(--border-color)',
       position: 'sticky',

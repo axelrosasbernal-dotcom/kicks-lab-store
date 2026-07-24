@@ -38,7 +38,7 @@ const FEATURES = [
   },
 ];
 
-export default function HeroSection({ products = [] }) {
+export default function HeroSection() {
   const [loaded, setLoaded] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [hovered, setHovered] = useState(false);
