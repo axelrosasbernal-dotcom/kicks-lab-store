@@ -333,6 +333,13 @@ button, input, textarea, select {
 
 /* ── Mobile overrides ── */
 @media (max-width: 768px) {
+  /* background-attachment: fixed en el body fuerza repintado en cada
+     frame de scroll en Safari iOS / Chrome Android (scroll jank). En
+     desktop no da problema, así que solo se desactiva acá. */
+  body {
+    background-attachment: scroll;
+  }
+
   .nav-desktop-links {
     display: none !important;
   }
