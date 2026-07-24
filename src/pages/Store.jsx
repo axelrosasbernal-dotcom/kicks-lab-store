@@ -760,11 +760,12 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                     <input
                       type="checkbox"
                       checked={checked}
-                      onChange={() => {
+                      onChange={e => {
                         setSelectedSizes(prev =>
                           prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]
                         );
                         setCarouselIdx(0);
+                        if (window.innerWidth <= 768) e.target.blur();
                       }}
                       style={{ accentColor: 'var(--accent-yellow)', width: '14px', height: '14px', cursor: 'pointer', flexShrink: 0 }}
                     />
