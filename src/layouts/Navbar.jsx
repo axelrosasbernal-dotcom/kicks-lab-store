@@ -31,12 +31,14 @@ const BrandLogo = () => (
   </div>
 );
 
-const NAV_ITEMS = ['Novedades', 'Nosotros', 'Testimonios', 'Contacto'];
+const NAV_ITEMS = ['Novedades', 'Pedí lo que buscás', 'Nosotros', 'Testimonios', 'Contacto'];
 
 const SCROLL_MAP = {
-  'Nosotros':    'sobre-nosotros',
-  'Testimonios': 'testimonios',
-  'Contacto':    'contacto',
+  'Novedades':            'catalogo',
+  'Pedí lo que buscás':   'pedi-lo-que-buscas',
+  'Nosotros':             'sobre-nosotros',
+  'Testimonios':          'testimonios',
+  'Contacto':             'contacto',
 };
 
 export default function Navbar({ user, isAdmin, activeTab, setActiveTab, onSignOut, darkMode, onToggleDarkMode, cartCount = 0, onCartClick, genderFilter, setGenderFilter }) {
