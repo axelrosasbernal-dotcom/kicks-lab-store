@@ -20,6 +20,8 @@ const WhatsAppIcon = ({ size = 22, color = '#25D366' }) => (
 
 const CARDS_PER_PAGE = 4;
 
+const TALLE_OPTIONS = Array.from({ length: 25 }, (_, i) => (34 + i * 0.5).toString().replace(/\.0$/, ''));
+
 const BADGE_COLORS = {
   'Nuevo':            '#3b82f6',
   'Más vendido':      '#f97316',
@@ -102,6 +104,8 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
   const [detailProduct, setDetailProduct] = useState(null);
   const [detailQty, setDetailQty] = useState(1);
   const [detailSize, setDetailSize] = useState('');
+  const [talleConsultaOpen, setTalleConsultaOpen] = useState(false);
+  const [talleConsulta, setTalleConsulta] = useState('');
   const [detailThumb, setDetailThumb] = useState(0);
   const [cardThumbs, setCardThumbs] = useState({});
 
@@ -261,6 +265,8 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
     setDetailQty(1);
     setDetailSize(product.sizes?.[0] || '');
     setDetailThumb(0);
+    setTalleConsultaOpen(false);
+    setTalleConsulta('');
   };
 
   const handleAdd = (product) => {
@@ -1583,18 +1589,64 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                         </button>
                       ))}
                     </div>
-                    <button
-                      onClick={() => openWA(`¡Hola! Me interesa ${detailProduct.name} pero busco talle ___. ¿Lo pueden conseguir?`)}
-                      style={{
-                        marginTop: '0.6rem',
-                        display: 'flex', alignItems: 'center', gap: '0.4rem',
-                        background: 'none', border: 'none', padding: 0,
-                        color: '#25D366', fontSize: '0.8rem', fontWeight: 700,
-                        cursor: 'pointer', fontFamily: 'inherit'
-                      }}
-                    >
-                      <WhatsAppIcon size={15} color="#25D366" /> ¿No está tu talle? Consultalo
-                    </button>
+                    {!talleConsultaOpen ? (
+                      <button
+                        onClick={() => setTalleConsultaOpen(true)}
+                        style={{
+                          marginTop: '0.6rem',
+                          display: 'flex', alignItems: 'center', gap: '0.4rem',
+                          background: 'none', border: 'none', padding: 0,
+                          color: '#25D366', fontSize: '0.8rem', fontWeight: 700,
+                          cursor: 'pointer', fontFamily: 'inherit'
+                        }}
+                      >
+                        <WhatsAppIcon size={15} color="#25D366" /> ¿No está tu talle? Consultalo
+                      </button>
+                    ) : (
+                      <div style={{
+                        marginTop: '0.7rem', padding: '0.75rem', borderRadius: '10px',
+                        border: '1px solid var(--border-color)', background: 'var(--bg-tertiary)',
+                        display: 'flex', flexDirection: 'column', gap: '0.5rem'
+                      }}>
+                        <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
+                          ¿Qué talle estás buscando?
+                        </p>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <select
+                            value={talleConsulta}
+                            onChange={e => setTalleConsulta(e.target.value)}
+                            style={{
+                              flex: 1, padding: '0.5rem 0.6rem', borderRadius: '8px',
+                              border: '1.5px solid var(--border-color)', background: 'var(--bg-secondary)',
+                              color: 'var(--text-primary)', fontSize: '0.85rem', fontFamily: 'inherit'
+                            }}
+                          >
+                            <option value="">Elegí un talle</option>
+                            {TALLE_OPTIONS.map(t => (
+                              <option key={t} value={t}>{t} EUR</option>
+                            ))}
+                          </select>
+                          <button
+                            onClick={() => {
+                              openWA(`¡Hola! Me interesa ${detailProduct.name} pero busco talle ${talleConsulta}. ¿Lo pueden conseguir?`);
+                              setTalleConsultaOpen(false);
+                              setTalleConsulta('');
+                            }}
+                            disabled={!talleConsulta}
+                            style={{
+                              display: 'flex', alignItems: 'center', gap: '0.35rem',
+                              background: '#25D366', color: '#fff', border: 'none', borderRadius: '8px',
+                              padding: '0.5rem 0.8rem', fontWeight: 700, fontSize: '0.8rem',
+                              cursor: talleConsulta ? 'pointer' : 'not-allowed',
+                              opacity: talleConsulta ? 1 : 0.5,
+                              fontFamily: 'inherit', whiteSpace: 'nowrap'
+                            }}
+                          >
+                            <WhatsAppIcon size={14} color="#fff" /> Consultar
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
