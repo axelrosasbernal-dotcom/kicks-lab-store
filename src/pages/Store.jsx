@@ -112,6 +112,8 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
   const [hoverRating, setHoverRating] = useState(0);
   const [contactOpen, setContactOpen] = useState(false);
   const [nosotrosTab, setNosotrosTab] = useState(0);
+  const [pedidoForm, setPedidoForm] = useState({ photoName: '', modelo: '', talle: '', color: '', nombre: '', telefono: '' });
+  const [pedidoEnviado, setPedidoEnviado] = useState(false);
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [sortOrder, setSortOrder] = useState('asc');
   const [searchQuery, setSearchQuery] = useState('');
@@ -235,6 +237,23 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
       `N° de orden: ${num}`;
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
     setCheckoutStep(3);
+  };
+
+  const submitPedido = () => {
+    if (!pedidoForm.modelo.trim() || !pedidoForm.talle.trim() || !pedidoForm.nombre.trim() || !pedidoForm.telefono.trim()) return;
+    const msg =
+      `¡Hola! Estoy buscando una zapatilla que no encontré en el catálogo:\n\n` +
+      `Marca/Modelo: ${pedidoForm.modelo}\n` +
+      `Talle: ${pedidoForm.talle}\n` +
+      (pedidoForm.color.trim() ? `Color: ${pedidoForm.color}\n` : '') +
+      (pedidoForm.photoName ? `Foto de referencia: ${pedidoForm.photoName} (te la mando por acá)\n` : '') +
+      `Nombre: ${pedidoForm.nombre}\n` +
+      `WhatsApp: ${pedidoForm.telefono}\n\n` +
+      `¿La pueden conseguir?`;
+    openWA(msg);
+    setPedidoEnviado(true);
+    setPedidoForm({ photoName: '', modelo: '', talle: '', color: '', nombre: '', telefono: '' });
+    setTimeout(() => setPedidoEnviado(false), 5000);
   };
 
   const openDetail = (product) => {
@@ -773,6 +792,142 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
             }}>
               <span style={{ color: '#22c55e', fontSize: '0.72rem', fontWeight: 700 }}>✓</span>
               <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Siempre abonás al recibir el producto</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── PEDÍ LO QUE BUSCÁS ── */}
+      <div id="pedi-lo-que-buscas" style={{ marginTop: '4rem', scrollMarginTop: '90px' }}>
+        <div style={{
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border-color)',
+          borderRadius: '16px',
+          overflow: 'hidden'
+        }}>
+          <div style={{ borderBottom: '1px solid var(--border-color)', padding: '2rem 2.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ width: '4px', height: '2.5rem', background: 'linear-gradient(180deg, #25D366, #128C7E)', borderRadius: '2px', flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.2em', color: '#25D366', textTransform: 'uppercase', marginBottom: '0.25rem' }}>
+                ¿No la encontrás?
+              </p>
+              <h2 style={{ fontSize: 'clamp(1.4rem, 2.5vw, 2rem)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.01em', color: 'var(--text-primary)', lineHeight: 1.1 }}>
+                Pedí lo que buscás
+              </h2>
+            </div>
+          </div>
+
+          <div style={{ padding: '2rem 2.5rem', maxWidth: '520px' }}>
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+              ¿Buscás un modelo que no está en el catálogo? Contanos qué zapatilla querés y te decimos si la podemos conseguir.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '0.4rem', fontWeight: 600 }}>Foto de referencia (opcional)</p>
+                <label style={{
+                  display: 'flex', alignItems: 'center', gap: '0.6rem',
+                  border: '1.5px dashed var(--border-color)', borderRadius: '10px',
+                  padding: '0.75rem 1rem', cursor: 'pointer', background: 'var(--bg-tertiary)'
+                }}>
+                  <span style={{ fontSize: '1.1rem' }}>📷</span>
+                  <span style={{ fontSize: '0.85rem', color: pedidoForm.photoName ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                    {pedidoForm.photoName || 'Subir foto de la zapatilla'}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={e => setPedidoForm(f => ({ ...f, photoName: e.target.files?.[0]?.name || '' }))}
+                  />
+                </label>
+              </div>
+
+              <input
+                type="text"
+                placeholder="Marca / modelo *"
+                value={pedidoForm.modelo}
+                onChange={e => setPedidoForm(f => ({ ...f, modelo: e.target.value }))}
+                style={{
+                  padding: '0.75rem 1rem', borderRadius: '10px',
+                  border: '1.5px solid var(--border-color)', background: 'var(--bg-tertiary)',
+                  color: 'var(--text-primary)', fontSize: '0.9rem', outline: 'none',
+                  fontFamily: 'inherit', width: '100%', boxSizing: 'border-box'
+                }}
+              />
+
+              <input
+                type="text"
+                placeholder="Talle buscado *"
+                value={pedidoForm.talle}
+                onChange={e => setPedidoForm(f => ({ ...f, talle: e.target.value }))}
+                style={{
+                  padding: '0.75rem 1rem', borderRadius: '10px',
+                  border: '1.5px solid var(--border-color)', background: 'var(--bg-tertiary)',
+                  color: 'var(--text-primary)', fontSize: '0.9rem', outline: 'none',
+                  fontFamily: 'inherit', width: '100%', boxSizing: 'border-box'
+                }}
+              />
+
+              <input
+                type="text"
+                placeholder="Color / colorway (opcional)"
+                value={pedidoForm.color}
+                onChange={e => setPedidoForm(f => ({ ...f, color: e.target.value }))}
+                style={{
+                  padding: '0.75rem 1rem', borderRadius: '10px',
+                  border: '1.5px solid var(--border-color)', background: 'var(--bg-tertiary)',
+                  color: 'var(--text-primary)', fontSize: '0.9rem', outline: 'none',
+                  fontFamily: 'inherit', width: '100%', boxSizing: 'border-box'
+                }}
+              />
+
+              <input
+                type="text"
+                placeholder="Tu nombre *"
+                value={pedidoForm.nombre}
+                onChange={e => setPedidoForm(f => ({ ...f, nombre: e.target.value }))}
+                style={{
+                  padding: '0.75rem 1rem', borderRadius: '10px',
+                  border: '1.5px solid var(--border-color)', background: 'var(--bg-tertiary)',
+                  color: 'var(--text-primary)', fontSize: '0.9rem', outline: 'none',
+                  fontFamily: 'inherit', width: '100%', boxSizing: 'border-box'
+                }}
+              />
+
+              <input
+                type="text"
+                placeholder="Tu WhatsApp de contacto *"
+                value={pedidoForm.telefono}
+                onChange={e => setPedidoForm(f => ({ ...f, telefono: e.target.value }))}
+                style={{
+                  padding: '0.75rem 1rem', borderRadius: '10px',
+                  border: '1.5px solid var(--border-color)', background: 'var(--bg-tertiary)',
+                  color: 'var(--text-primary)', fontSize: '0.9rem', outline: 'none',
+                  fontFamily: 'inherit', width: '100%', boxSizing: 'border-box'
+                }}
+              />
+
+              <button
+                onClick={submitPedido}
+                disabled={!pedidoForm.modelo.trim() || !pedidoForm.talle.trim() || !pedidoForm.nombre.trim() || !pedidoForm.telefono.trim()}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                  background: '#25D366', color: '#fff', border: 'none', borderRadius: '10px',
+                  padding: '0.9rem', fontWeight: 800, fontSize: '0.9rem',
+                  cursor: (pedidoForm.modelo.trim() && pedidoForm.talle.trim() && pedidoForm.nombre.trim() && pedidoForm.telefono.trim()) ? 'pointer' : 'not-allowed',
+                  opacity: (pedidoForm.modelo.trim() && pedidoForm.talle.trim() && pedidoForm.nombre.trim() && pedidoForm.telefono.trim()) ? 1 : 0.5,
+                  fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.03em'
+                }}
+              >
+                <WhatsAppIcon size={18} color="#fff" /> Enviar pedido
+              </button>
+
+              {pedidoEnviado && (
+                <p style={{ fontSize: '0.85rem', color: '#4ade80', fontWeight: 600, textAlign: 'center' }}>
+                  Te abrimos WhatsApp con tu pedido cargado. ¡Confirmanos y te decimos si la conseguimos!
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -1428,6 +1583,18 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                         </button>
                       ))}
                     </div>
+                    <button
+                      onClick={() => openWA(`¡Hola! Me interesa ${detailProduct.name} pero busco talle ___. ¿Lo pueden conseguir?`)}
+                      style={{
+                        marginTop: '0.6rem',
+                        display: 'flex', alignItems: 'center', gap: '0.4rem',
+                        background: 'none', border: 'none', padding: 0,
+                        color: '#25D366', fontSize: '0.8rem', fontWeight: 700,
+                        cursor: 'pointer', fontFamily: 'inherit'
+                      }}
+                    >
+                      <WhatsAppIcon size={15} color="#25D366" /> ¿No está tu talle? Consultalo
+                    </button>
                   </div>
                 )}
 
