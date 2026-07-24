@@ -44,7 +44,7 @@ const StepHeader = ({ step, onClose }) => (
     alignItems: 'center',
     gap: '0.5rem'
   }}>
-    {[{ n: 1, label: 'DATOS' }, { n: 2, label: 'PAGO' }, { n: 3, label: 'LISTO' }].map(({ n, label }, i) => (
+    {[{ n: 1, label: 'DATOS Y PAGO' }, { n: 2, label: 'LISTO' }].map(({ n, label }, i) => (
       <React.Fragment key={n}>
         {i > 0 && (
           <div style={{ height: '1px', flex: 1, background: n <= step ? 'var(--accent-yellow)' : 'var(--border-color)' }} />
@@ -100,6 +100,8 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
   const [customerData, setCustomerData] = useState({ nombre: '', telefono: '', deliveryMethod: '', direccion: '' });
   const [paymentMethod, setPaymentMethod] = useState('');
   const [orderId, setOrderId] = useState('');
+  const [orderSummary, setOrderSummary] = useState([]);
+  const [orderTotal, setOrderTotal] = useState(0);
   const [sizePickerProduct, setSizePickerProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState('');
 
@@ -243,7 +245,10 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
       `Pago: ${paymentMethod}${paymentMethod === 'Transferencia' && TRANSFER_ALIAS ? ` (alias ${TRANSFER_ALIAS})` : ''}\n` +
       `N° de orden: ${num}`;
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
-    setCheckoutStep(3);
+    setOrderSummary(cart);
+    setOrderTotal(totalPrice);
+    setCart([]);
+    setCheckoutStep(2);
   };
 
   const submitPedido = async () => {
@@ -2076,33 +2081,8 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                     />
                   </div>
                 )}
-              </div>
-              <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid var(--border-color)' }}>
-                <button
-                  onClick={() => {
-                    const deliveryOk = customerData.deliveryMethod === 'retiro' ||
-                      (customerData.deliveryMethod === 'domicilio' && customerData.direccion.trim());
-                    if (customerData.nombre && customerData.telefono && deliveryOk) {
-                      setCheckoutStep(2);
-                    }
-                  }}
-                  style={{
-                    width: '100%', background: 'var(--bg-tertiary)', color: 'var(--text-primary)',
-                    border: 'none', borderRadius: '10px', padding: '1rem',
-                    fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer',
-                    fontFamily: 'inherit', letterSpacing: '0.03em'
-                  }}
-                >
-                  Continuar →
-                </button>
-              </div>
-            </>)}
 
-            {/* ── STEP 2: pago ── */}
-            {checkoutStep === 2 && (<>
-              <StepHeader step={2} onClose={closeCart} />
-              <div style={{ flex: 1, overflow: 'auto', padding: '1.5rem' }}>
-                <h2 style={{ fontWeight: 900, fontSize: '1.4rem', textTransform: 'uppercase', marginBottom: '1.5rem' }}>Forma de Pago</h2>
+                <h2 style={{ fontWeight: 900, fontSize: '1.4rem', textTransform: 'uppercase', margin: '1.75rem 0 1.5rem' }}>Forma de Pago</h2>
                 {[
                   { id: 'Efectivo', icon: '💵', desc: 'Abonás al recibir' },
                   { id: 'Transferencia', icon: '🏦', desc: TRANSFER_ALIAS ? `Alias: ${TRANSFER_ALIAS}` : 'Te pasamos el alias por WhatsApp' },
@@ -2153,7 +2133,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                 display: 'flex', gap: '0.75rem'
               }}>
                 <button
-                  onClick={() => setCheckoutStep(1)}
+                  onClick={() => setCheckoutStep(0)}
                   style={{
                     background: 'var(--bg-tertiary)', color: 'var(--text-secondary)',
                     border: 'none', borderRadius: '10px', padding: '1rem 1.25rem',
@@ -2163,8 +2143,18 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                   ← Volver
                 </button>
                 <button
-                  disabled={!paymentMethod}
-                  onClick={confirmOrder}
+                  disabled={(() => {
+                    const deliveryOk = customerData.deliveryMethod === 'retiro' ||
+                      (customerData.deliveryMethod === 'domicilio' && customerData.direccion.trim());
+                    return !(customerData.nombre.trim() && customerData.telefono.trim() && deliveryOk && paymentMethod);
+                  })()}
+                  onClick={() => {
+                    const deliveryOk = customerData.deliveryMethod === 'retiro' ||
+                      (customerData.deliveryMethod === 'domicilio' && customerData.direccion.trim());
+                    if (customerData.nombre.trim() && customerData.telefono.trim() && deliveryOk && paymentMethod) {
+                      confirmOrder();
+                    }
+                  }}
                   style={{
                     flex: 1, background: paymentMethod ? 'var(--accent-yellow)' : 'var(--bg-tertiary)',
                     color: '#000', border: 'none', borderRadius: '10px', padding: '1rem',
@@ -2178,9 +2168,9 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
               </div>
             </>)}
 
-            {/* ── STEP 3: confirmado ── */}
-            {checkoutStep === 3 && (<>
-              <StepHeader step={3} onClose={closeCart} />
+            {/* ── STEP 2: confirmado ── */}
+            {checkoutStep === 2 && (<>
+              <StepHeader step={2} onClose={closeCart} />
               <div style={{
                 flex: 1, overflow: 'auto', padding: '2rem 1.5rem',
                 display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
@@ -2198,11 +2188,11 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                   Gracias {customerData.nombre}, te contactamos pronto al {customerData.telefono}
                 </p>
                 <div style={{ background: 'var(--bg-tertiary)', borderRadius: '12px', padding: '1rem', width: '100%', textAlign: 'left', marginBottom: '0.75rem' }}>
-                  {cart.map((item, idx) => (
+                  {orderSummary.map((item, idx) => (
                     <div key={idx} style={{
                       display: 'flex', justifyContent: 'space-between', gap: '0.75rem',
                       padding: '0.4rem 0',
-                      borderBottom: idx < cart.length - 1 ? '1px solid var(--border-color)' : 'none'
+                      borderBottom: idx < orderSummary.length - 1 ? '1px solid var(--border-color)' : 'none'
                     }}>
                       <span style={{ fontSize: '0.85rem' }}>
                         {item.product.name}{item.size ? ` · Talle ${item.size}` : ''} x{item.qty}
@@ -2216,7 +2206,7 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                 <div style={{ background: 'var(--bg-tertiary)', borderRadius: '12px', padding: '1rem', width: '100%', textAlign: 'left' }}>
                   {[
                     { label: 'N° de orden', value: orderId },
-                    { label: 'Total', value: fmt(totalPrice) },
+                    { label: 'Total', value: fmt(orderTotal) },
                     {
                       label: 'Entrega',
                       value: customerData.deliveryMethod === 'retiro'
@@ -2240,7 +2230,6 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                 <button
                   onClick={() => {
                     closeCart();
-                    setCart([]);
                     setCustomerData({ nombre: '', telefono: '', deliveryMethod: '', direccion: '' });
                     setPaymentMethod('');
                   }}
