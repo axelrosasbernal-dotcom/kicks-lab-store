@@ -761,11 +761,22 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                       type="checkbox"
                       checked={checked}
                       onChange={e => {
+                        const isMobile = window.innerWidth <= 768;
+                        const target = e.target;
+                        const rectBefore = isMobile ? target.getBoundingClientRect().top : null;
                         setSelectedSizes(prev =>
                           prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]
                         );
                         setCarouselIdx(0);
-                        if (window.innerWidth <= 768) e.target.blur();
+                        if (isMobile) {
+                          target.blur();
+                          requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                              const rectAfter = target.getBoundingClientRect().top;
+                              window.scrollBy(0, rectAfter - rectBefore);
+                            });
+                          });
+                        }
                       }}
                       style={{ accentColor: 'var(--accent-yellow)', width: '14px', height: '14px', cursor: 'pointer', flexShrink: 0 }}
                     />
