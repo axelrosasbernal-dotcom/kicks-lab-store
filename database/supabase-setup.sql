@@ -235,3 +235,22 @@ DROP POLICY IF EXISTS "Solo admin borra imágenes en AXELRB" ON storage.objects;
 CREATE POLICY "Solo admin borra imágenes en AXELRB"
   ON storage.objects FOR DELETE
   USING (bucket_id = 'AXELRB' AND public.is_admin());
+
+-- ============================================================
+-- 9. Políticas de Storage para el bucket PEDIDOS (fotos de "Pedí lo que buscás")
+-- ============================================================
+-- El bucket "PEDIDOS" hay que crearlo a mano en el dashboard de Supabase
+-- (Storage → New bucket → nombre "PEDIDOS" → marcarlo como Public).
+-- Cualquiera puede subir (formulario público sin login) y ver (para que
+-- el link llegue navegable por WhatsApp). Nadie puede listar el bucket
+-- completo porque el nombre de archivo incluye un id random.
+
+DROP POLICY IF EXISTS "Cualquiera puede subir fotos de pedidos" ON storage.objects;
+CREATE POLICY "Cualquiera puede subir fotos de pedidos"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'PEDIDOS');
+
+DROP POLICY IF EXISTS "Cualquiera puede ver fotos de pedidos" ON storage.objects;
+CREATE POLICY "Cualquiera puede ver fotos de pedidos"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'PEDIDOS');

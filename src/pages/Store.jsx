@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { getProducts, toggleFavorite as toggleFavoriteDb, getReviews, addReview } from '../services/supabaseService';
+import { getProducts, toggleFavorite as toggleFavoriteDb, getReviews, addReview, uploadProductImage } from '../services/supabaseService';
 import { isDiscountActive, effectivePrice, cleanSize } from '../utils/productHelpers';
+import { compressImage } from '../utils/imageCompressor';
 import { fmt } from '../utils/format';
 import { MOCK_PRODUCTS, SEED_REVIEWS } from '../data/mockData';
 import HeroSection from '../sections/HeroSection';
@@ -21,6 +22,7 @@ const WhatsAppIcon = ({ size = 22, color = '#25D366' }) => (
 const CARDS_PER_PAGE = 4;
 
 const TALLE_OPTIONS = Array.from({ length: 25 }, (_, i) => (34 + i * 0.5).toString().replace(/\.0$/, ''));
+const PEDIDOS_BUCKET = 'PEDIDOS';
 
 const BADGE_COLORS = {
   'Nuevo':            '#3b82f6',
@@ -116,8 +118,9 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
   const [hoverRating, setHoverRating] = useState(0);
   const [contactOpen, setContactOpen] = useState(false);
   const [nosotrosTab, setNosotrosTab] = useState(0);
-  const [pedidoForm, setPedidoForm] = useState({ photoName: '', modelo: '', talle: '', color: '', nombre: '', telefono: '' });
+  const [pedidoForm, setPedidoForm] = useState({ photoFile: null, photoName: '', modelo: '', talle: '', color: '', nombre: '', telefono: '' });
   const [pedidoEnviado, setPedidoEnviado] = useState(false);
+  const [pedidoSubiendo, setPedidoSubiendo] = useState(false);
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [sortOrder, setSortOrder] = useState('asc');
   const [searchQuery, setSearchQuery] = useState('');
@@ -243,20 +246,35 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
     setCheckoutStep(3);
   };
 
-  const submitPedido = () => {
-    if (!pedidoForm.modelo.trim() || !pedidoForm.talle.trim() || !pedidoForm.nombre.trim() || !pedidoForm.telefono.trim()) return;
+  const submitPedido = async () => {
+    if (!pedidoForm.modelo.trim() || !pedidoForm.talle.trim() || !pedidoForm.nombre.trim() || !pedidoForm.telefono.trim() || pedidoSubiendo) return;
+
+    let photoUrl = '';
+    if (pedidoForm.photoFile) {
+      setPedidoSubiendo(true);
+      try {
+        const compressed = await compressImage(pedidoForm.photoFile);
+        const path = `${Date.now()}-${crypto.randomUUID()}.webp`;
+        photoUrl = await uploadProductImage(PEDIDOS_BUCKET, path, compressed);
+      } catch {
+        // Si falla la subida, el pedido se manda igual sin foto.
+      } finally {
+        setPedidoSubiendo(false);
+      }
+    }
+
     const msg =
       `¡Hola! Estoy buscando una zapatilla que no encontré en el catálogo:\n\n` +
       `Marca/Modelo: ${pedidoForm.modelo}\n` +
       `Talle: ${pedidoForm.talle}\n` +
       (pedidoForm.color.trim() ? `Color: ${pedidoForm.color}\n` : '') +
-      (pedidoForm.photoName ? `Foto de referencia: ${pedidoForm.photoName} (te la mando por acá)\n` : '') +
+      (photoUrl ? `Foto de referencia: ${photoUrl}\n` : '') +
       `Nombre: ${pedidoForm.nombre}\n` +
       `WhatsApp: ${pedidoForm.telefono}\n\n` +
       `¿La pueden conseguir?`;
     openWA(msg);
     setPedidoEnviado(true);
-    setPedidoForm({ photoName: '', modelo: '', talle: '', color: '', nombre: '', telefono: '' });
+    setPedidoForm({ photoFile: null, photoName: '', modelo: '', talle: '', color: '', nombre: '', telefono: '' });
     setTimeout(() => setPedidoEnviado(false), 5000);
   };
 
@@ -844,7 +862,10 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                     type="file"
                     accept="image/*"
                     style={{ display: 'none' }}
-                    onChange={e => setPedidoForm(f => ({ ...f, photoName: e.target.files?.[0]?.name || '' }))}
+                    onChange={e => {
+                      const file = e.target.files?.[0] || null;
+                      setPedidoForm(f => ({ ...f, photoFile: file, photoName: file?.name || '' }));
+                    }}
                   />
                 </label>
               </div>
@@ -916,17 +937,17 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
 
               <button
                 onClick={submitPedido}
-                disabled={!pedidoForm.modelo.trim() || !pedidoForm.talle.trim() || !pedidoForm.nombre.trim() || !pedidoForm.telefono.trim()}
+                disabled={!pedidoForm.modelo.trim() || !pedidoForm.talle.trim() || !pedidoForm.nombre.trim() || !pedidoForm.telefono.trim() || pedidoSubiendo}
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
                   background: '#25D366', color: '#fff', border: 'none', borderRadius: '10px',
                   padding: '0.9rem', fontWeight: 800, fontSize: '0.9rem',
-                  cursor: (pedidoForm.modelo.trim() && pedidoForm.talle.trim() && pedidoForm.nombre.trim() && pedidoForm.telefono.trim()) ? 'pointer' : 'not-allowed',
-                  opacity: (pedidoForm.modelo.trim() && pedidoForm.talle.trim() && pedidoForm.nombre.trim() && pedidoForm.telefono.trim()) ? 1 : 0.5,
+                  cursor: (pedidoForm.modelo.trim() && pedidoForm.talle.trim() && pedidoForm.nombre.trim() && pedidoForm.telefono.trim() && !pedidoSubiendo) ? 'pointer' : 'not-allowed',
+                  opacity: (pedidoForm.modelo.trim() && pedidoForm.talle.trim() && pedidoForm.nombre.trim() && pedidoForm.telefono.trim() && !pedidoSubiendo) ? 1 : 0.5,
                   fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.03em'
                 }}
               >
-                <WhatsAppIcon size={18} color="#fff" /> Enviar pedido
+                <WhatsAppIcon size={18} color="#fff" /> {pedidoSubiendo ? 'Subiendo foto...' : 'Enviar pedido'}
               </button>
 
               {pedidoEnviado && (
