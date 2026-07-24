@@ -1591,7 +1591,10 @@ export default function Store({ onCartChange, cartOpenSignal, genderFilter = 'al
                       {detailProduct.sizes.map(size => (
                         <button
                           key={size}
-                          onClick={() => setDetailSize(size)}
+                          onClick={e => {
+                            setDetailSize(size);
+                            if (window.innerWidth <= 768) e.currentTarget.blur();
+                          }}
                           style={{
                             padding: '0.5rem 1rem',
                             borderRadius: '9px',
