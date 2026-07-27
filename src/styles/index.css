@@ -324,15 +324,18 @@ button, input, textarea, select {
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
-  /* Sin "transform" acá a propósito: si quedara translateY(0) al final de la
-     animación (fill-mode forwards), ese valor -aunque visualmente nulo- sigue
-     creando un containing block nuevo para cualquier descendiente con
-     position:fixed (ej. modales), rompiendo su posicionamiento respecto al viewport. */
-  to { opacity: 1; }
+  to { opacity: 1; transform: translateY(0); }
 }
 
+/* Sin "forwards": con fill-mode forwards, el navegador retiene el ultimo
+   transform animado (ej. matrix(1,0,0,1,0,0)) en vez de revertir al valor
+   real "none". Cualquier transform que no sea el keyword "none" -incluida
+   la matriz identidad- crea un containing block nuevo para los
+   descendientes con position:fixed (ej. modales), rompiendo su
+   posicionamiento respecto al viewport. Sin forwards, al terminar la
+   animación el elemento vuelve a su transform base (none). */
 .animate-fade-in {
-  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ── Mobile overrides ── */
