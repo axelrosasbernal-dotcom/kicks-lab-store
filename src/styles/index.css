@@ -324,7 +324,11 @@ button, input, textarea, select {
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  /* Sin "transform" acá a propósito: si quedara translateY(0) al final de la
+     animación (fill-mode forwards), ese valor -aunque visualmente nulo- sigue
+     creando un containing block nuevo para cualquier descendiente con
+     position:fixed (ej. modales), rompiendo su posicionamiento respecto al viewport. */
+  to { opacity: 1; }
 }
 
 .animate-fade-in {
