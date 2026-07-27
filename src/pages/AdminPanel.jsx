@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   Plus, Edit2, Trash2, X, Check, Info, ArrowUp, ArrowDown,
   Upload, Star, Eye, Heart, TrendingUp, Package, Percent,
@@ -11,7 +11,7 @@ import OrdersPanel from './OrdersPanel';
 import BulkImportModal from './BulkImportModal';
 
 const STANDARD_SIZES = ['35','36','37','38','39','40','41','42','43','44','45','46'];
-const BRANDS_LIST    = ['Nike','Adidas','Jordan','Puma','New Balance','Reebok','Asics','Vans','Converse','Fila'];
+const BRANDS_LIST    = ['Nike','Adidas','Jordan','Puma','New Balance','Reebok','Asics','Vans','Converse','Fila','Head','47 Street','Alexander McQueen','Amiri','Louis Vuitton'];
 const CATEGORIES_LIST= ['Urbano','Running','Basketball','Skateboard','Training','Fútbol','Casual'];
 const COLORS_LIST    = ['Blanco','Negro','Rojo','Azul','Verde','Gris','Beige','Marrón','Naranja','Rosa','Multicolor'];
 const TAGS_LIST      = ['Nuevo','Más vendido','Exclusivo','Edición limitada']; // 'Oferta' es automático
@@ -81,6 +81,13 @@ export default function AdminPanel() {
   const modalScrollRef = useRef(null);
   useEffect(() => { imagesRef.current = images; }, [images]);
   useEffect(() => { fetchProducts(); }, []);
+
+  // Combina la lista fija de marcas con las marcas reales que ya existen en productos
+  // (ej. importadas por CSV) para que el selector nunca quede desincronizado.
+  const brandOptions = useMemo(() => {
+    const fromProducts = products.map(p => p.brand).filter(Boolean);
+    return [...new Set([...BRANDS_LIST, ...fromProducts])].sort((a, b) => a.localeCompare(b));
+  }, [products]);
 
   // ── Derived stats ────────────────────────────────────────────────────────────
   const totalItems      = products.length;
@@ -736,7 +743,7 @@ export default function AdminPanel() {
                 <div className="form-group" style={{ margin: 0 }}>
                   <label className="form-label">Marca</label>
                   <select name="brand" className="form-input" value={formData.brand} onChange={handleInputChange} style={{ cursor: 'pointer' }}>
-                    {BRANDS_LIST.map(b => <option key={b} value={b}>{b}</option>)}
+                    {brandOptions.map(b => <option key={b} value={b}>{b}</option>)}
                   </select>
                 </div>
                 <div className="form-group" style={{ margin: 0 }}>

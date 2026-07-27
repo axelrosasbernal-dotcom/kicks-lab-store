@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Navbar from './layouts/Navbar';
 import Store from './pages/Store';
 import Auth from './pages/Auth';
@@ -21,10 +21,28 @@ function App() {
 
   const { isAdmin, roleLoading } = useUserRole(user);
 
+  // Mantiene el AdminPanel montado (aunque oculto) una vez que se visitó,
+  // para que no pierda su estado al navegar a otra sección y volver.
+  const [adminEverActive, setAdminEverActive] = useState(false);
+
+  // Ref con el activeTab actual para usar dentro del listener de auth sin
+  // tener que resuscribirlo cada vez que cambia la pestaña.
+  const activeTabRef = useRef(activeTab);
+  useEffect(() => { activeTabRef.current = activeTab; }, [activeTab]);
+
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
     localStorage.setItem('darkMode', darkMode);
   }, [darkMode]);
+
+  useEffect(() => {
+    if (activeTab === 'admin' && user && isAdmin) {
+      setAdminEverActive(true);
+    }
+    if (!user) {
+      setAdminEverActive(false);
+    }
+  }, [activeTab, user, isAdmin]);
 
   useEffect(() => {
     // Check active session on mount
@@ -37,16 +55,16 @@ function App() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setAuthLoading(false);
-      
+
       // Redirect on login or logout appropriately
       if (session?.user) {
         // Logged in
-        if (activeTab === 'auth') {
+        if (activeTabRef.current === 'auth') {
           setActiveTab('store');
         }
       } else {
         // Logged out
-        if (activeTab === 'admin') {
+        if (activeTabRef.current === 'admin') {
           setActiveTab('store');
         }
       }
@@ -55,7 +73,7 @@ function App() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [activeTab]);
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -113,7 +131,9 @@ function App() {
           setActiveTab('store');
           return <Store onCartChange={setCartCount} cartOpenSignal={cartOpenSignal} genderFilter={genderFilter} />;
         }
-        return <AdminPanel />;
+        // El AdminPanel se renderiza de forma persistente más abajo (ver adminEverActive)
+        // para no perder su estado al navegar a otra sección y volver.
+        return null;
       default:
         return <Store />;
     }
@@ -139,6 +159,11 @@ function App() {
       {/* Main Content Area */}
       <main className="main-content">
         {renderContent()}
+        {adminEverActive && (
+          <div style={{ display: activeTab === 'admin' && user && isAdmin ? 'block' : 'none' }}>
+            <AdminPanel />
+          </div>
+        )}
       </main>
 
       {/* Chatbot flotante */}
