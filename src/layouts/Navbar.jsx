@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ShoppingCart, Sun, Moon, LogIn, LogOut, Settings, Menu, X } from 'lucide-react';
+import { ShoppingCart, Sun, Moon, Menu, X } from 'lucide-react';
 import logoImg from '../assets/logo.png';
 
 function useIsMobile(breakpoint = 768) {
@@ -41,7 +41,9 @@ const SCROLL_MAP = {
   'Contacto':             'contacto',
 };
 
-export default function Navbar({ user, isAdmin, activeTab, setActiveTab, onSignOut, darkMode, onToggleDarkMode, cartCount = 0, onCartClick, genderFilter, setGenderFilter }) {
+// Navbar pública: sólo la ven los clientes. No tiene login ni acceso al panel
+// admin — a eso se entra escribiendo /admin en la URL.
+export default function Navbar({ darkMode, onToggleDarkMode, cartCount = 0, onCartClick, genderFilter, setGenderFilter }) {
   const [activeNavItem, setActiveNavItem] = useState('Novedades');
   const [pillStyle, setPillStyle] = useState({ left: 0, width: 0, opacity: 0 });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -87,7 +89,6 @@ export default function Navbar({ user, isAdmin, activeTab, setActiveTab, onSignO
 
   const handleNavClick = (item) => {
     setActiveNavItem(item);
-    setActiveTab('store');
     setMobileMenuOpen(false);
     if (SCROLL_MAP[item]) {
       setTimeout(() => document.getElementById(SCROLL_MAP[item])?.scrollIntoView({ behavior: 'smooth' }), 80);
@@ -118,7 +119,7 @@ export default function Navbar({ user, isAdmin, activeTab, setActiveTab, onSignO
 
         {/* Circular Logo */}
         <div
-          onClick={() => { setActiveTab('store'); setMobileMenuOpen(false); }}
+          onClick={() => { setMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
           style={{ cursor: 'pointer', flexShrink: 0 }}
           onMouseEnter={e => e.currentTarget.firstChild.style.boxShadow = '0 0 0 2px rgba(255,215,0,0.7), 0 6px 24px rgba(0,0,0,0.7)'}
           onMouseLeave={e => e.currentTarget.firstChild.style.boxShadow = '0 0 0 2px rgba(255,215,0,0.35), 0 4px 18px rgba(0,0,0,0.6)'}
@@ -180,7 +181,7 @@ export default function Navbar({ user, isAdmin, activeTab, setActiveTab, onSignO
           </div>
         )}
 
-        {/* Right: Dark Mode + Cart + Auth (desktop) / Hamburger (mobile) */}
+        {/* Right: Dark Mode + Cart / Hamburger (mobile) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
 
           {/* Dark mode toggle — always visible */}
@@ -228,79 +229,6 @@ export default function Navbar({ user, isAdmin, activeTab, setActiveTab, onSignO
             )}
           </div>
 
-          {/* Auth buttons — desktop only */}
-          {!isMobile && (
-            user ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                {isAdmin && (
-                  <button
-                    onClick={() => setActiveTab('admin')}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: activeTab === 'admin' ? '#ff3f3f' : 'var(--text-secondary)',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.3rem',
-                      fontSize: '0.88rem',
-                      fontWeight: 600,
-                      fontFamily: 'inherit',
-                      padding: '0.4rem 0.5rem',
-                      borderRadius: '6px',
-                      transition: 'color 0.2s'
-                    }}
-                  >
-                    <Settings size={15} />
-                    Admin
-                  </button>
-                )}
-                <button
-                  onClick={onSignOut}
-                  style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid var(--glass-border)',
-                    borderRadius: '6px',
-                    padding: '0.4rem 0.7rem',
-                    color: 'var(--text-secondary)',
-                    cursor: 'pointer',
-                    fontSize: '0.82rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.35rem',
-                    fontFamily: 'inherit',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  <LogOut size={14} />
-                  Salir
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setActiveTab('auth')}
-                style={{
-                  background: 'var(--accent-gradient)',
-                  border: 'none',
-                  borderRadius: '7px',
-                  padding: '0.45rem 1rem',
-                  color: '#fff',
-                  cursor: 'pointer',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.35rem',
-                  fontFamily: 'inherit',
-                  boxShadow: '0 2px 10px rgba(255,63,63,0.25)'
-                }}
-              >
-                <LogIn size={14} />
-                Ingresar
-              </button>
-            )
-          )}
-
           {/* Hamburger button — mobile only */}
           {isMobile && (
             <button
@@ -336,7 +264,7 @@ export default function Navbar({ user, isAdmin, activeTab, setActiveTab, onSignO
           <div style={{ padding: '0.75rem 1.25rem 1.5rem' }}>
 
             {/* Nav links */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
               {NAV_ITEMS.map((item) => {
                 const active = activeNavItem === item;
                 return (
@@ -365,84 +293,6 @@ export default function Navbar({ user, isAdmin, activeTab, setActiveTab, onSignO
               })}
             </div>
 
-            {/* Divider */}
-            <div style={{ height: '1px', background: 'var(--border-color)', marginBottom: '1rem' }} />
-
-            {/* Auth section */}
-            {user ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {isAdmin && (
-                  <button
-                    onClick={() => { setActiveTab('admin'); setMobileMenuOpen(false); }}
-                    style={{
-                      background: activeTab === 'admin' ? 'rgba(255,63,63,0.1)' : 'rgba(255,255,255,0.05)',
-                      border: `1px solid ${activeTab === 'admin' ? 'rgba(255,63,63,0.3)' : 'var(--glass-border)'}`,
-                      color: activeTab === 'admin' ? '#ff3f3f' : 'var(--text-secondary)',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      fontSize: '0.9rem',
-                      fontWeight: 600,
-                      fontFamily: 'inherit',
-                      padding: '0.7rem 1rem',
-                      borderRadius: '8px',
-                      transition: 'all 0.2s',
-                      width: '100%',
-                    }}
-                  >
-                    <Settings size={16} />
-                    Panel Admin
-                  </button>
-                )}
-                <button
-                  onClick={() => { onSignOut(); setMobileMenuOpen(false); }}
-                  style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid var(--glass-border)',
-                    borderRadius: '8px',
-                    padding: '0.7rem 1rem',
-                    color: 'var(--text-secondary)',
-                    cursor: 'pointer',
-                    fontSize: '0.9rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    fontFamily: 'inherit',
-                    transition: 'all 0.2s',
-                    width: '100%',
-                  }}
-                >
-                  <LogOut size={16} />
-                  Cerrar sesión
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => { setActiveTab('auth'); setMobileMenuOpen(false); }}
-                style={{
-                  background: 'var(--accent-gradient)',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '0.8rem 1rem',
-                  color: '#fff',
-                  cursor: 'pointer',
-                  fontSize: '0.95rem',
-                  fontWeight: 700,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                  fontFamily: 'inherit',
-                  boxShadow: '0 2px 14px rgba(255,63,63,0.3)',
-                  width: '100%',
-                  letterSpacing: '0.02em',
-                }}
-              >
-                <LogIn size={16} />
-                Ingresar
-              </button>
-            )}
           </div>
         </div>
       )}

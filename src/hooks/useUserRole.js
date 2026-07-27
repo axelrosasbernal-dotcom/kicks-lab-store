@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../integrations/supabase/supabaseClient';
-
-const ADMIN_EMAIL = 'axelrosasbernal@gmail.com';
+import { ADMIN_EMAIL } from '../constants/admin';
 
 export function useUserRole(user) {
   const [role, setRole] = useState(null);

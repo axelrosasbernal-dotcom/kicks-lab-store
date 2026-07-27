@@ -351,6 +351,11 @@ button, input, textarea, select {
     display: none !important;
   }
 
+  /* En la barra de /admin dejamos sólo los iconos para que entren en pantalla */
+  .admin-bar-label {
+    display: none;
+  }
+
   .main-content {
     padding: 1.25rem 1rem;
   }

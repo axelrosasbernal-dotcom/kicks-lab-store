@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import Navbar from './layouts/Navbar';
+import AdminBar from './layouts/AdminBar';
 import Store from './pages/Store';
-import Auth from './pages/Auth';
+import AdminLogin from './pages/AdminLogin';
 import AdminPanel from './pages/AdminPanel';
 import { supabase } from './integrations/supabase/supabaseClient';
 import { useUserRole } from './hooks/useUserRole';
@@ -9,7 +11,6 @@ import ChatBot from './components/ChatBot';
 
 function App() {
   const [user, setUser] = useState(null);
-  const [activeTab, setActiveTab] = useState('store');
   const [authLoading, setAuthLoading] = useState(true);
   const [cartCount, setCartCount] = useState(0);
   const [cartOpenSignal, setCartOpenSignal] = useState(0);
@@ -21,14 +22,16 @@ function App() {
 
   const { isAdmin, roleLoading } = useUserRole(user);
 
-  // Mantiene el AdminPanel montado (aunque oculto) una vez que se visitó,
-  // para que no pierda su estado al navegar a otra sección y volver.
-  const [adminEverActive, setAdminEverActive] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isAdminRoute = location.pathname === '/admin';
 
-  // Ref con el activeTab actual para usar dentro del listener de auth sin
-  // tener que resuscribirlo cada vez que cambia la pestaña.
-  const activeTabRef = useRef(activeTab);
-  useEffect(() => { activeTabRef.current = activeTab; }, [activeTab]);
+  // El panel real sólo se muestra si estamos en /admin, logueados y con rol admin.
+  const adminReady = isAdminRoute && !!user && isAdmin;
+
+  // Mantiene el AdminPanel montado (aunque oculto) una vez que se visitó,
+  // para que no pierda su estado al navegar a la tienda y volver.
+  const [adminEverActive, setAdminEverActive] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
@@ -36,13 +39,13 @@ function App() {
   }, [darkMode]);
 
   useEffect(() => {
-    if (activeTab === 'admin' && user && isAdmin) {
+    if (adminReady) {
       setAdminEverActive(true);
     }
     if (!user) {
       setAdminEverActive(false);
     }
-  }, [activeTab, user, isAdmin]);
+  }, [adminReady, user]);
 
   useEffect(() => {
     // Check active session on mount
@@ -51,23 +54,11 @@ function App() {
       setAuthLoading(false);
     });
 
-    // Listen for auth changes
+    // Listen for auth changes. No hace falta redirigir: la ruta /admin ya
+    // decide sola si mostrar el login o el panel según haya sesión o no.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setAuthLoading(false);
-
-      // Redirect on login or logout appropriately
-      if (session?.user) {
-        // Logged in
-        if (activeTabRef.current === 'auth') {
-          setActiveTab('store');
-        }
-      } else {
-        // Logged out
-        if (activeTabRef.current === 'admin') {
-          setActiveTab('store');
-        }
-      }
     });
 
     return () => {
@@ -80,93 +71,92 @@ function App() {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       setUser(null);
-      setActiveTab('store');
+      navigate('/');
     } catch (error) {
       console.error('Error logging out:', error.message);
       // In offline/demo mode, just clear it locally
       setUser(null);
-      setActiveTab('store');
+      navigate('/');
     }
   };
 
-  const renderContent = () => {
-    if (authLoading || (user && roleLoading)) {
+  const spinner = (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '50vh',
+      color: 'var(--text-secondary)'
+    }}>
+      <div style={{
+        width: '30px',
+        height: '30px',
+        border: '2px solid rgba(255, 63, 63, 0.1)',
+        borderTopColor: '#ff3f3f',
+        borderRadius: '50%',
+        animation: 'spin 1s linear infinite'
+      }} />
+    </div>
+  );
+
+  // Contenido de /admin. El AdminPanel en sí se renderiza de forma persistente
+  // más abajo (ver adminEverActive) para no perder su estado al ir y volver.
+  const renderAdminRoute = () => {
+    if (authLoading || (user && roleLoading)) return spinner;
+    if (!user) return <AdminLogin onAuthSuccess={(u) => setUser(u)} />;
+    if (!isAdmin) {
       return (
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '50vh',
-          color: 'var(--text-secondary)'
-        }}>
-          <div style={{
-            width: '30px',
-            height: '30px',
-            border: '2px solid rgba(255, 63, 63, 0.1)',
-            borderTopColor: '#ff3f3f',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite'
-          }} />
+        <div style={{ textAlign: 'center', padding: '4rem 1.5rem', color: 'var(--text-secondary)' }}>
+          <p style={{ marginBottom: '1rem' }}>Esta cuenta no tiene permisos de administración.</p>
+          <button onClick={handleSignOut} className="btn-secondary">Cerrar sesión</button>
         </div>
       );
     }
-
-    switch (activeTab) {
-      case 'store':
-        return <Store onCartChange={setCartCount} cartOpenSignal={cartOpenSignal} genderFilter={genderFilter} />;
-      case 'auth':
-        return <Auth onAuthSuccess={(u) => {
-          setUser(u);
-          setActiveTab('store');
-        }} />;
-      case 'admin':
-        if (!user) {
-          return <Auth onAuthSuccess={(u) => {
-            setUser(u);
-            setActiveTab('admin');
-          }} />;
-        }
-        if (!isAdmin) {
-          // No autorizado: redirigir a tienda
-          setActiveTab('store');
-          return <Store onCartChange={setCartCount} cartOpenSignal={cartOpenSignal} genderFilter={genderFilter} />;
-        }
-        // El AdminPanel se renderiza de forma persistente más abajo (ver adminEverActive)
-        // para no perder su estado al navegar a otra sección y volver.
-        return null;
-      default:
-        return <Store />;
-    }
+    return null;
   };
 
   return (
     <div className="app-container">
-      {/* Header Navigation */}
-      <Navbar
-        user={user}
-        isAdmin={isAdmin}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onSignOut={handleSignOut}
-        darkMode={darkMode}
-        onToggleDarkMode={() => setDarkMode(prev => !prev)}
-        cartCount={cartCount}
-        onCartClick={() => setCartOpenSignal(s => s + 1)}
-        genderFilter={genderFilter}
-        setGenderFilter={setGenderFilter}
-      />
+      {/* Header: la Navbar es sólo para clientes; /admin tiene su propia barra */}
+      {isAdminRoute ? (
+        <AdminBar
+          user={user}
+          darkMode={darkMode}
+          onToggleDarkMode={() => setDarkMode(prev => !prev)}
+          onSignOut={handleSignOut}
+          onGoToStore={() => navigate('/')}
+        />
+      ) : (
+        <Navbar
+          darkMode={darkMode}
+          onToggleDarkMode={() => setDarkMode(prev => !prev)}
+          cartCount={cartCount}
+          onCartClick={() => setCartOpenSignal(s => s + 1)}
+          genderFilter={genderFilter}
+          setGenderFilter={setGenderFilter}
+        />
+      )}
 
       {/* Main Content Area */}
       <main className="main-content">
-        {renderContent()}
+        <Routes>
+          <Route
+            path="/"
+            element={<Store onCartChange={setCartCount} cartOpenSignal={cartOpenSignal} genderFilter={genderFilter} />}
+          />
+          <Route path="/admin" element={renderAdminRoute()} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
         {adminEverActive && (
-          <div style={{ display: activeTab === 'admin' && user && isAdmin ? 'block' : 'none' }}>
+          <div style={{ display: adminReady ? 'block' : 'none' }}>
             <AdminPanel />
           </div>
         )}
       </main>
 
-      {/* Chatbot flotante */}
+      {/* Chatbot, WhatsApp y footer: sólo en la tienda, no en /admin */}
+      {!isAdminRoute && (
+      <>
       <ChatBot />
 
       {/* Floating WhatsApp Button */}
@@ -239,6 +229,8 @@ function App() {
           </div>
         </div>
       </footer>
+      </>
+      )}
     </div>
   );
 }
